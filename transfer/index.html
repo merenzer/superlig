@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v8 | Ultimate</title>
+    <title>Transfer Ligi v8.1 | Fixed & Secure</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -18,10 +18,10 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-body); color: var(--text-main);
-            margin: 0; padding-bottom: 300px; /* Admin paneli için boşluk */
+            margin: 0; padding-bottom: 300px;
         }
 
-        /* --- GİRİŞ EKRANI (v6 DESIGN) --- */
+        /* --- GİRİŞ EKRANI --- */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(10, 10, 10, 0.98); z-index: 9999;
@@ -44,9 +44,10 @@
         .team-btn {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
             color: var(--text-muted); padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 10;
         }
         .team-btn:hover { background: var(--accent-blue); color: #000; transform: translateY(-5px); border-color: var(--accent-blue); }
+        .team-btn:active { transform: scale(0.95); } /* Tıklama efekti */
         .team-btn i { font-size: 1.5rem; }
 
         /* --- ŞİFRE MODALI --- */
@@ -66,11 +67,11 @@
             text-align: center; font-size: 1.5rem; letter-spacing: 5px; outline: none;
         }
 
-        /* --- ADMIN TRAFİK POLİSİ (v7 LOGIC) --- */
+        /* --- ADMIN PANELİ --- */
         #adminPanel {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 260px;
             background-color: #0d0d0d; border-top: 1px solid var(--danger);
-            z-index: 8000; display: none; /* Login olunca açılacak */
+            z-index: 8000; display: none;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
         }
         .admin-sidebar {
@@ -116,7 +117,7 @@
         .tab-btn.active { background: var(--accent-blue); color: #121212; border-color: var(--accent-blue); }
         .tab-btn.scout-active { background: var(--accent-gold); border-color:var(--accent-gold); color:black; }
 
-        /* --- KARTLAR & GRID (v6 DESIGN) --- */
+        /* --- KARTLAR --- */
         .section-container { display: none; max-width: 1200px; margin: 30px auto; padding: 0 20px; animation: fadeIn 0.5s; }
         .section-container.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -142,17 +143,12 @@
             box-shadow: 0 0 10px rgba(44, 182, 125, 0.3);
         }
 
-        .status-badge { 
-            font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; margin-left: auto; font-weight: bold;
-        }
+        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; margin-left: auto; font-weight: bold; }
         .st-free { background: rgba(61, 169, 252, 0.2); color: var(--accent-blue); }
         .st-pending { background: rgba(255, 215, 0, 0.2); color: var(--accent-gold); }
         .st-neg { background: rgba(44, 182, 125, 0.2); color: var(--accent-green); }
 
-        .card-stats {
-            padding: 15px 20px; background: rgba(255,255,255,0.02);
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;
-        }
+        .card-stats { padding: 15px 20px; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; }
         .stat-item span { color: #888; display: block; font-size: 0.75rem; text-transform:uppercase; }
         .stat-item strong { color: #eee; }
 
@@ -207,7 +203,7 @@
 </div>
 
 <header>
-    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER HUB v8</div>
+    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER HUB v8.1</div>
     <div class="user-profile">
         <div class="user-info">
             <div id="headerTeamCode">--</div>
@@ -225,8 +221,7 @@
 </div>
 
 <div id="transfer" class="section-container active">
-    <div class="grid" id="playerGrid">
-        </div>
+    <div class="grid" id="playerGrid"></div>
 </div>
 <div id="scout" class="section-container">
     <div style="text-align:center; color:#888; margin-top:50px;">Scout sistemi veritabanına bağlanıyor...</div>
@@ -258,11 +253,11 @@
 
 <script>
     // --- SİSTEM DEĞİŞKENLERİ ---
-    let currentUser = null; // { name: "Galatasaray", code: "GS", rep: 85 }
+    let currentUser = null; 
     let pendingLogin = null;
-    let actionQueue = []; // Trafik polisinin iş listesi
+    let actionQueue = []; 
     
-    // RAKİP KULÜPLER (Yapay Zeka)
+    // RAKİP KULÜPLER
     const npcTeams = [
         { name: "Galatasaray", reputation: 85 },
         { name: "Fenerbahçe", reputation: 85 },
@@ -272,7 +267,7 @@
         { name: "Hull City", reputation: 60 }
     ];
 
-    // OYUNCU VERİTABANI (status: 'free', 'pending', 'negotiating', 'sold')
+    // OYUNCU VERİTABANI
     const playersDB = [
         { id: 1, name: "Aral Şimşir", team: "Midtjylland", pos: "LW", rating: 74, val: 8000000, status: 'free', offers: [] },
         { id: 2, name: "Can Uzun", team: "Nürnberg", pos: "CAM", rating: 76, val: 12000000, status: 'free', offers: [] },
@@ -285,7 +280,7 @@
         checkSession();
     };
 
-    // --- GÜVENLİK VE GİRİŞ (v5.5 Logic) ---
+    // --- GİRİŞ SİSTEMİ ---
     function openPassModal(name, code, rep, pass) {
         pendingLogin = { name, code, rep, pass };
         document.getElementById('passTitle').innerText = name + " Girişi";
@@ -311,14 +306,12 @@
         currentUser = user;
         localStorage.setItem('activeUser_v8', JSON.stringify(user));
         
-        // UI Güncelle
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('headerTeamName').innerText = user.name;
         document.getElementById('headerTeamCode').innerText = "MENAJER";
         document.getElementById('headerAvatar').innerText = user.code;
         document.getElementById('headerRep').innerText = user.rep;
         
-        // Admin Paneli ve Listeyi Aç
         document.getElementById('adminPanel').style.display = 'flex';
         renderPlayers();
     }
@@ -333,7 +326,7 @@
         location.reload();
     }
 
-    // --- OYUNCU LİSTELEME (v6 Visuals) ---
+    // --- OYUNCU LİSTELEME ---
     function renderPlayers() {
         const grid = document.getElementById('playerGrid');
         grid.innerHTML = "";
@@ -352,10 +345,9 @@
             } else if (p.status === 'negotiating') {
                 statusBadge = `<span class="status-badge st-neg">🤝 Görüşme Masası</span>`;
                 btnText = "SÖZLEŞME ÖNER";
-                btnAction = `alert('Faz 2 (Maaş) henüz aktif değil.')`;
+                btnAction = `alert('Faz 2 (Maaş) yakında...')`;
             }
 
-            // KART HTML
             grid.innerHTML += `
             <div class="player-card">
                 <div class="card-header">
@@ -367,7 +359,7 @@
                     ${statusBadge}
                 </div>
                 <div class="card-stats">
-                    <div class="stat-item"><span>Değer</span> <strong>${(p.val/1000000)}M €</strong></div>
+                    <div class="stat-item"><span>Değer</span> <strong>${(p.val/1000000).toFixed(1)}M €</strong></div>
                     <div class="stat-item"><span>Teklifler</span> <strong>${p.offers.length} Adet</strong></div>
                 </div>
                 <div class="card-actions">
@@ -378,7 +370,7 @@
         });
     }
 
-    // --- TEKLİF MANTIĞI (v7 Logic) ---
+    // --- TEKLİF MANTIĞI ---
     function submitOffer(id) {
         if(!currentUser) return;
         const p = playersDB.find(x => x.id === id);
@@ -386,7 +378,6 @@
         const offerAmount = prompt(`${p.name} için teklifiniz (€):`, p.val);
         if(!offerAmount) return;
 
-        // Teklifi kaydet
         const offer = {
             from: currentUser.name,
             reputation: currentUser.rep,
@@ -397,10 +388,7 @@
         p.offers.push(offer);
         p.status = 'pending';
         
-        // Trafik polisine gönder
         addToQueue('transfer_bid', p.id, offer);
-        
-        // RAKİP HAMLESİ (Simülasyon)
         generateRivalOffer(p);
         
         renderPlayers();
@@ -408,14 +396,13 @@
     }
 
     function generateRivalOffer(p) {
-        // Kendi kendine teklif yapmasın
         const rivals = npcTeams.filter(t => t.name !== currentUser.name);
         const randomRival = rivals[Math.floor(Math.random() * rivals.length)];
         
         const rivalOffer = {
             from: randomRival.name,
             reputation: randomRival.reputation,
-            amount: Math.floor(p.val * ((Math.random()*0.4)+0.8)), // %80-%120 arası
+            amount: Math.floor(p.val * ((Math.random()*0.4)+0.8)),
             isUser: false
         };
         
@@ -423,7 +410,7 @@
         logToConsole(`⚠️ RAKİP: ${randomRival.name} da teklif verdi!`, "log-fail");
     }
 
-    // --- ADMIN / TRAFİK POLİSİ MOTORU ---
+    // --- ADMIN / SİMÜLASYON ---
     function addToQueue(type, pId, data) {
         actionQueue.push({ type, pId, data });
         document.getElementById('queueCount').innerText = actionQueue.length;
@@ -444,16 +431,14 @@
         logToConsole("--- ZAMAN İLERLETİLİYOR ---");
         
         setTimeout(() => {
-            // Kuyruktaki her işlemi yapay zekaya sor
             actionQueue.forEach(action => {
                 if(action.type === 'transfer_bid') {
                     processAI(action.pId);
                 }
             });
-            
-            actionQueue = []; // Kuyruğu boşalt
+            actionQueue = [];
             document.getElementById('queueCount').innerText = 0;
-            renderPlayers(); // Durumları güncelle
+            renderPlayers();
         }, 800);
     }
 
@@ -465,13 +450,13 @@
         let maxScore = 0;
 
         p.offers.forEach(o => {
-            // YAPAY ZEKA FORMÜLÜ: (Para * 0.7) + (İtibar * 50000)
             const score = (o.amount * 0.7) + (o.reputation * 50000);
             if(score > maxScore) { maxScore = score; bestOffer = o; }
         });
 
         if(bestOffer.amount < p.val * 0.9) {
-            logToConsole(`❌ ${p.team}: "Teklifler yetersiz (${(bestOffer.amount/1M).toFixed(1)}M). Reddettik."`, "log-fail");
+            // DÜZELTİLEN SATIR: 1M hatası 1000000 ile değiştirildi
+            logToConsole(`❌ ${p.team}: "Teklifler yetersiz (${(bestOffer.amount/1000000).toFixed(1)}M). Reddettik."`, "log-fail");
             p.status = 'free'; 
             p.offers = [];
         } else {
@@ -481,7 +466,7 @@
                 p.status = 'negotiating';
                 logToConsole(`🎉 TEBRİKLER! Kulüple anlaşıldı. Oyuncuyla masaya oturun.`, "log-success");
             } else {
-                p.status = 'free'; // Rakip aldı, şimdilik boşa düşürelim
+                p.status = 'free'; 
                 logToConsole(`😞 Oyuncu ${bestOffer.from} ile görüşmeye gitti.`, "log-fail");
             }
         }
