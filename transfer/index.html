@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scout & Transfer v3</title>
+    <title>Scout & Transfer Merkezi | Dark Mode</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-body: #121212;
-            --bg-card: #1e1e1e;
-            --bg-darker: #0d0d0d;
-            --text-main: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --accent-blue: #3da9fc;
-            --accent-green: #2cb67d;
-            --accent-gold: #ffd700;
-            --danger: #ef476f;
-            --border: #333;
+            /* DARK MODE RENK PALETİ */
+            --bg-body: #121212;       /* Ana Arka Plan */
+            --bg-card: #1e1e1e;       /* Kart Arka Planı */
+            --bg-input: #2c2c2c;      /* Input Alanları */
+            --text-main: #e0e0e0;     /* Ana Yazı Rengi */
+            --text-muted: #a0a0a0;    /* Yan Yazı Rengi */
+            
+            --accent-blue: #3da9fc;   /* Parlak Mavi (Vurgu) */
+            --accent-green: #2cb67d;  /* Onay/Yeşil */
+            --border-color: #333333;  /* Çerçeve Rengi */
         }
 
         body {
@@ -25,371 +25,432 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             margin: 0;
-            padding-bottom: 50px;
+            line-height: 1.6;
         }
 
-        /* HEADER & NAV */
+        /* Üst Menü */
         header {
             background-color: var(--bg-card);
-            padding: 0 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        .brand { font-size: 1.2rem; font-weight: 800; color: var(--accent-blue); }
-        .brand i { margin-right: 8px; }
-
-        .wallet {
-            background: rgba(44, 182, 125, 0.1);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            font-weight: bold;
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
         }
 
-        /* TAB MENU */
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            background: var(--bg-darker);
-            padding: 10px 0;
-            gap: 20px;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
+        header .user-menu {
+            font-size: 0.9rem;
             color: var(--text-muted);
-            font-size: 1rem;
-            padding: 10px 20px;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: 0.3s;
-        }
-
-        .tab-btn:hover { color: var(--text-main); }
-        .tab-btn.active { 
-            color: var(--accent-blue); 
-            border-bottom-color: var(--accent-blue); 
-            font-weight: bold;
-        }
-
-        /* CONTAINERS */
-        .section-container {
-            display: none; /* JS ile açıp kapatacağız */
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        .section-container.active { display: block; }
-
-        /* SEARCH AREA (TRANSFER) */
-        .search-area {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px;
-            background: var(--bg-card);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .search-input {
-            padding: 12px;
-            width: 60%;
-            background: #2c2c2c;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 6px;
         }
         
-        .btn-action {
-            padding: 12px 20px;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            color: #121212;
+        header .user-menu:hover { color: var(--accent-blue); }
+
+        /* Arama / Scout Alanı */
+        .scout-container {
+            background: var(--bg-card);
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .scout-container h2 { margin-top: 0; color: var(--white); }
+        .scout-container p { color: var(--text-muted); }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
             transition: 0.3s;
         }
-        .btn-blue { background: var(--accent-blue); }
-        .btn-blue:hover { background: #2b90d9; }
 
-        /* GRID SYSTEM */
-        .grid {
+        .search-box input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 8px rgba(61, 169, 252, 0.3);
+        }
+
+        .search-box button {
+            padding: 15px 30px;
+            background-color: var(--accent-blue);
+            color: #121212;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: #3496db;
+            transform: translateY(-2px);
+        }
+
+        /* Sonuç Alanı */
+        .results-info {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .player-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 25px;
+            padding: 0 20px 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        /* CARD DESIGN */
-        .card {
+        /* Oyuncu Kartı Tasarımı (Dark) */
+        .player-card {
             background: var(--bg-card);
-            border-radius: 10px;
-            border: 1px solid var(--border);
+            border-radius: 12px;
             overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
             position: relative;
-            transition: transform 0.2s;
         }
-        .card:hover { transform: translateY(-5px); border-color: #555; }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-color: #444;
+        }
 
         .card-header {
-            padding: 15px;
+            padding: 20px;
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .rating {
-            width: 40px; height: 40px;
+        .rating-circle {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #2c3e50, #000);
+            border: 2px solid var(--accent-green);
+            color: var(--accent-green);
             border-radius: 50%;
-            background: #222;
-            border: 2px solid var(--accent-blue);
-            color: var(--accent-blue);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-right: 15px;
+            box-shadow: 0 0 10px rgba(44, 182, 125, 0.2);
+        }
+
+        .player-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-main);
+        }
+
+        .player-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-stats {
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: rgba(255,255,255,0.03);
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .stat-item span { color: var(--text-muted); }
+        .stat-item strong { color: var(--text-main); }
+
+        .card-actions {
+            padding: 20px;
+            margin-top: auto; 
+        }
+
+        .btn-offer {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: var(--accent-green);
+            border: 2px solid var(--accent-green);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-offer:hover { 
+            background-color: var(--accent-green); 
+            color: #121212; 
+        }
+
+        /* MODAL (Karanlık Tema) */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0;
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.85); /* Arka planı daha koyulaştırdık */
+            backdrop-filter: blur(5px); /* Arkası buzlu cam gibi olsun */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px; top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+        
+        .close-modal:hover { color: var(--accent-blue); }
+        
+        .modal h3 { margin-top: 0; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;}
+        
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: var(--bg-input); 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px; 
+            color: var(--text-main);
+            box-sizing: border-box; /* Padding taşmasını engeller */
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+        
+        .btn-submit { 
+            background-color: var(--accent-blue); 
+            color: #121212; 
+            width: 100%; 
+            padding: 12px; 
+            border:none; 
+            border-radius:6px; 
             font-weight: bold;
-            margin-right: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
         }
-
-        .card-body { padding: 15px; font-size: 0.9rem; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-muted); }
-        .stat-val { color: var(--text-main); font-weight: 600; }
-
-        .card-footer { padding: 15px; }
-        .btn-full { width: 100%; padding: 10px; border-radius: 5px; border:none; cursor: pointer; font-weight: bold; }
-        .btn-buy { background: var(--accent-green); color: #000; }
         
-        /* SCOUT / HIDDEN CARD DESIGN */
-        .card.hidden-player .rating { border-color: var(--text-muted); color: var(--text-muted); }
-        .card.hidden-player h3 { filter: blur(4px); user-select: none; }
-        .card.hidden-player .card-body { opacity: 0.5; }
-        
-        .btn-scout { 
-            background: var(--accent-gold); 
-            color: #000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 5px; 
-        }
-        .btn-scout:hover { background: #e5c100; }
+        .btn-submit:hover { background-color: #3496db; }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; justify-content:center; align-items:center; }
-        .modal-content { background: var(--bg-card); padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); }
-        
     </style>
 </head>
 <body>
 
 <header>
-    <div class="brand"><i class="fas fa-gamepad"></i> SIMÜLASYON</div>
-    <div class="wallet">
-        <i class="fas fa-wallet"></i> <span id="teamBudget">5.000.000</span> €
+    <div class="logo">
+        <i class="fas fa-shield-alt" style="color:var(--accent-green)"></i> 
+        DISCORD LIGI <span style="font-size:0.8em; opacity:0.7;">MANAGER</span>
     </div>
+    <div class="user-menu"><i class="fas fa-user-circle"></i> Menajer Paneli</div>
 </header>
 
-<div class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('transfer')">Transfer Merkezi</button>
-    <button class="tab-btn" onclick="switchTab('scout')">Scout Ofisi</button>
+<div class="scout-container">
+    <h2><i class="fas fa-binoculars" style="color:var(--accent-blue)"></i> Scout Merkezi</h2>
+    <p>Lig veritabanında oyuncu arayın.</p>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Oyuncu adı giriniz (Örn: Icardi)..." autocomplete="off">
+        <button onclick="scoutPlayers()"><i class="fas fa-search"></i> BUL</button>
+    </div>
 </div>
 
-<div id="transfer" class="section-container active">
-    <div class="search-area">
-        <h2><i class="fas fa-globe-americas"></i> Global Transfer Pazarı</h2>
-        <p style="color:var(--text-muted)">Bilinen 11.000 oyuncu arasında arama yapın.</p>
-        <br>
-        <input type="text" id="transferSearch" class="search-input" placeholder="Oyuncu adı yazın (Örn: Icardi)...">
-        <button class="btn-action btn-blue" onclick="searchTransfer()">Ara</button>
-        <p id="transferMsg" style="margin-top:10px; font-size:0.9rem; color:var(--text-muted)"></p>
-    </div>
-    <div class="grid" id="transferGrid"></div>
-</div>
+<div class="results-info" id="resultInfo"></div>
 
-<div id="scout" class="section-container">
-    <div class="search-area" style="border-color: var(--accent-gold);">
-        <h2 style="color:var(--accent-gold)"><i class="fas fa-user-secret"></i> Yetenek Avcısı</h2>
-        <p style="color:var(--text-muted)">Bu oyuncuların kimlikleri gizli. Rapor isteyerek özelliklerini açın.</p>
-        <p><small>Her rapor bedeli: <strong>500.000 €</strong></small></p>
+<div class="player-grid" id="playerGrid">
     </div>
-    <div class="grid" id="scoutGrid"></div>
+
+<div id="offerModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h3 id="modalPlayerName">Oyuncu Adı</h3>
+        
+        <div class="form-group">
+            <label>İşlem Türü</label>
+            <select id="offerType">
+                <option value="Bonservis">📝 Bonservis (Satın Alma)</option>
+                <option value="Kiralik">🤝 Kiralama</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Teklif Miktarı (€)</label>
+            <input type="number" id="offerAmount" placeholder="Örn: 5000000">
+        </div>
+
+        <div class="form-group">
+            <label>Takımınız</label>
+            <input type="text" id="teamName" placeholder="Takım isminiz">
+        </div>
+
+        <button class="btn-submit" onclick="submitOffer()">TEKLİFİ GÖNDER</button>
+    </div>
 </div>
 
 <script>
-    // --- VERİTABANI SİMÜLASYONU ---
-    
-    // Takım Bütçesi
-    let budget = 15000000; 
-    const scoutCost = 500000;
-
-    // Oyuncu Veritabanı
-    // type: 'public' -> Transfer Merkezinde görünür
-    // type: 'hidden' -> Scout Ofisinde görünür (isRevealed: false başlar)
-    const playersDB = [
-        // AÇIK OYUNCULAR (Transfer Merkezi)
-        { id: 1, type: 'public', name: "Mauro Icardi", team: "Galatasaray", pos: "ST", rating: 83, age: 31, val: "20M €" },
-        { id: 2, type: 'public', name: "Edin Dzeko", team: "Fenerbahçe", pos: "ST", rating: 81, age: 37, val: "4M €" },
-        { id: 3, type: 'public', name: "Muslera", team: "Galatasaray", pos: "GK", rating: 80, age: 37, val: "2M €" },
-        
-        // GİZLİ OYUNCULAR (Scout Listesi - 2000'lik liste buraya gelecek)
-        { id: 101, type: 'hidden', isRevealed: false, name: "Wonderkid A", realName: "Arda Güler (Genç)", region: "Türkiye", pos: "CAM", rating: 78, age: 18, val: "10M €" },
-        { id: 102, type: 'hidden', isRevealed: false, name: "Samba Boy", realName: "Endrick", region: "Brezilya", pos: "ST", rating: 75, age: 17, val: "15M €" },
-        { id: 103, type: 'hidden', isRevealed: false, name: "French Wall", realName: "Yoro", region: "Fransa", pos: "CB", rating: 76, age: 18, val: "12M €" },
-        { id: 104, type: 'hidden', isRevealed: false, name: "German Engine", realName: "Wirtz", region: "Almanya", pos: "CAM", rating: 85, age: 20, val: "80M €" },
+    // --- ÖRNEK VERİ (Senin listeni buraya bağlayacağız) ---
+    const playersData = [
+        { id: 1, name: "Mauro Icardi", team: "Galatasaray", position: "ST", rating: 83, age: 31, value: "20.000.000 €" },
+        { id: 2, name: "Edin Dzeko", team: "Fenerbahçe", position: "ST", rating: 81, age: 37, value: "4.000.000 €" },
+        { id: 3, name: "Gedson Fernandes", team: "Beşiktaş", position: "CM", rating: 79, age: 25, value: "15.000.000 €" },
+        { id: 4, name: "Kevin De Bruyne", team: "Man City", position: "CM", rating: 91, age: 32, value: "70.000.000 €" },
+        { id: 5, name: "Kylian Mbappe", team: "PSG", position: "LW", rating: 92, age: 25, value: "180.000.000 €" }
     ];
 
-    // --- BAŞLANGIÇ ---
-    updateBudgetDisplay();
-    renderScoutList(); // Scout listesi her zaman hazır olsun ama gizli kalsın
+    const playerGrid = document.getElementById('playerGrid');
+    const searchInput = document.getElementById('searchInput');
+    const modal = document.getElementById('offerModal');
+    let selectedPlayer = null;
 
-    // --- FONKSİYONLAR ---
+    // Enter tuşu desteği
+    searchInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            scoutPlayers();
+        }
+    });
 
-    // Sekme Değiştirme
-    function switchTab(tabName) {
-        document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
-    }
+    function scoutPlayers() {
+        const query = searchInput.value.toLowerCase().trim();
+        playerGrid.innerHTML = ""; 
 
-    function updateBudgetDisplay() {
-        document.getElementById('teamBudget').innerText = budget.toLocaleString();
-    }
-
-    // Transfer Arama (Açık Pazar)
-    function searchTransfer() {
-        const query = document.getElementById('transferSearch').value.toLowerCase();
-        const grid = document.getElementById('transferGrid');
-        const msg = document.getElementById('transferMsg');
-        
-        grid.innerHTML = "";
-        
         if(query.length < 2) {
-            msg.innerText = "En az 2 harf giriniz.";
+            document.getElementById('resultInfo').innerText = "Scout sistemini başlatmak için en az 2 harf girin.";
             return;
         }
 
-        // Sadece 'public' olanları filtrele
-        const results = playersDB.filter(p => p.type === 'public' && p.name.toLowerCase().includes(query));
+        const results = playersData.filter(p => p.name.toLowerCase().includes(query));
 
         if(results.length === 0) {
-            msg.innerText = "Oyuncu bulunamadı.";
+            document.getElementById('resultInfo').innerHTML = `<i class="fas fa-times-circle"></i> "${query}" isminde bir oyuncu veritabanında bulunamadı.`;
             return;
         }
 
-        msg.innerText = `${results.length} sonuç bulundu.`;
+        document.getElementById('resultInfo').innerText = `${results.length} oyuncu raporlandı.`;
 
-        results.forEach(p => {
-            const html = `
-                <div class="card">
-                    <div class="card-header">
-                        <div class="rating">${p.rating}</div>
-                        <div>
-                            <h3 style="margin:0">${p.name}</h3>
-                            <small style="color:var(--text-muted)">${p.pos} | ${p.team}</small>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="stat-row"><span>Yaş:</span> <span class="stat-val">${p.age}</span></div>
-                        <div class="stat-row"><span>Değer:</span> <span class="stat-val">${p.val}</span></div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn-full btn-buy" onclick="alert('Teklif modali açılacak: ${p.name}')">TEKLİF YAP</button>
+        results.forEach(player => {
+            const card = document.createElement('div');
+            card.className = 'player-card';
+            
+            // Kart HTML Yapısı
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="rating-circle">${player.rating}</div>
+                    <div class="player-info">
+                        <h3>${player.name}</h3>
+                        <span><i class="fas fa-tshirt"></i> ${player.position} &bull; ${player.team}</span>
                     </div>
                 </div>
+                <div class="card-stats">
+                    <div class="stat-item"><span>Yaş</span> <strong>${player.age}</strong></div>
+                    <div class="stat-item"><span>Piyasa Değeri</span> <strong>${player.value}</strong></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-offer" onclick="openModal('${player.name}')">
+                        <i class="fas fa-file-signature"></i> Teklif Yap
+                    </button>
+                </div>
             `;
-            grid.innerHTML += html;
+            playerGrid.appendChild(card);
         });
     }
 
-    // Scout Listesi (Gizli Pazar)
-    function renderScoutList() {
-        const grid = document.getElementById('scoutGrid');
-        grid.innerHTML = "";
-
-        // Sadece 'hidden' olanları getir
-        const hiddenPlayers = playersDB.filter(p => p.type === 'hidden');
-
-        hiddenPlayers.forEach(p => {
-            if(p.isRevealed) {
-                // EĞER PARASI ÖDENİP AÇILDIYSA -> NORMAL KART GÖSTER
-                const html = `
-                    <div class="card" style="border-color: var(--accent-gold)">
-                        <div class="card-header">
-                            <div class="rating" style="border-color:var(--accent-gold); color:var(--accent-gold)">${p.rating}</div>
-                            <div>
-                                <h3 style="margin:0; color:var(--accent-gold)">${p.realName}</h3>
-                                <small style="color:var(--text-muted)">${p.pos} | ${p.region}</small>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="stat-row"><span>Yaş:</span> <span class="stat-val">${p.age}</span></div>
-                            <div class="stat-row"><span>Değer:</span> <span class="stat-val">${p.val}</span></div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-full btn-buy">TEKLİF YAP</button>
-                        </div>
-                    </div>
-                `;
-                grid.innerHTML += html;
-            } else {
-                // EĞER GİZLİYSE -> BLURLU & SORU İŞARETLİ KART GÖSTER
-                const html = `
-                    <div class="card hidden-player">
-                        <div class="card-header">
-                            <div class="rating">?</div>
-                            <div>
-                                <h3 style="margin:0">Gizli Oyuncu</h3>
-                                <small style="color:var(--text-muted)">${p.pos} | ${p.region}</small>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="stat-row"><span>Tahmini Yaş:</span> <span class="stat-val">${p.age}</span></div>
-                            <div class="stat-row"><span>Bölge:</span> <span class="stat-val">${p.region}</span></div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-full btn-scout" onclick="revealPlayer(${p.id})">
-                                <i class="fas fa-search-dollar"></i> Rapor Al (-500k)
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.innerHTML += html;
-            }
-        });
+    function openModal(playerName) {
+        selectedPlayer = playerName;
+        document.getElementById('modalPlayerName').innerText = playerName;
+        modal.style.display = "flex";
     }
 
-    // Oyuncu Açma (Parayı düş ve kartı güncelle)
-    function revealPlayer(id) {
-        if(budget < scoutCost) {
-            alert("Yetersiz Bakiye! Rapor almak için paranız yok.");
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    function submitOffer() {
+        const amount = document.getElementById('offerAmount').value;
+        const team = document.getElementById('teamName').value;
+        const type = document.getElementById('offerType').value;
+
+        if(!amount || !team) {
+            alert("Eksik bilgi: Lütfen teklif miktarı ve takım adını giriniz.");
             return;
         }
 
-        const player = playersDB.find(p => p.id === id);
+        // Simülasyon mesajı
+        alert(`✅ İŞLEM BAŞARILI!\n\nOyuncu: ${selectedPlayer}\nTakım: ${team}\nTeklif: ${amount} €\nDurum: Admin Onayına Gönderildi.`);
         
-        if(confirm(`${player.region} bölgesindeki bu oyuncu için 500.000 € Scout ücreti ödensin mi?`)) {
-            // Parayı düş
-            budget -= scoutCost;
-            updateBudgetDisplay();
-
-            // Oyuncuyu 'görünür' yap
-            player.isRevealed = true;
-            
-            // Listeyi yenile
-            renderScoutList();
-            
-            alert(`Tebrikler! Oyuncu raporu geldi: ${player.realName}`);
-        }
+        closeModal();
     }
 
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
 </script>
 
 </body>
