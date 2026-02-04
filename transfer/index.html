@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v10 | Scout Map</title>
+    <title>Transfer Ligi v10.1 | Colorful Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -17,7 +17,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 300px; }
         button, select, input { font-family: inherit; outline: none; }
 
-        /* --- ORTAK CSS (Header, Tabs, Cards) --- */
+        /* --- ORTAK CSS --- */
         header { background: var(--bg-card); padding: 0 2rem; height: 80px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         .brand { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; color: #fff; }
         .user-profile { display: flex; align-items: center; gap: 15px; text-align: right; }
@@ -31,23 +31,33 @@
         .page-section.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- HARİTA CSS (YENİ) --- */
-        .map-container { text-align: center; margin-bottom: 30px; position: relative; }
-        .world-map { width: 100%; max-width: 900px; height: auto; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+        /* --- RENKLİ HARİTA CSS (YENİ) --- */
+        .map-wrapper {
+            background: #0d0d0d; border-radius: 20px; border: 1px solid var(--border-color);
+            padding: 30px; text-align: center; position: relative; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .map-title { color: var(--accent-gold); margin-bottom: 5px; }
+        .world-map { width: 100%; max-width: 850px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)); }
         
-        /* Kıta Yolları (SVG Paths) */
-        .continent { fill: #333; stroke: #121212; stroke-width: 1; transition: 0.3s; cursor: pointer; }
-        .continent:hover { fill: var(--accent-gold); transform: scale(1.01); filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3)); }
-        
+        .continent { stroke: #121212; stroke-width: 2; transition: all 0.3s ease; cursor: pointer; opacity: 0.9; }
+        .continent:hover { transform: scale(1.02); opacity: 1; filter: brightness(1.2); }
+
+        /* KITA RENKLERİ (Referans Görsele Göre) */
+        .cont-na { fill: #008fd5; } /* Kuzey Amerika - Mavi */
+        .cont-sa { fill: #00a859; } /* Güney Amerika - Yeşil */
+        .cont-eu { fill: #ef3e36; } /* Avrupa - Kırmızı */
+        .cont-af { fill: #fce300; } /* Afrika - Sarı */
+        .cont-as { fill: #f58220; } /* Asya - Turuncu */
+        .cont-au { fill: #e9008c; } /* Avustralya - Pembe */
+
         .scout-results-title { margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--accent-blue); font-weight: bold; display: none; }
 
         /* --- MODALLAR --- */
         #loginOverlay, #passwordModal, #scoutModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         #passwordModal, #scoutModal { background: rgba(0,0,0,0.9); z-index: 10000; display: none; }
         
-        /* Scout Modal İçerik */
-        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-blue); width: 400px; text-align: center; position: relative; }
-        .modal-title { margin-top: 0; color: var(--accent-gold); }
+        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-blue); width: 400px; text-align: center; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-label { font-size: 0.85rem; color: #888; display: block; margin-bottom: 5px; }
         
@@ -83,8 +93,6 @@
         
         .card-actions { padding: 20px; margin-top: auto; }
         .btn-offer { width: 100%; height: 40px; background: transparent; color: var(--accent-green); border: 1px solid var(--accent-green); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-offer:hover { background: var(--accent-green); color: #000; }
-        .btn-disabled { opacity: 0.5; cursor: not-allowed; border-color: #555; color: #555; }
         .fav-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; }
         .fav-btn.active { color: var(--accent-gold); }
 
@@ -104,13 +112,11 @@
 <div id="loginOverlay">
     <div class="login-box">
         <h1 style="color:#fff; margin:0;">TRANSFER LİGİ</h1>
-        <p style="color:#888;">Giriş Yap</p>
+        <p style="color:#888;">Rol Seçimi</p>
         <div class="team-grid">
             <div class="team-btn" onclick="openPassModal('Galatasaray', 'GS', 85, '1905', 'manager')"><i class="fas fa-shield-alt" style="color:#e74c3c"></i><span>GS</span></div>
             <div class="team-btn" onclick="openPassModal('Fenerbahçe', 'FB', 85, '1907', 'manager')"><i class="fas fa-shield-alt" style="color:#f1c40f"></i><span>FB</span></div>
             <div class="team-btn" onclick="openPassModal('Beşiktaş', 'BJK', 80, '1903', 'manager')"><i class="fas fa-shield-alt" style="color:#fff"></i><span>BJK</span></div>
-            <div class="team-btn" onclick="openPassModal('Trabzonspor', 'TS', 75, '1967', 'manager')"><i class="fas fa-shield-alt" style="color:#a55eea"></i><span>TS</span></div>
-            <div class="team-btn" onclick="openPassModal('Göztepe', 'GOZ', 65, '1925', 'manager')"><i class="fas fa-shield-alt" style="color:#f39c12"></i><span>GÖZ</span></div>
             <div class="team-btn admin-btn" onclick="openPassModal('TFF (Admin)', 'TFF', 100, '2024', 'admin')"><i class="fas fa-user-tie"></i><span>TFF</span></div>
         </div>
     </div>
@@ -128,35 +134,28 @@
 
 <div id="scoutModal">
     <div class="modal-box">
-        <h2 class="modal-title"><i class="fas fa-binoculars"></i> Scout Gönder</h2>
+        <h2 style="color:var(--accent-gold); margin-top:0;"><i class="fas fa-globe"></i> Bölge Analizi</h2>
         <p id="selectedContinent" style="color:#fff; border-bottom:1px solid #333; padding-bottom:10px;">Bölge Seçilmedi</p>
-        
         <div class="form-group">
             <label class="form-label">Aranan Mevki</label>
             <select id="scoutPos" class="filter-select" style="width:100%">
-                <option value="Any">Farketmez</option>
-                <option value="ST">Forvet (ST)</option>
-                <option value="LW">Kanat (LW/RW)</option>
-                <option value="CAM">Orta Saha (CAM/CM)</option>
-                <option value="CB">Defans (CB)</option>
+                <option value="Any">Farketmez</option><option value="ST">Forvet</option><option value="LW">Kanat</option><option value="CAM">Orta Saha</option><option value="CB">Defans</option>
             </select>
         </div>
-
         <div class="form-group">
             <label class="form-label">Yaş Aralığı</label>
             <div style="display:flex; gap:10px;">
-                <input type="number" id="scoutMinAge" class="search-input" placeholder="Min" value="16">
-                <input type="number" id="scoutMaxAge" class="search-input" placeholder="Max" value="23">
+                <input type="number" class="search-input" placeholder="Min" value="16">
+                <input type="number" class="search-input" placeholder="Max" value="23">
             </div>
         </div>
-
         <button class="btn-action" onclick="sendScout()" style="width:100%; background:var(--accent-gold); color:#000;">EKİBİ GÖNDER</button>
         <button onclick="closeScoutModal()" style="background:none; border:none; color:#666; margin-top:10px; cursor:pointer;">İptal</button>
     </div>
 </div>
 
 <header>
-    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER v10</div>
+    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER v10.1</div>
     <div class="user-profile">
         <div><h4 id="headerTeamName" style="margin:0; font-size:0.9rem; color:#fff;">--</h4></div>
         <div class="user-avatar" id="headerAvatar">?</div>
@@ -173,11 +172,11 @@
 <div id="section-transfer" class="page-section active">
     <div class="filter-panel">
         <div class="filter-row">
-            <input type="text" id="tName" class="search-input" placeholder="Oyuncu Adı..." style="flex:2">
+            <input type="text" id="tName" class="search-input" placeholder="Ad..." style="flex:2">
             <input type="text" id="tNation" class="search-input" placeholder="Uyruk..." style="flex:1">
         </div>
         <div class="filter-row">
-            <select id="tLeague" class="filter-select" onchange="updateTeamSelect()"><option value="">Tüm Ligler</option><option value="Süper Lig">Süper Lig</option><option value="Premier League">Premier League</option><option value="La Liga">La Liga</option></select>
+            <select id="tLeague" class="filter-select" onchange="updateTeamSelect()"><option value="">Tüm Ligler</option><option value="Süper Lig">Süper Lig</option></select>
             <select id="tTeam" class="filter-select" disabled><option value="">Önce Lig</option></select>
             <button class="btn-action" onclick="applyFilters()"><i class="fas fa-search"></i></button>
         </div>
@@ -186,17 +185,18 @@
 </div>
 
 <div id="section-scout" class="page-section">
-    <div class="map-container">
-        <h3 style="color:#888; margin-bottom:20px;">Scout Ekibini Hangi Bölgeye Göndereceksiniz?</h3>
+    <div class="map-wrapper">
+        <h2 class="map-title">Scout Ağı</h2>
+        <p style="color:#888; margin-bottom:20px;">Ekip göndermek istediğiniz kıtaya tıklayın.</p>
+        
         <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-            <path class="continent" d="M50,50 L300,50 L250,250 L100,200 Z" onclick="openScoutModal('Kuzey Amerika')" />
-            <path class="continent" d="M260,260 L350,260 L320,450 L280,400 Z" onclick="openScoutModal('Güney Amerika')" />
-            <path class="continent" d="M420,50 L550,50 L530,150 L400,120 Z" onclick="openScoutModal('Avrupa')" />
-            <path class="continent" d="M420,160 L560,160 L540,400 L450,350 Z" onclick="openScoutModal('Afrika')" />
-            <path class="continent" d="M560,50 L900,50 L850,250 L570,200 Z" onclick="openScoutModal('Asya')" />
-            <path class="continent" d="M750,300 L900,300 L880,450 L780,420 Z" onclick="openScoutModal('Avustralya')" />
+            <path class="continent cont-na" d="M50,50 L300,50 L250,250 L100,200 Z" onclick="openScoutModal('Kuzey Amerika')" />
+            <path class="continent cont-sa" d="M260,260 L350,260 L320,450 L280,400 Z" onclick="openScoutModal('Güney Amerika')" />
+            <path class="continent cont-eu" d="M420,50 L550,50 L530,150 L400,120 Z" onclick="openScoutModal('Avrupa')" />
+            <path class="continent cont-af" d="M420,160 L560,160 L540,400 L450,350 Z" onclick="openScoutModal('Afrika')" />
+            <path class="continent cont-as" d="M560,50 L900,50 L850,250 L570,200 Z" onclick="openScoutModal('Asya')" />
+            <path class="continent cont-au" d="M750,300 L900,300 L880,450 L780,420 Z" onclick="openScoutModal('Avustralya')" />
         </svg>
-        <div style="font-size:0.8rem; color:#666; margin-top:10px;">Harita üzerindeki kıtalara tıklayarak işlem yapın.</div>
     </div>
 
     <div id="scoutResultsTitle" class="scout-results-title">Scout Raporları</div>
@@ -204,196 +204,72 @@
 </div>
 
 <div id="section-watchlist" class="page-section">
-    <h3 style="margin-bottom:20px; color:#888; border-bottom:1px solid #333; padding-bottom:10px;">Takip Listem</h3>
+    <h3 style="color:#888; border-bottom:1px solid #333; padding-bottom:10px;">Takip Listem</h3>
     <div class="grid" id="watchlistGrid"></div>
 </div>
 
 <div id="adminPanel">
     <div class="admin-layout">
         <div class="admin-controls">
-            <div style="color:var(--danger); font-weight:bold; margin-bottom:10px;">TFF YÖNETİM</div>
+            <div style="color:var(--danger); font-weight:bold;">TFF YÖNETİM</div>
             <div style="font-size:0.8rem; color:#888;">Bekleyen: <strong id="queueCount" style="color:#fff">0</strong></div>
             <button class="btn-action" onclick="simulateWeek()" style="margin-top:auto; background:var(--danger); color:#fff; width:100%;">İLERLET</button>
         </div>
         <div class="admin-queue">
-            <table class="queue-table">
-                <thead><tr><th>OYUNCU</th><th>TAKIM</th><th>TEKLİF</th><th>DURUM</th></tr></thead>
-                <tbody id="queueTableBody"></tbody>
-            </table>
+            <table class="queue-table"><thead><tr><th>OYUNCU</th><th>TAKIM</th><th>TEKLİF</th><th>DURUM</th></tr></thead><tbody id="queueTableBody"></tbody></table>
         </div>
     </div>
 </div>
 
 <script>
-    // --- VERİTABANI ---
-    let currentUser = null; 
-    let pendingLogin = null;
-    let actionQueue = []; 
-    let watchlist = []; 
-
-    const teamsByLeague = { "Süper Lig": ["GS", "FB", "BJK", "TS"], "Premier League": ["Man City", "Arsenal"], "La Liga": ["Real Madrid"] };
-    
-    // GİZLİ OYUNCULAR (Region eklendi)
-    const playersDB = [
-        // AÇIK OYUNCULAR
-        { id: 1, type:'public', name: "Icardi", team: "GS", league: "Süper Lig", nation: "Arjantin", pos: "ST", rating: 83, val: 20000000, status: 'free', offers: [] },
-        { id: 2, type:'public', name: "Dzeko", team: "FB", league: "Süper Lig", nation: "Bosna", pos: "ST", rating: 81, val: 4000000, status: 'free', offers: [] },
-        // GİZLİ SCOUT OYUNCULARI
-        { id: 101, type:'hidden', region: 'Afrika', name: "Gizli", realName: "Datro Fofana", team: "Chelsea", pos: "ST", rating: 76, age: 21, val: 12000000, offers: [] },
-        { id: 102, type:'hidden', region: 'Güney Amerika', name: "Gizli", realName: "Endrick", team: "Palmeiras", pos: "ST", rating: 75, age: 17, val: 30000000, offers: [] },
-        { id: 103, type:'hidden', region: 'Avrupa', name: "Gizli", realName: "Kenan Yıldız", team: "Juve", pos: "LW", rating: 76, age: 18, val: 25000000, offers: [] }
+    let currentUser=null, pendingLogin=null, actionQueue=[], watchlist=[];
+    const teamsByLeague={"Süper Lig":["GS","FB","BJK"]};
+    const playersDB=[
+        {id:1, type:'public', name:"Icardi", team:"GS", league:"Süper Lig", nation:"Arjantin", pos:"ST", rating:83, val:20000000, status:'free', offers:[]},
+        {id:101, type:'hidden', region:'Afrika', name:"Gizli", realName:"Fofana", team:"Chelsea", pos:"ST", rating:76, age:21, val:12000000, offers:[]},
+        {id:102, type:'hidden', region:'Güney Amerika', name:"Gizli", realName:"Endrick", team:"Palmeiras", pos:"ST", rating:75, age:17, val:30000000, offers:[]},
+        {id:103, type:'hidden', region:'Avrupa', name:"Gizli", realName:"K. Yıldız", team:"Juve", pos:"LW", rating:76, age:18, val:25000000, offers:[]}
     ];
+    window.onload=function(){checkSession();};
 
-    window.onload = function() { checkSession(); };
-
-    // --- SCOUT FONKSİYONLARI (YENİ) ---
-    function openScoutModal(continent) {
-        document.getElementById('selectedContinent').innerText = continent + " Bölgesi";
-        document.getElementById('scoutModal').style.display = 'flex';
-        // Geçici olarak kıta bilgisini butona gömüyoruz
-        document.getElementById('scoutModal').setAttribute('data-region', continent);
+    // SCOUT
+    function openScoutModal(c){document.getElementById('selectedContinent').innerText=c; document.getElementById('scoutModal').style.display='flex'; document.getElementById('scoutModal').setAttribute('data-region',c);}
+    function closeScoutModal(){document.getElementById('scoutModal').style.display='none';}
+    function sendScout(){
+        const r=document.getElementById('scoutModal').getAttribute('data-region');
+        closeScoutModal(); alert(`✈️ Scout ekibi ${r} bölgesine gönderildi.`);
+        setTimeout(()=>{renderScoutResults(playersDB.filter(p=>p.type==='hidden'&&p.region===r));},1000);
     }
-
-    function closeScoutModal() { document.getElementById('scoutModal').style.display = 'none'; }
-
-    function sendScout() {
-        const region = document.getElementById('scoutModal').getAttribute('data-region');
-        const pos = document.getElementById('scoutPos').value;
-        
-        closeScoutModal();
-        alert(`✈️ Scout ekibi ${region} bölgesine gönderildi. Lütfen bekleyin...`);
-        
-        // Simülasyon gecikmesi
-        setTimeout(() => {
-            const results = playersDB.filter(p => p.type === 'hidden' && p.region === region);
-            renderScoutResults(results);
-        }, 1500);
-    }
-
-    function renderScoutResults(list) {
-        document.getElementById('scoutResultsTitle').style.display = 'block';
-        const grid = document.getElementById('scoutResultsGrid');
-        grid.innerHTML = "";
-        
-        if(list.length === 0) {
-            grid.innerHTML = "<p>Bu kriterlerde oyuncu bulunamadı.</p>";
-            return;
-        }
-
-        list.forEach(p => {
-            // Gizli oyuncu kartı (İsim gizli)
-            grid.innerHTML += `
+    function renderScoutResults(list){
+        document.getElementById('scoutResultsTitle').style.display='block'; const grid=document.getElementById('scoutResultsGrid'); grid.innerHTML="";
+        if(list.length===0){grid.innerHTML="<p>Oyuncu bulunamadı.</p>";return;}
+        list.forEach(p=>{
+            grid.innerHTML+=`
             <div class="player-card" style="border-color:var(--accent-gold);">
-                <div class="card-header">
-                    <div class="rating-circle" style="border-color:#666; color:#666;">?</div>
-                    <div>
-                        <h3 style="margin:0; filter:blur(5px); user-select:none;">GİZLİ OYUNCU</h3>
-                        <small style="color:var(--accent-gold)">${p.region}</small>
-                    </div>
-                </div>
-                <div class="card-stats">
-                    <div>Mevki: <strong>${p.pos}</strong></div>
-                    <div>Yaş: <strong>${p.age}</strong></div>
-                </div>
-                <div class="card-actions">
-                    <button class="btn-offer" onclick="revealPlayer(${p.id})" style="border-color:var(--accent-gold); color:var(--accent-gold);">
-                        RAPORU AÇ (-500k)
-                    </button>
-                </div>
+                <div class="card-header"><div class="rating-circle" style="border-color:#666;color:#666;">?</div><div><h3 style="filter:blur(5px);">GİZLİ</h3><small style="color:var(--accent-gold)">${p.region}</small></div></div>
+                <div class="card-actions"><button class="btn-offer" onclick="alert('Rapor: ${p.realName}')" style="border-color:var(--accent-gold);color:var(--accent-gold);">RAPORU AÇ</button></div>
             </div>`;
         });
     }
 
-    function revealPlayer(id) {
-        if(confirm("500.000 € Scout ücreti ödensin mi?")) {
-            const p = playersDB.find(x => x.id === id);
-            // Kartı güncelle (Normal oyuncu kartına çevir)
-            alert(`✅ RAPOR: Oyuncu ${p.realName} (${p.team})`);
-            // Gerçek projede burada p.type = 'public' yapılır ve listeye eklenir
-        }
+    // CORE
+    function switchPage(sid){document.querySelectorAll('.page-section').forEach(e=>e.classList.remove('active')); document.getElementById(sid).classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(sid.includes('transfer')) document.getElementById('btn-transfer').classList.add('active'); if(sid.includes('scout')) document.getElementById('btn-scout').classList.add('active'); if(sid.includes('watchlist')) {document.getElementById('btn-watchlist').classList.add('active'); renderWatchList();}}
+    function applyFilters(){ const n=document.getElementById('tName').value.toLowerCase(); renderPlayers(playersDB.filter(p=>p.type==='public'&&p.name.toLowerCase().includes(n)),'transferGrid'); }
+    function renderPlayers(list,eid){
+        const g=document.getElementById(eid); g.innerHTML=""; if(list.length===0){g.innerHTML="<p>Yok.</p>";return;}
+        list.forEach(p=>{ g.innerHTML+=`<div class="player-card"><div class="card-header"><div class="rating-circle">${p.rating}</div><div><h3>${p.name}</h3><small>${p.team}</small></div></div><div class="card-actions"><button class="btn-offer" onclick="submitOffer(${p.id})">TEKLİF</button></div></div>`; });
     }
+    function submitOffer(id){if(!currentUser||currentUser.role==='admin')return; actionQueue.push({pName:playersDB.find(x=>x.id===id).name,from:currentUser.name}); updateQ();}
+    function updateQ(){const tb=document.getElementById('queueTableBody'); tb.innerHTML=""; actionQueue.forEach(a=>{tb.innerHTML+=`<tr><td>${a.pName}</td><td>${a.from}</td><td>-</td><td>Bekliyor</td></tr>`;}); document.getElementById('queueCount').innerText=actionQueue.length;}
+    function simulateWeek(){actionQueue=[]; updateQ(); alert("İlerletildi.");}
 
-    // --- DİĞER TEMEL FONKSİYONLAR (Önceki kodlardan korundu) ---
-    function switchPage(sid) {
-        document.querySelectorAll('.page-section').forEach(e=>e.classList.remove('active'));
-        document.getElementById(sid).classList.add('active');
-        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        if(sid==='section-transfer') document.getElementById('btn-transfer').classList.add('active');
-        if(sid==='section-scout') document.getElementById('btn-scout').classList.add('active');
-        if(sid==='section-watchlist') { document.getElementById('btn-watchlist').classList.add('active'); renderWatchList(); }
-    }
-
-    function applyFilters() {
-        const nameVal = document.getElementById('tName').value.toLowerCase();
-        const grid = document.getElementById('transferGrid');
-        grid.innerHTML = "";
-        
-        const list = playersDB.filter(p => p.type === 'public' && p.name.toLowerCase().includes(nameVal));
-        
-        list.forEach(p => {
-            const isW = watchlist.includes(p.id);
-            grid.innerHTML += `
-            <div class="player-card ${isW ? 'watched' : ''}">
-                <div class="card-header">
-                    <div class="rating-circle">${p.rating}</div>
-                    <div><h3>${p.name}</h3><small>${p.team}</small></div>
-                    <button class="fav-btn ${isW ? 'active' : ''}" onclick="toggleWatch(${p.id}, this)"><i class="fas fa-star"></i></button>
-                </div>
-                <div class="card-actions"><button class="btn-offer" onclick="submitOffer(${p.id})">TEKLİF YAP</button></div>
-            </div>`;
-        });
-    }
-
-    function toggleWatch(id) {
-        if(watchlist.includes(id)) watchlist = watchlist.filter(pid=>pid!==id); else watchlist.push(id);
-        if(document.getElementById('section-watchlist').classList.contains('active')) renderWatchList();
-        else applyFilters();
-    }
-    
-    function renderWatchList() {
-        const list = playersDB.filter(p => watchlist.includes(p.id));
-        const grid = document.getElementById('watchlistGrid');
-        grid.innerHTML = "";
-        list.forEach(p => {
-             grid.innerHTML += `<div class="player-card watched"><div class="card-header"><h3>${p.name}</h3></div></div>`;
-        });
-    }
-
-    function submitOffer(id) {
-        if(!currentUser || currentUser.role==='admin') return;
-        const p = playersDB.find(x=>x.id===id);
-        const am = prompt("Teklif (€):", p.val);
-        if(am) { actionQueue.push({pId:p.id, pName:p.name, from:currentUser.name, amount:am}); updateQ(); }
-    }
-    
-    function updateQ() {
-        const tb = document.getElementById('queueTableBody'); tb.innerHTML="";
-        actionQueue.forEach(a=> tb.innerHTML+=`<tr><td>${a.pName}</td><td>${a.from}</td><td>${a.amount}</td><td>Bekliyor</td></tr>`);
-        document.getElementById('queueCount').innerText = actionQueue.length;
-    }
-    function simulateWeek() { actionQueue=[]; updateQ(); alert("İlerletildi."); }
-
-    // --- GİRİŞ ---
-    function openPassModal(name, code, rep, pass, role) {
-        pendingLogin = {name,code,rep,pass,role};
-        document.getElementById('passwordModal').style.display='flex';
-    }
-    function closePassModal() { document.getElementById('passwordModal').style.display='none'; }
-    function checkPassword() {
-        if(document.getElementById('passInput').value===pendingLogin.pass) {
-            currentUser=pendingLogin; localStorage.setItem('u_v10', JSON.stringify(currentUser)); init();
-        }
-    }
-    function init() {
-        document.getElementById('loginOverlay').style.display='none'; document.getElementById('passwordModal').style.display='none';
-        document.getElementById('headerTeamName').innerText=currentUser.name;
-        document.getElementById('headerAvatar').innerText=currentUser.code;
-        if(currentUser.role==='admin') { document.getElementById('adminPanel').style.display='block'; document.getElementById('managerTabs').style.display='none'; }
-        else { document.getElementById('managerTabs').style.display='flex'; switchPage('section-transfer'); applyFilters(); }
-    }
-    function checkSession() { const s=localStorage.getItem('u_v10'); if(s) { currentUser=JSON.parse(s); init(); } }
-    function logout() { localStorage.removeItem('u_v10'); location.reload(); }
-
+    // LOGIN
+    function openPassModal(n,c,r,p,rl){pendingLogin={name:n,code:c,rep:r,pass:p,role:rl};document.getElementById('passwordModal').style.display='flex';}
+    function closePassModal(){document.getElementById('passwordModal').style.display='none';}
+    function checkPassword(){if(document.getElementById('passInput').value===pendingLogin.pass){currentUser=pendingLogin;localStorage.setItem('u_v101',JSON.stringify(currentUser));init();}}
+    function init(){document.getElementById('loginOverlay').style.display='none';document.getElementById('passwordModal').style.display='none';document.getElementById('headerTeamName').innerText=currentUser.name; if(currentUser.role==='admin'){document.getElementById('adminPanel').style.display='block';document.getElementById('managerTabs').style.display='none';}else{document.getElementById('managerTabs').style.display='flex';switchPage('section-transfer');applyFilters();}}
+    function checkSession(){const s=localStorage.getItem('u_v101');if(s){currentUser=JSON.parse(s);init();}}
+    function logout(){localStorage.removeItem('u_v101');location.reload();}
 </script>
 </body>
 </html>
