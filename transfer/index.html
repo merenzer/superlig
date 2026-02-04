@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v10.1 | Colorful Map</title>
+    <title>Transfer Ligi v10.2 | Realistic Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -12,6 +12,8 @@
             --text-main: #f0f0f0; --text-muted: #a0a0a0;
             --accent-blue: #3da9fc; --accent-green: #2cb67d; --accent-gold: #ffd700;
             --danger: #ef476f; --border-color: #333333;
+            /* KITA RENKLERİ (Referans Görselden) */
+            --c-na: #008fd5; --c-sa: #00a859; --c-eu: #ef3e36; --c-af: #fce300; --c-as: #f58220; --c-au: #e9008c;
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 300px; }
@@ -31,36 +33,41 @@
         .page-section.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- RENKLİ HARİTA CSS (YENİ) --- */
+        /* --- YENİ GERÇEKÇİ HARİTA CSS --- */
         .map-wrapper {
             background: #0d0d0d; border-radius: 20px; border: 1px solid var(--border-color);
             padding: 30px; text-align: center; position: relative; overflow: hidden;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         .map-title { color: var(--accent-gold); margin-bottom: 5px; }
-        .world-map { width: 100%; max-width: 850px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)); }
+        .world-map-svg { width: 100%; max-width: 900px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2)); }
         
-        .continent { stroke: #121212; stroke-width: 2; transition: all 0.3s ease; cursor: pointer; opacity: 0.9; }
-        .continent:hover { transform: scale(1.02); opacity: 1; filter: brightness(1.2); }
-
-        /* KITA RENKLERİ (Referans Görsele Göre) */
-        .cont-na { fill: #008fd5; } /* Kuzey Amerika - Mavi */
-        .cont-sa { fill: #00a859; } /* Güney Amerika - Yeşil */
-        .cont-eu { fill: #ef3e36; } /* Avrupa - Kırmızı */
-        .cont-af { fill: #fce300; } /* Afrika - Sarı */
-        .cont-as { fill: #f58220; } /* Asya - Turuncu */
-        .cont-au { fill: #e9008c; } /* Avustralya - Pembe */
+        /* Kıtaların Başlangıç Hali (Vektör/Nötr) */
+        .continent {
+            fill: #2a2a2a; /* Nötr koyu renk */
+            stroke: #121212; stroke-width: 1.5;
+            transition: all 0.4s ease; cursor: pointer;
+        }
+        
+        /* Hover Efekti: Üzerine gelince renklenir ve parlar */
+        .continent:hover { transform: scale(1.02); filter: brightness(1.3); stroke: #fff; }
+        
+        /* Hover Rengi Atamaları */
+        .c-na:hover { fill: var(--c-na); }
+        .c-sa:hover { fill: var(--c-sa); }
+        .c-eu:hover { fill: var(--c-eu); }
+        .c-af:hover { fill: var(--c-af); }
+        .c-as:hover { fill: var(--c-as); }
+        .c-au:hover { fill: var(--c-au); }
 
         .scout-results-title { margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--accent-blue); font-weight: bold; display: none; }
 
         /* --- MODALLAR --- */
         #loginOverlay, #passwordModal, #scoutModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         #passwordModal, #scoutModal { background: rgba(0,0,0,0.9); z-index: 10000; display: none; }
-        
         .modal-box { background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-blue); width: 400px; text-align: center; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-label { font-size: 0.85rem; color: #888; display: block; margin-bottom: 5px; }
-        
         .login-box { background: var(--bg-card); padding: 40px; border-radius: 16px; border: 1px solid #333; text-align: center; width: 90%; max-width: 800px; }
         .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px; margin-top: 30px; }
         .team-btn { background: #252525; border: 1px solid #333; color: #ccc; padding: 20px; border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -77,20 +84,16 @@
         .player-card { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); transition: 0.3s; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         .player-card:hover { transform: translateY(-5px); border-color: #555; }
         .player-card::before { content: ''; position: absolute; top:0; left:0; width:100%; height:4px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)); }
-        
         .card-header { padding: 20px; display: flex; align-items: flex-start; gap: 15px; }
         .rating-circle { width: 50px; height: 50px; background: #151515; border: 2px solid var(--accent-green); color: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; }
         .player-info h3 { margin: 0; font-size: 1.1rem; color: #fff; }
         .player-info span { font-size: 0.8rem; color: #888; display: block; margin-top: 3px; }
-        
         .status-badge { margin: 0 20px 15px 20px; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         .st-free { background: rgba(61, 169, 252, 0.1); color: var(--accent-blue); }
         .st-pending { background: rgba(255, 215, 0, 0.1); color: var(--accent-gold); }
-        
         .card-stats { padding: 15px 20px; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #2a2a2a; border-bottom: 1px solid #2a2a2a; }
         .stat-item span { display: block; font-size: 0.7rem; color: #777; text-transform: uppercase; }
         .stat-item strong { color: #ddd; font-size: 0.95rem; }
-        
         .card-actions { padding: 20px; margin-top: auto; }
         .btn-offer { width: 100%; height: 40px; background: transparent; color: var(--accent-green); border: 1px solid var(--accent-green); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .fav-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; }
@@ -104,7 +107,6 @@
         .queue-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .queue-table th { text-align: left; color: #666; padding-bottom: 10px; border-bottom: 1px solid #333; }
         .queue-table td { padding: 10px 0; border-bottom: 1px solid #222; color: #ccc; }
-
     </style>
 </head>
 <body>
@@ -117,6 +119,8 @@
             <div class="team-btn" onclick="openPassModal('Galatasaray', 'GS', 85, '1905', 'manager')"><i class="fas fa-shield-alt" style="color:#e74c3c"></i><span>GS</span></div>
             <div class="team-btn" onclick="openPassModal('Fenerbahçe', 'FB', 85, '1907', 'manager')"><i class="fas fa-shield-alt" style="color:#f1c40f"></i><span>FB</span></div>
             <div class="team-btn" onclick="openPassModal('Beşiktaş', 'BJK', 80, '1903', 'manager')"><i class="fas fa-shield-alt" style="color:#fff"></i><span>BJK</span></div>
+            <div class="team-btn" onclick="openPassModal('Trabzonspor', 'TS', 75, '1967', 'manager')"><i class="fas fa-shield-alt" style="color:#a55eea"></i><span>TS</span></div>
+            <div class="team-btn" onclick="openPassModal('Göztepe', 'GOZ', 65, '1925', 'manager')"><i class="fas fa-shield-alt" style="color:#f39c12"></i><span>GÖZ</span></div>
             <div class="team-btn admin-btn" onclick="openPassModal('TFF (Admin)', 'TFF', 100, '2024', 'admin')"><i class="fas fa-user-tie"></i><span>TFF</span></div>
         </div>
     </div>
@@ -155,7 +159,7 @@
 </div>
 
 <header>
-    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER v10.1</div>
+    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER v10.2</div>
     <div class="user-profile">
         <div><h4 id="headerTeamName" style="margin:0; font-size:0.9rem; color:#fff;">--</h4></div>
         <div class="user-avatar" id="headerAvatar">?</div>
@@ -189,13 +193,13 @@
         <h2 class="map-title">Scout Ağı</h2>
         <p style="color:#888; margin-bottom:20px;">Ekip göndermek istediğiniz kıtaya tıklayın.</p>
         
-        <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-            <path class="continent cont-na" d="M50,50 L300,50 L250,250 L100,200 Z" onclick="openScoutModal('Kuzey Amerika')" />
-            <path class="continent cont-sa" d="M260,260 L350,260 L320,450 L280,400 Z" onclick="openScoutModal('Güney Amerika')" />
-            <path class="continent cont-eu" d="M420,50 L550,50 L530,150 L400,120 Z" onclick="openScoutModal('Avrupa')" />
-            <path class="continent cont-af" d="M420,160 L560,160 L540,400 L450,350 Z" onclick="openScoutModal('Afrika')" />
-            <path class="continent cont-as" d="M560,50 L900,50 L850,250 L570,200 Z" onclick="openScoutModal('Asya')" />
-            <path class="continent cont-au" d="M750,300 L900,300 L880,450 L780,420 Z" onclick="openScoutModal('Avustralya')" />
+        <svg class="world-map-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1000">
+            <path class="continent c-na" onclick="openScoutModal('Kuzey Amerika')" d="M158.5,119.9c-5.7-4.4-14.5-3.7-21.9-5.9c-10.6-3.2-19.3-7.3-29.8-9.5c-16.6-3.5-35.6,2-52.5,4.2C41.9,110.4,25,123,13.5,136c-3.2,3.6-5.9,7.7-8.4,12c-2.2,3.8-5,7.3-6.4,11.5c-4.1,12.5,1.8,26.2,10.1,36c7,8.3,17.4,13.5,27.5,17.5c12.1,4.7,25.2,6.9,37.8,10.3c16.8,4.6,32.6,12.9,49.6,16.3c16,3.3,32.9,1.8,48.9,5c12.4,2.4,23.4,9.6,36,12.5c14.6,3.3,28.7,0.1,42.9,3.5c10.4,2.5,20.7,6.4,31.3,8.2c17.5,2.9,35.6-2,53.1-1.3c12,0.5,23.8,4.6,35.8,5.1c17.1,0.7,33.2-7.1,50.3-7.5c16.3-0.4,31.6,6.7,47.9,6.8c13.8,0.1,26.8-5.9,40.5-6.9c17.7-1.3,35.1,4,52.8,1.9c12.5-1.5,23.4-9.3,35.8-11.9c16.3-3.5,33.4,1.1,49.7-1.6c9.6-1.6,18.5-6.6,28.2-7.9c15.6-2,30.6,4.1,46.1,2.9c10.8-0.9,21.4-4.4,32.3-5.2c15.3-1.1,30.3,3.2,45.6,2.4c8.2-0.4,15.5-5.3,23.8-5.1c16.9,0.5,33.2,5.4,50.2,5.5c16,0.1,30.9-4.9,46.9-5.6c13.8-0.6,27.5,1.5,41.3,0.5c16.7-1.2,31.6-9.4,48.4-10c10.4-0.4,20.5,2.9,30.8,2.6c16.1-0.4,31.6-4.4,47.8-3.5c7.8,0.4,14.9,3.9,22.7,4.5c15.6,1.2,30.9-0.6,46.6-0.4c8.2,0.1,16.5,0.8,24.7,1.3c12.6,0.8,24.3,5.9,37,6.4c13.8,0.5,26.8-4.4,40.6-3.9c12.1,0.4,23.8,4.6,35.8,5.1c8.5,0.4,16.5-1.3,24.9-0.5c14.9,1.5,29.1,6.2,43.9,8.2c12.1,1.6,23.4-1.1,35.5,0.6c10.1,1.5,19.6,5.3,29.7,6.3c15.1,1.5,30.3-0.4,45.4,0.5c8,0.5,15.3,2.6,23.2,3.2c14,1.1,28.2-0.4,42.1,0.5c11.3,0.7,22.5,2.6,33.8,3.2c9.4,0.5,18.2-1.8,27.6-1.1c14.6,1.1,28.7,4.6,43.3,5.1c12.6,0.4,24.7-1.6,37.3-0.6c9.4,0.7,18.5,2.6,27.8,3.2c13.1,0.8,26.2-0.4,39.3-0.1c13.1,0.3,25.9,3.1,38.9,3.9c14.6,0.9,28.5,2.2,43.1,2.4c12.1,0.2,23.6-2.9,35.6-2.9c13.5,0,26.8,2.6,40.3,2.2c13.3-0.4,25.7-4.8,38.9-5.3c10.6-0.4,20.9,1.5,31.5,1.3c14.4-0.3,27.8-4.2,42.1-4.8c9.6-0.4,19.3,0.4,28.9,0.5c12.6,0.1,24.3,2.8,36.9,3.2c13.1,0.4,25.9-2.2,38.9-2.2c11.5,0,22.5,1.8,33.9,2c12.6,0.3,24.7-1.8,37.3-1.6c10.8,0.1,20.9,1.8,31.7,2.2c14.6,0.5,29.1,1.1,43.6,1.8c11.1,0.6,21.9,2.4,32.9,3.3c8.9,0.7,17.1-0.5,26-0.1c13.1,0.6,25.7,3.5,38.9,3.5c9.8,0,18.9-2,28.7-2c12,0,23.4,2,35.3,2.4c12.4,0.4,23.4-2.6,35.8-2.6c9.4,0,18.5,1.5,27.8,1.8c11.5,0.4,22.7,1.5,34.1,1.3c11.1-0.1,21.4-3.7,32.5-3.9c9.8-0.1,18.9,1.5,28.7,1.8c11.3,0.4,22.3,1.1,33.6,1.3c10.4,0.1,19.8-2.4,30.2-2.2c12.6,0.3,24.3,3.1,36.9,3.2c11.3,0.1,21.9-1.6,33.1-1.8c10.8-0.1,20.9,1.5,31.7,1.3c12-0.3,23.4-2.6,35.3-2.9c10.4-0.3,20.5,1.1,30.8,0.8c11.3-0.3,21.9-2.9,33.1-3.5c8.9-0.5,17.4,1.1,26.3,0.6c12.4-0.6,23.8-3.9,36.2-4.6c10.6-0.6,20.5,1.5,31,1.1c11.3-0.4,21.9-2.9,33.1-3.5c9.8-0.5,18.5,1.3,28.4,0.6c10.4-0.6,20-3.3,30.4-3.9c11.5-0.6,22.3,1.6,33.8,0.8c10.4-0.6,19.6-3.5,29.9-4.2c11.1-0.7,21.4,1.5,32.5,0.5c9.4-0.8,18.2-3.7,27.6-4.8c10.8-1.3,20.7,0.6,31.5-0.6c9.8-1.1,18.9-4.2,28.7-5.6c10.8-1.5,20.7,0.8,31.5-0.6c9.4-1.3,18.2-4.4,27.6-5.9c11.1-1.6,20.7,1.1,31.8-0.6c9.4-1.3,18.2-4.2,27.6-5.9c11.3-2,20.7,0.8,32-1.3c8.9-1.8,17.4-4.6,26.3-6.7c11.5-2.8,20.9-0.2,32.5-2.8c8.9-2,17.4-4.4,26.3-6.7c11.5-2.9,20.7,0.2,32.3-2.6c9.4-2.2,18.2-5.3,27.6-7.9c11.3-3.1,20.7,0.2,32-2.8c8.9-2.6,17.4-5.7,26.3-8.6c10.4-3.5,18.9-0.2,29.3-3.5c8.9-2.9,17.4-6.2,26.3-9.5c10.6-4,18.9-0.7,29.5-4.6c8.9-3.3,17.4-6.8,26.3-10.4c10.6-4.4,18.5-0.9,29.1-5.3c8.9-3.7,17.1-7.5,26-11.5c10.8-4.8,18.5-1.3,29.3-6.2c8.9-4.2,17.1-8.1,26-12.6c10.8-5.5,18.5-2,29.3-7.5c8.5-4.4,16.5-8.4,24.9-13c10.4-5.7,18.2-2,28.7-7.9c8-4.4,15.6-8.6,23.6-13.4c10.1-5.9,17.7-2.4,27.8-8.4c7.6-4.4,14.9-8.8,22.5-13.6c9.8-6.2,17.1-2.9,26.9-9c7.6-4.8,14.9-9.5,22.5-14.5c9.4-6.4,16.5-3.1,26-9.5c7.3-5.1,14.2-9.9,21.4-15.2c9.4-6.8,16.1-3.5,25.6-10.4c6.7-5.1,13.1-9.9,19.8-15.4c8.9-7.3,15.6-3.7,24.5-11.2c6.2-5.3,12-10.1,18.2-15.6c8.5-7.9,14.9-4.4,23.4-12.6c5.3-5.1,10.4-10.1,15.6-15.4c8.5-8.6,14.6-5.1,23.1-13.9c4.4-4.8,8.9-9.5,13.3-14.5c8.9-9.9,14.9-6.2,23.8-16.5c3.5-4.2,7-8.4,10.6-12.8c8.9-11.2,14.9-7.3,23.8-19.2c2.2-3.1,4.7-5.9,7-9c4-5.5,8-11,12-16.5c2.6-3.7,5.3-7.5,8-11.2c3.5-5.1,7-9.9,10.6-15c2.4-3.7,4.8-7.5,7.3-11.2c4-5.9,7.8-11.9,11.7-17.8c1.8-2.9,3.5-5.7,5.3-8.6c4.6-7.7,9.3-15.2,13.9-22.9c1.1-2,2.2-4,3.3-6c5.3-9.9,10.6-19.8,16-29.7c0.2-0.4,0.4-0.9,0.6-1.3c6.2-12.8,12.4-25.6,18.5-38.3l-2.2,0.4l-4.4,0.9l-6.7,1.3l-8.9,1.8l-11.1,2.2l-13.3,2.6l-15.6,3.1l-17.8,3.5l-20,4l-22.2,4.4l-24.4,4.8l-26.7,5.3l-28.9,5.7l-31.1,6.2l-33.3,6.6l-35.6,7l-37.8,7.5l-40,7.9l-42.2,8.4l-44.4,8.8l-46.7,9.2l-48.9,9.7l-51.1,10.1l-53.3,10.6l-55.6,11l-57.8,11.4l-60,11.9l-62.2,12.3l-64.4,12.8l-66.7,13.2l-68.9,13.6l-71.1,14.1l-73.3,14.5l-75.6,14.9l-77.8,15.4l-80,15.8l-82.2,16.3l-84.4,16.7l-86.7,17.2l-88.9,17.6l-91.1,18l-93.3,18.5l-95.6,18.9l-97.8,19.4L158.5,119.9z"/>
+            <path class="continent c-sa" onclick="openScoutModal('Güney Amerika')" d="M463.2,535.9c10.1-1.5,20.3-4.2,30.4-4.8c15.1-1.1,30.2,2.4,45.4,1.8c9.8-0.4,19.6-2.9,29.3-3.3c15.1-0.9,30.2,2.4,45.4,1.8c10.4-0.4,20.7-2.9,31.1-3.3c14.9-0.7,29.8,2.4,44.7,1.8c11.1-0.4,22.2-2.9,33.3-3.3c14.4-0.7,28.9,2.4,43.3,1.8c11.8-0.4,23.4-3.1,35.3-3.5c14-0.7,28,2.4,42,1.8c12.4-0.4,24.7-3.1,37.1-3.5c13.5-0.7,27.1,2.4,40.6,1.8c12.9-0.4,25.9-3.1,38.9-3.5c13.1-0.7,26.2,2.4,39.3,1.8c13.5-0.4,26.8-3.3,40.5-3.7c12.6-0.7,25.2,2.6,37.8,2c13.8-0.4,27.6-3.3,41.3-3.7c12.1-0.4,24.3,2.6,36.4,2.2c14.2-0.4,28.5-3.3,42.7-3.7c11.8-0.4,23.6,2.6,35.3,2.2c14.6-0.7,29.1-3.3,43.8-3.7c11.3-0.4,22.7,2.6,33.9,2.2c15.1-0.7,30.2-3.5,45.4-4c10.8-0.4,21.6,2.6,32.5,2.4c15.6-0.7,31.3-3.5,46.9-4c10.4-0.4,20.9,2.6,31.3,2.4c16-0.7,32-3.7,48-4.2c9.8-0.4,19.8,2.6,29.5,2.4c16.5-0.7,33.2-3.7,49.7-4.2c9.4-0.4,18.7,2.6,28.2,2.4c17.1-0.7,34.1-4,51.1-4.4c8.7-0.2,17.4,2.6,26.2,2.4c17.7-0.7,35.3-4,53.1-4.4c8-0.2,16,2.9,24,2.6c18.2-0.7,36.4-4.2,54.7-4.6c7.3-0.2,14.6,2.9,21.8,2.9c18.9-0.7,37.8-4.4,56.7-4.8c6.4-0.2,12.9,3.1,19.3,2.9c19.3-0.9,38.7-4.6,58-5.1c5.8-0.2,11.5,3.1,17.4,2.9c20-0.9,40-4.8,60-5.3c4.9-0.2,9.8,3.1,14.6,3.1c20.5-0.9,40.9-5.1,61.4-5.7c4-0.2,8,3.3,12,3.1c21.1-1.1,42.2-5.3,63.3-6.2c3.1-0.2,6.2,3.3,9.4,3.3c21.8-1.1,43.6-5.5,65.4-6.4c2.2-0.2,4.4,3.5,6.7,3.3c22.5-1.1,44.9-5.7,67.3-6.8c1.1-0.2,2.4,3.5,3.5,3.5c23.1-1.3,46.2-5.9,69.3-7.1l-2.2,0.4l-4.4,0.9l-6.7,1.3l-8.9,1.8l-11.1,2.2l-13.3,2.6l-15.6,3.1l-17.8,3.5l-20,4l-22.2,4.4l-24.4,4.8l-26.7,5.3l-28.9,5.7l-31.1,6.2l-33.3,6.6l-35.6,7l-37.8,7.5l-40,7.9l-42.2,8.4l-44.4,8.8l-46.7,9.2l-48.9,9.7l-51.1,10.1l-53.3,10.6l-55.6,11l-57.8,11.4l-60,11.9l-62.2,12.3l-64.4,12.8l-66.7,13.2l-68.9,13.6l-71.1,14.1l-73.3,14.5l-75.6,14.9l-77.8,15.4l-80,15.8l-82.2,16.3l-84.4,16.7l-86.7,17.2l-88.9,17.6l-91.1,18l-93.3,18.5l-95.6,18.9l-97.8,19.4L463.2,535.9z"/>
+            <path class="continent c-eu" onclick="openScoutModal('Avrupa')" d="M970.3,121.1c-5.1,3.8-10.8,7-16.7,9.5c-5.5,2.4-11.3,4.4-17.1,6.2c-10.6,3.3-21.6,6.2-32.7,8.4c-5.3,1.1-10.8,2-16.3,2.6c-11.8,1.5-23.8,2.6-35.8,3.3c-5.1,0.2-10.4,0.4-15.6,0.4c-12.9,0-25.7-0.4-38.7-1.3c-4.9-0.2-9.8-0.7-14.6-1.1c-13.8-1.5-27.3-3.5-40.9-6.2c-4.6-0.9-9.3-2-13.8-3.1c-14.4-3.5-28.5-7.5-42.5-12.1c-4.2-1.5-8.4-3.1-12.6-4.6c-14.9-5.7-29.3-11.9-43.6-18.7c-3.7-1.8-7.5-3.7-11.1-5.7c-15.1-8.1-29.5-16.7-43.6-25.9c-3.3-2.2-6.6-4.4-9.8-6.8c-14.9-10.4-29.1-21.6-42.9-33.2c-2.8-2.4-5.7-4.8-8.4-7.3c-14.2-12.8-27.8-26.2-41.1-40.2c-2.2-2.4-4.6-5.1-6.7-7.5c-13.3-15.1-25.9-30.8-38.3-46.9c-1.8-2.4-3.5-4.8-5.3-7.5c-11.9-17.4-23.4-35.1-34.1-53.3c-1.3-2.2-2.6-4.6-3.9-6.8c-10.4-19.3-20.3-38.9-29.5-58.9c-0.9-1.8-1.8-3.7-2.6-5.7c-8.9-20.9-17.1-42.2-24.9-63.7c-0.5-1.5-1.1-2.9-1.5-4.4c-7.3-22-14.2-44.4-20.5-66.8c-0.2-0.7-0.4-1.5-0.6-2.2l2.2-0.4l4.4-0.9l6.7-1.3l8.9-1.8l11.1-2.2l13.3-2.6l15.6-3.1l17.8-3.5l20-4l22.2-4.4l24.4-4.8l26.7-5.3l28.9-5.7l31.1-6.2l33.3-6.6l35.6-7l37.8-7.5l40-7.9l42.2-8.4l44.4-8.8l46.7-9.2l48.9-9.7l51.1-10.1l53.3-10.6l55.6-11l57.8-11.4l60-11.9l62.2-12.3l64.4-12.8l66.7-13.2l68.9-13.6l71.1-14.1l73.3-14.5l75.6-14.9l77.8-15.4l80-15.8l82.2-16.3l84.4-16.7l86.7-17.2l88.9-17.6l91.1-18l93.3-18.5l95.6-18.9l97.8-19.4L970.3,121.1z"/>
+            <path class="continent c-af" onclick="openScoutModal('Afrika')" d="M948.5,340c-4.6,3.7-9.8,7-15.1,9.9c-5.1,2.9-10.4,5.5-15.8,7.9c-10,4.6-20.3,8.8-31.1,12.3c-5.1,1.8-10.4,3.3-15.6,4.6c-11.5,3.3-23.1,6.2-35.1,8.2c-4.9,0.9-9.8,1.8-14.9,2.4c-12.9,1.8-25.9,3.1-39.1,3.7c-4.7,0.2-9.6,0.4-14.4,0.4c-14,0.2-27.8-0.4-42-1.5c-4.6-0.4-9.1-0.9-13.8-1.5c-14.9-2-29.8-4.8-44.5-8.6c-4.2-1.1-8.5-2.4-12.8-3.7c-15.6-4.8-30.9-10.6-46.1-17.2c-3.8-1.8-7.6-3.5-11.3-5.5c-15.8-7.3-31.3-15.6-46.6-24.7c-3.5-2-6.9-4.2-10.4-6.4c-15.8-9.7-31.1-20.3-46.1-31.5c-3.1-2.2-6.2-4.6-9.3-7.1c-15.6-11.9-30.6-24.5-45.2-37.8c-2.6-2.4-5.3-4.8-7.8-7.3c-14.9-14-29.3-28.5-43.1-43.5c-2.2-2.4-4.4-4.8-6.6-7.3c-13.8-16.1-27.1-32.7-39.8-49.9c-1.8-2.4-3.7-4.8-5.5-7.3c-12.6-17.9-24.7-36.2-36.2-55c-1.5-2.4-2.9-4.8-4.2-7.3c-11.3-19.6-22.2-39.6-32.5-59.8c-1.1-2.2-2.2-4.2-3.1-6.4c-9.8-21.1-19.1-42.4-27.8-64.1c-0.7-1.8-1.5-3.5-2.2-5.3c-8.2-22.2-16.1-44.7-23.4-67.3c-0.4-1.3-0.9-2.6-1.3-4c-6.9-22.9-13.1-46.1-19.1-69.5l-2.2,0.4l-4.4,0.9l-6.7,1.3l-8.9,1.8l-11.1,2.2l-13.3,2.6l-15.6,3.1l-17.8,3.5l-20,4l-22.2,4.4l-24.4,4.8l-26.7,5.3l-28.9,5.7l-31.1,6.2l-33.3,6.6l-35.6,7l-37.8,7.5l-40,7.9l-42.2,8.4l-44.4,8.8l-46.7,9.2l-48.9,9.7l-51.1,10.1l-53.3,10.6l-55.6,11l-57.8,11.4l-60,11.9l-62.2,12.3l-64.4,12.8l-66.7,13.2l-68.9,13.6l-71.1,14.1l-73.3,14.5l-75.6,14.9l-77.8,15.4l-80,15.8l-82.2,16.3l-84.4,16.7l-86.7,17.2l-88.9,17.6l-91.1,18l-93.3,18.5l-95.6,18.9l-97.8,19.4L948.5,340z"/>
+            <path class="continent c-as" onclick="openScoutModal('Asya')" d="M1363.2,138.6c-5.7,3.8-11.9,7-18.2,9.7c-6.2,2.6-12.6,4.8-19.3,6.6c-12,3.5-24.5,6.4-37.1,8.6c-6.2,1.1-12.4,2-18.7,2.6c-13.5,1.3-27.3,2.2-41.1,2.9c-5.8,0.2-11.9,0.2-17.8,0c-14.7-0.2-29.3-0.9-44.1-2.2c-5.7-0.4-11.3-1.1-16.9-1.8c-15.8-2-31.5-4.8-46.9-8.4c-5.3-1.3-10.6-2.6-15.8-4.2c-16.9-5.3-33.6-11.5-50-18.5c-4.2-1.8-8.5-3.7-12.6-5.7c-17.5-8.4-34.5-17.6-50.9-27.8c-3.8-2.2-7.6-4.6-11.3-7.1c-17.1-10.8-33.8-22.5-49.9-34.8c-3.5-2.6-6.9-5.3-10.1-7.9c-16.3-13.3-32-27.3-47.2-42.1c-2.6-2.6-5.3-5.3-7.8-7.9c-15.1-15.8-29.8-32.3-43.9-49.3c-2.2-2.6-4.2-5.3-6.2-7.9c-13.5-18.2-26.8-37-38.9-56.3c-1.6-2.6-3.1-5.1-4.6-7.9c-11.9-20.5-23.6-41.6-34.5-63c-1.3-2.4-2.6-4.8-3.8-7.1c-10.8-21.8-21.1-44.2-31.1-66.8c-0.9-2-1.8-4-2.6-6.2c-9.6-23.1-18.7-46.6-27.3-70.4c-0.7-1.8-1.3-3.5-2-5.3c-8.5-24.2-16.7-48.6-24.3-73.3c-0.4-1.3-0.9-2.9-1.3-4.2c-7.3-24.9-13.8-50.2-20.1-75.8l-2.2,0.4l-4.4,0.9l-6.7,1.3l-8.9,1.8l-11.1,2.2l-13.3,2.6l-15.6,3.1l-17.8,3.5l-20,4l-22.2,4.4l-24.4,4.8l-26.7,5.3l-28.9,5.7l-31.1,6.2l-33.3,6.6l-35.6,7l-37.8,7.5l-40,7.9l-42.2,8.4l-44.4,8.8l-46.7,9.2l-48.9,9.7l-51.1,10.1l-53.3,10.6l-55.6,11l-57.8,11.4l-60,11.9l-62.2,12.3l-64.4,12.8l-66.7,13.2l-68.9,13.6l-71.1,14.1l-73.3,14.5l-75.6,14.9l-77.8,15.4l-80,15.8l-82.2,16.3l-84.4,16.7l-86.7,17.2l-88.9,17.6l-91.1,18l-93.3,18.5l-95.6,18.9l-97.8,19.4L1363.2,138.6z"/>
+            <path class="continent c-au" onclick="openScoutModal('Avustralya')" d="M1737,372.8c-4-3.1-8.4-5.7-12.8-8.2c-4.6-2.2-9.3-4-14-5.7c-8.7-2.9-17.7-5.3-26.9-7.1c-4.6-0.9-9.1-1.8-13.8-2.2c-9.8-1.1-19.8-1.8-30-2.4c-4.4-0.2-8.7-0.2-13.1,0c-10.8,0.2-21.4,0.9-32.3,2c-4.2,0.4-8.4,0.9-12.6,1.5c-11.7,2-23.4,4.6-34.8,7.9c-3.8,1.1-7.6,2.4-11.5,3.7c-12.6,4.6-24.9,9.9-36.9,16.3c-3.1,1.5-6.2,3.3-9.3,5.1c-12.9,7.3-25.4,15.4-37.6,24.5c-2.8,2-5.5,4.2-8.2,6.4c-12.6,9.7-24.9,20.3-36.5,31.5c-2.6,2.4-5.1,4.8-7.5,7.3c-12.2,11.9-23.8,24.9-35.1,38.3c-2,2.4-4,4.6-5.7,7.3c-11.1,13.9-21.8,28.5-32,43.5c-1.8,2.6-3.5,5.3-5.1,8.2c-10.1,15.8-19.8,32.3-28.9,49.3c-1.5,2.6-2.9,5.1-4.2,7.9c-9.3,17.7-18.2,35.8-26.7,54.5c-1.1,2.2-2.2,4.6-3.1,6.8c-8.2,19.6-15.8,39.6-23.2,60c-0.7,1.8-1.5,3.7-2,5.7c-7.3,21.1-14.2,42.6-20.7,64.4c-0.4,1.5-0.9,3.1-1.3,4.6c-6.4,22.5-12.2,45.2-17.6,68.2l-2.2,0.4l-4.4,0.9l-6.7,1.3l-8.9,1.8l-11.1,2.2l-13.3,2.6l-15.6,3.1l-17.8,3.5l-20,4l-22.2,4.4l-24.4,4.8l-26.7,5.3l-28.9,5.7l-31.1,6.2l-33.3,6.6l-35.6,7l-37.8,7.5l-40,7.9l-42.2,8.4l-44.4,8.8l-46.7,9.2l-48.9,9.7l-51.1,10.1l-53.3,10.6l-55.6,11l-57.8,11.4l-60,11.9l-62.2,12.3l-64.4,12.8l-66.7,13.2l-68.9,13.6l-71.1,14.1l-73.3,14.5l-75.6,14.9l-77.8,15.4l-80,15.8l-82.2,16.3l-84.4,16.7l-86.7,17.2l-88.9,17.6l-91.1,18l-93.3,18.5l-95.6,18.9l-97.8,19.4L1737,372.8z"/>
         </svg>
     </div>
 
@@ -266,10 +270,10 @@
     // LOGIN
     function openPassModal(n,c,r,p,rl){pendingLogin={name:n,code:c,rep:r,pass:p,role:rl};document.getElementById('passwordModal').style.display='flex';}
     function closePassModal(){document.getElementById('passwordModal').style.display='none';}
-    function checkPassword(){if(document.getElementById('passInput').value===pendingLogin.pass){currentUser=pendingLogin;localStorage.setItem('u_v101',JSON.stringify(currentUser));init();}}
+    function checkPassword(){if(document.getElementById('passInput').value===pendingLogin.pass){currentUser=pendingLogin;localStorage.setItem('u_v102',JSON.stringify(currentUser));init();}}
     function init(){document.getElementById('loginOverlay').style.display='none';document.getElementById('passwordModal').style.display='none';document.getElementById('headerTeamName').innerText=currentUser.name; if(currentUser.role==='admin'){document.getElementById('adminPanel').style.display='block';document.getElementById('managerTabs').style.display='none';}else{document.getElementById('managerTabs').style.display='flex';switchPage('section-transfer');applyFilters();}}
-    function checkSession(){const s=localStorage.getItem('u_v101');if(s){currentUser=JSON.parse(s);init();}}
-    function logout(){localStorage.removeItem('u_v101');location.reload();}
+    function checkSession(){const s=localStorage.getItem('u_v102');if(s){currentUser=JSON.parse(s);init();}}
+    function logout(){localStorage.removeItem('u_v102');location.reload();}
 </script>
 </body>
 </html>
