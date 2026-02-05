@@ -3,392 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v15 | Ultimate</title>
+    <title>Transfer Ligi v15 | Profil & Kadro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-body: #050505; --bg-card: #121212; --bg-input: #1f1f1f;
-            --text-main: #e0e0e0; --text-muted: #888;
-            --radar-color: #00ff88; 
-            --accent-blue: #3da9fc; --accent-green: #2cb67d; --accent-gold: #ffd700;
-            --danger: #ff4757; --border: #333;
+            --bg: #090909; --card: #141414; --accent: #00ff88; --text: #eee; --gold: #ffd700;
         }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        button { cursor: pointer; font-family: inherit; }
 
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 350px; overflow-x: hidden; }
-        button, select, input { font-family: inherit; outline: none; }
+        /* GİRİŞ & HEADER */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .team-btn { padding: 15px 30px; margin: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; border-radius: 8px; font-size: 1.1rem; transition: 0.3s; }
+        .team-btn:hover { border-color: var(--accent); background: #222; transform: scale(1.05); }
 
-        /* HEADER */
-        header { background: rgba(18, 18, 18, 0.95); padding: 0 2rem; height: 80px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .brand { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
-        .user-profile { display: flex; align-items: center; gap: 15px; }
-        .user-avatar { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent-blue), #2a75b3); color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; box-shadow: 0 0 15px rgba(61, 169, 252, 0.4); }
-
-        /* TABS */
-        .nav-tabs { display: flex; justify-content: center; background: #0a0a0a; padding: 15px 0; gap: 15px; border-bottom: 1px solid var(--border); }
-        .tab-btn { background: transparent; border: 1px solid #333; color: var(--text-muted); padding: 12px 35px; cursor: pointer; border-radius: 30px; transition: 0.3s; font-weight: 700; }
-        .tab-btn.active { background: var(--radar-color); color: #000; border-color: var(--radar-color); box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
-
-        .page-section { display: none; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .page-section.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* FILTER PANEL */
-        .filter-panel { background: var(--bg-card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 30px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .filter-row { display: flex; gap: 15px; flex-wrap: wrap; }
-        .search-input, .filter-select { height: 50px; padding: 0 20px; background: var(--bg-input); border: 1px solid var(--border); color: #fff; border-radius: 10px; flex: 1; min-width: 150px; font-size: 0.95rem; }
-        .btn-action { height: 50px; padding: 0 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; background: var(--accent-blue); color: #000; display: flex; align-items: center; gap: 8px; }
+        header { padding: 0 20px; height: 80px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: rgba(20,20,20,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(5px); }
+        .brand { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+        
+        /* SEKMELER */
+        .tabs { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #111; }
+        .tab { padding: 10px 20px; background: transparent; border: 1px solid #333; color: #888; border-radius: 20px; font-weight: bold; }
+        .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
         /* KART TASARIMI */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .player-card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); position: relative; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; }
-        .player-card:hover { transform: translateY(-8px); border-color: #444; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        .player-card::before { content: ''; position: absolute; top:0; left:0; width:100%; height:4px; background: linear-gradient(90deg, var(--accent-blue), var(--radar-color)); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border: 1px solid #333; border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; position: relative; }
+        .card:hover { transform: translateY(-5px); border-color: #555; }
         
-        .card-header { padding: 20px; display: flex; align-items: center; gap: 15px; }
-        .rating-circle { width: 55px; height: 55px; background: linear-gradient(145deg, #1a1a1a, #000); border: 2px solid var(--radar-color); color: var(--radar-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); flex-shrink: 0; }
-        .player-info h3 { margin: 0; font-size: 1.2rem; color: #fff; }
-        .player-info span { font-size: 0.85rem; color: #999; display: block; margin-top: 4px; }
+        .card-head { padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; }
+        .rating { width: 45px; height: 45px; background: #000; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--accent); }
         
-        .status-badge { margin: 0 20px 15px 20px; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .st-free { background: rgba(61, 169, 252, 0.15); color: var(--accent-blue); border: 1px solid rgba(61, 169, 252, 0.3); }
+        .card-body { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: #aaa; }
+        .card-body b { color: #fff; display: block; font-size: 0.95rem; }
         
-        .card-stats { padding: 15px 20px; background: rgba(255,255,255,0.03); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #222; border-bottom: 1px solid #222; }
-        .stat-item span { display: block; font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-        .stat-item strong { color: #eee; font-size: 0.95rem; font-weight: 600; }
+        /* DETAYLI PROFİL MODALI (YENİ) */
+        #profileModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #161616; width: 90%; max-width: 500px; border-radius: 16px; border: 1px solid var(--accent); overflow: hidden; position: relative; }
+        .modal-header { background: #1a1a1a; padding: 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #333; }
+        .big-rating { width: 70px; height: 70px; background: #000; border: 3px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+        .close-btn { position: absolute; top: 15px; right: 15px; color: #666; font-size: 1.5rem; cursor: pointer; }
         
-        .card-actions { padding: 20px; margin-top: auto; }
-        .btn-offer { width: 100%; height: 45px; background: transparent; color: var(--radar-color); border: 1px solid var(--radar-color); border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-offer:hover { background: var(--radar-color); color: #000; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
-        .fav-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #444; font-size: 1.3rem; cursor: pointer; transition: 0.2s; }
-        .fav-btn.active { color: var(--accent-gold); text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        /* Profil İstatistikleri */
+        .modal-body { padding: 20px; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.95rem; }
+        .info-row span { color: #888; }
+        
+        /* Hexagon Stat Grafiği (Basitleştirilmiş Liste) */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; background: #111; padding: 15px; border-radius: 10px; }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--gold); display: block; }
+        .stat-label { font-size: 0.75rem; color: #666; text-transform: uppercase; }
+        .blur-stat { filter: blur(4px); user-select: none; } /* Gizli Özellik Efekti */
 
-        /* RADAR SYSTEM */
-        .radar-wrapper { position: relative; min-height: 700px; display: flex; flex-direction: column; align-items: center; }
-        .radar-container { position: relative; width: 550px; height: 550px; border-radius: 50%; border: 2px solid rgba(0, 255, 136, 0.2); background: radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%); display: flex; align-items: center; justify-content: center; margin-top: 30px; box-shadow: 0 0 80px rgba(0, 255, 136, 0.05); transition: all 0.5s ease; }
-        .radar-scan { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0%, rgba(0, 255, 136, 0.1) 40%, rgba(0, 255, 136, 0.5) 50%, transparent 50%); animation: spin 3s linear infinite; pointer-events: none; z-index: 1; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .radar-blip { position: absolute; width: 100px; height: 100px; z-index: 5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
-        .pos-eu { top: 15%; left: 50%; transform: translateX(-50%); } 
-        .pos-af { bottom: 20%; right: 20%; } 
-        .pos-as { top: 35%; right: 5%; } 
-        .pos-na { top: 30%; left: 10%; } 
-        .pos-sa { bottom: 20%; left: 20%; }
-        
-        .blip-dot { width: 18px; height: 18px; background: #000; border: 2px solid var(--accent-gold); border-radius: 50%; box-shadow: 0 0 10px var(--accent-gold); margin-bottom: 8px; }
-        .blip-label { color: #888; font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 4px; }
-        .radar-blip:hover { z-index: 10; transform: scale(1.2) !important; }
-        .radar-blip:hover .blip-dot { background: var(--accent-gold); box-shadow: 0 0 30px var(--accent-gold); }
-        .radar-container.blurred { filter: blur(8px); opacity: 0.3; transform: scale(0.9); pointer-events: none; }
-        
-        .scout-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(18, 18, 18, 0.95); border: 1px solid var(--radar-color); padding: 40px; border-radius: 20px; width: 400px; text-align: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; box-shadow: 0 0 60px rgba(0, 255, 136, 0.15); z-index: 20; backdrop-filter: blur(10px); }
-        .scout-overlay.active { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
+        .modal-actions { padding: 20px; display: flex; gap: 10px; }
+        .btn-full { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+        .btn-scout { background: var(--gold); color: #000; }
+        .btn-buy { background: var(--accent); color: #000; }
+        .btn-sell { background: #ff4757; color: #fff; }
 
-        /* GİRİŞ & MODAL */
-        #loginOverlay, #passwordModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        #passwordModal { background: rgba(0,0,0,0.95); display: none; }
-        .login-box { background: var(--bg-card); padding: 50px; border-radius: 20px; border: 1px solid #333; text-align: center; width: 90%; max-width: 900px; }
-        .team-btn { background: #222; border: 1px solid #333; color: #ccc; padding: 25px; border-radius: 15px; cursor: pointer; display: inline-block; width: 130px; margin: 10px; }
-        .team-btn:hover { border-color: var(--radar-color); color: #fff; transform: translateY(-5px); }
-        .modal-box { background: var(--bg-card); padding: 40px; border-radius: 20px; border: 1px solid var(--accent-blue); width: 450px; text-align: center; }
-
-        /* ADMIN */
-        #adminPanel { position: fixed; bottom: 0; left: 0; width: 100%; height: 280px; background: #080808; border-top: 2px solid var(--danger); z-index: 8000; display: none; padding: 20px; }
+        /* Bildirim */
+        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: #000; padding: 15px 30px; border-radius: 8px; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
-    <div class="login-box">
-        <h1 style="color:#fff; margin-bottom:30px;">TRANSFER LİGİ</h1>
-        <div class="team-grid">
-            <div class="team-btn" onclick="openPassModal('Galatasaray', 'GS', 'manager')"><i class="fas fa-shield-alt" style="font-size:2rem; color:#e74c3c"></i><br>GS</div>
-            <div class="team-btn" onclick="openPassModal('Fenerbahçe', 'FB', 'manager')"><i class="fas fa-shield-alt" style="font-size:2rem; color:#f1c40f"></i><br>FB</div>
-            <div class="team-btn" onclick="openPassModal('Beşiktaş', 'BJK', 'manager')"><i class="fas fa-shield-alt" style="font-size:2rem; color:#fff"></i><br>BJK</div>
-            <div class="team-btn" onclick="openPassModal('Trabzonspor', 'TS', 'manager')"><i class="fas fa-shield-alt" style="font-size:2rem; color:#a55eea"></i><br>TS</div>
-            <div class="team-btn" style="border-color:var(--danger)" onclick="openPassModal('TFF', 'ADMIN', 'admin')"><i class="fas fa-user-tie" style="font-size:2rem; color:var(--danger)"></i><br>YÖNETİCİ</div>
-        </div>
+    <div class="login-box" style="text-align: center;">
+        <h1 style="color:#fff; margin-bottom:30px;">MENAJER GİRİŞİ</h1>
+        <button class="team-btn" onclick="login('Galatasaray')">Galatasaray</button>
+        <button class="team-btn" onclick="login('Fenerbahçe')">Fenerbahçe</button>
+        <button class="team-btn" onclick="login('Beşiktaş')">Beşiktaş</button>
+        <button class="team-btn" onclick="login('Trabzonspor')">Trabzonspor</button>
     </div>
 </div>
 
-<div id="passwordModal">
-    <div class="modal-box">
-        <h2 style="color:var(--accent-blue); margin-top:0;">Giriş Yap</h2>
-        <p style="color:#888;">Kuruluş Yılı Şifrenizdir</p>
-        <input type="password" id="passInput" class="search-input" placeholder="****" maxlength="4" style="text-align:center; font-size:1.5rem; letter-spacing:5px; margin:20px 0;">
-        <button class="btn-action" onclick="checkPassword()" style="width:100%; justify-content:center;">GİRİŞ</button>
-        <button onclick="closePassModal()" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">Vazgeç</button>
+<div id="profileModal">
+    <div class="modal-content">
+        <i class="fas fa-times close-btn" onclick="closeModal()"></i>
+        
+        <div class="modal-header">
+            <div class="big-rating" id="mRating">85</div>
+            <div>
+                <h2 id="mName" style="margin:0; color:#fff;">Icardi</h2>
+                <div id="mTeam" style="color:#888; font-size:0.9rem; margin-top:5px;">Galatasaray</div>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <div class="info-row"><span>Uyruk</span> <b id="mNation">Arjantin</b></div>
+            <div class="info-row"><span>Yaş</span> <b id="mAge">31</b></div>
+            <div class="info-row"><span>Boy / Ayak</span> <b id="mPhys">1.81 / Sağ</b></div>
+            <div class="info-row"><span>Sözleşme</span> <b id="mContract">2026</b></div>
+            <div class="info-row"><span>Piyasa Değeri</span> <b id="mVal" style="color:var(--accent)">20M €</b></div>
+
+            <div class="stats-grid" id="statsGrid">
+                </div>
+        </div>
+
+        <div class="modal-actions" id="modalActions">
+            </div>
     </div>
 </div>
 
 <header>
-    <div class="brand"><i class="fas fa-satellite-dish" style="color:var(--radar-color)"></i> TRANSFER v15</div>
-    <div class="user-profile">
-        <div><h4 id="headUser" style="margin:0; font-size:0.9rem; color:#fff;">--</h4></div>
-        <div class="user-avatar" id="headCode">?</div>
-        <i class="fas fa-power-off" onclick="logout()" style="color:var(--danger); margin-left:15px; cursor:pointer; font-size:1.2rem;"></i>
-    </div>
+    <div class="brand">TRANSFER V15</div>
+    <div id="userBadge" style="color:var(--accent); font-weight:bold;">--</div>
 </header>
 
-<div class="nav-tabs" id="managerTabs">
-    <button class="tab-btn active" id="btn-transfer" onclick="switchPage('section-transfer')">Transfer Merkezi</button>
-    <button class="tab-btn" id="btn-scout" onclick="switchPage('section-scout')">Scout Radar</button>
-    <button class="tab-btn" id="btn-watchlist" onclick="switchPage('section-watchlist')">Takip Listesi</button>
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('market')">Transfer Pazarı</button>
+    <button class="tab" onclick="switchTab('squad')">Kadrom</button>
 </div>
 
-<div id="section-transfer" class="page-section active">
-    <div class="filter-panel">
-        <div class="filter-row">
-            <input type="text" id="tName" class="search-input" placeholder="Oyuncu Adı..." onkeyup="applyFilters()">
-            <input type="text" id="tNation" class="search-input" placeholder="Uyruk..." onkeyup="applyFilters()">
-        </div>
-        <div class="filter-row">
-            <select id="tLeague" class="filter-select" onchange="applyFilters()">
-                <option value="">Tüm Ligler</option><option value="Süper Lig">Süper Lig</option><option value="Premier League">Premier League</option><option value="La Liga">La Liga</option><option value="Bundesliga">Bundesliga</option><option value="Serie A">Serie A</option>
-            </select>
-            <select id="tPos" class="filter-select" onchange="applyFilters()">
-                <option value="">Tüm Mevkiler</option><option value="Forvet">Forvet</option><option value="Kanat">Kanat</option><option value="Orta Saha">Orta Saha</option><option value="Stoper">Stoper</option><option value="Kaleci">Kaleci</option>
-            </select>
-            <button class="btn-action" onclick="applyFilters()"><i class="fas fa-search"></i> ARA</button>
-        </div>
-    </div>
-    <div class="grid" id="transferGrid"></div>
+<div class="container">
+    <input type="text" id="searchInput" placeholder="Oyuncu Ara..." style="width:100%; padding:15px; background:#1f1f1f; border:1px solid #333; color:#fff; border-radius:8px; margin-bottom:20px;" onkeyup="search()">
+    <div class="grid" id="grid"></div>
 </div>
 
-<div id="section-scout" class="page-section">
-    <div class="radar-wrapper">
-        <h2 style="color:var(--text-muted); font-weight:400; margin-bottom:10px;">HEDEF BÖLGE SEÇİN</h2>
-        
-        <div class="radar-container" id="radarSystem">
-            <div class="radar-scan"></div>
-            <div class="radar-blip pos-eu" onclick="selectRegion('Avrupa')"><div class="blip-dot"></div><div class="blip-label">AVRUPA</div></div>
-            <div class="radar-blip pos-na" onclick="selectRegion('Kuzey Amerika')"><div class="blip-dot"></div><div class="blip-label">K. AMERİKA</div></div>
-            <div class="radar-blip pos-sa" onclick="selectRegion('Güney Amerika')"><div class="blip-dot"></div><div class="blip-label">G. AMERİKA</div></div>
-            <div class="radar-blip pos-af" onclick="selectRegion('Afrika')"><div class="blip-dot"></div><div class="blip-label">AFRİKA</div></div>
-            <div class="radar-blip pos-as" onclick="selectRegion('Asya')"><div class="blip-dot"></div><div class="blip-label">ASYA</div></div>
-        </div>
-
-        <div class="scout-overlay" id="scoutPanel">
-            <h2 style="color:var(--radar-color); margin-top:0;">HEDEF KİLİTLENDİ</h2>
-            <p id="targetRegion" style="color:#fff; padding-bottom:15px; border-bottom:1px solid #333; margin-bottom:20px;">--</p>
-            <div class="form-group" style="text-align:left; margin-bottom:20px;">
-                <label style="color:#888; display:block; margin-bottom:5px;">Aranan Pozisyon</label>
-                <select id="scoutPos" class="filter-select" style="width:100%"><option value="Any">Farketmez</option><option value="Forvet">Forvet</option><option value="Kanat">Kanat</option><option value="Stoper">Stoper</option></select>
-            </div>
-            <button class="btn-action" onclick="launchScout()" style="width:100%; background:var(--radar-color); color:#000; justify-content:center;">TARAMAYI BAŞLAT</button>
-            <button onclick="resetRadar()" style="background:transparent; border:none; color:#666; margin-top:15px; cursor:pointer;">İptal</button>
-        </div>
-
-        <div id="scoutResults" style="display:none; width:100%; margin-top:30px;">
-            <div style="color:var(--radar-color); border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px; font-weight:bold;">RAPOR SONUÇLARI</div>
-            <div class="grid" id="scoutGrid"></div>
-        </div>
-    </div>
-</div>
-
-<div id="section-watchlist" class="page-section">
-    <h3 style="color:#888; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">Takip Listem</h3>
-    <div class="grid" id="watchlistGrid"></div>
-</div>
-
-<div id="adminPanel" style="display:flex;">
-    <div style="width:200px; padding-right:20px; border-right:1px solid #333;">
-        <div style="color:var(--danger); font-weight:bold;">TFF PANEL</div>
-        <button class="btn-action" style="margin-top:20px; background:var(--danger); color:#fff; width:100%; justify-content:center;">İLERLET</button>
-    </div>
-    <div style="flex:1; padding-left:20px; color:#666;">Transfer hareketleri burada görünür...</div>
-</div>
+<div id="toast">İşlem Başarılı!</div>
 
 <script>
-    let user = null; 
-    let pendingLogin = null;
-    let players = []; 
-    let watchlist = [];
+    const API_URL = "http://localhost:3000";
+    let myTeam = "";
+    let allPlayers = [];
+    let currentTab = 'market'; // 'market' veya 'squad'
 
-    // --- MOCK DATA (Server Yoksa Bu Çalışır) ---
-    const mockPlayers = [
-        {id:1, name:"Mauro Icardi", team:"Galatasaray", nation:"Arjantin", age:31, pos:"Forvet", rating:83, val:20000000},
-        {id:2, name:"Edin Dzeko", team:"Fenerbahçe", nation:"Bosna", age:37, pos:"Forvet", rating:81, val:4000000},
-        {id:3, name:"Semih Kılıçsoy", team:"Beşiktaş", nation:"Türkiye", age:18, pos:"Forvet", rating:77, val:15000000},
-        {id:4, name:"Erling Haaland", team:"Man City", nation:"Norveç", age:23, pos:"Forvet", rating:91, val:180000000},
-        {id:5, name:"Ferdi Kadıoğlu", team:"Fenerbahçe", nation:"Türkiye", age:24, pos:"Kanat", rating:80, val:20000000}
-    ];
-
-    window.onload = function() { checkSession(); };
-
-    // --- VERİ ÇEKME (Database or Mock) ---
-    async function fetchPlayers() {
-        try {
-            // Önce sunucuyu dener
-            const res = await fetch('http://localhost:3000/players');
-            players = await res.json();
-        } catch (e) {
-            console.warn("Sunucu yok, Demo verisi kullanılıyor.");
-            players = mockPlayers;
-        }
-        applyFilters();
+    // --- GİRİŞ ---
+    function login(team) {
+        myTeam = team;
+        document.getElementById('userBadge').innerText = team + " Menajeri";
+        document.getElementById('loginOverlay').style.display = 'none';
+        loadData();
     }
 
-    // --- RENDER ---
-    function renderList(list, elId) {
-        const grid = document.getElementById(elId);
+    // --- VERİ ÇEKME ---
+    async function loadData() {
+        try {
+            const res = await fetch(`${API_URL}/players`);
+            allPlayers = await res.json();
+            render();
+        } catch (e) {
+            alert("Sunucuya bağlanılamadı! 'node server.js' açık mı?");
+        }
+    }
+
+    // --- RENDER (LİSTELEME) ---
+    function render() {
+        const grid = document.getElementById('grid');
         grid.innerHTML = "";
         
-        if(list.length === 0) {
-            grid.innerHTML = "<p style='color:#666'>Sonuç yok.</p>";
-            return;
-        }
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        
+        // Filtreleme Mantığı
+        const filtered = allPlayers.filter(p => {
+            const nameMatch = p.name.toLowerCase().includes(term);
+            const isMine = p.team === myTeam;
+            
+            if (currentTab === 'squad') return isMine && nameMatch; // Kadrom sekmesi
+            else return !isMine && nameMatch; // Pazar sekmesi (Kendiminkileri görmeyeyim)
+        });
 
-        list.forEach(p => {
-            let valStr = (p.val / 1000000).toFixed(1) + "M €";
-            if(p.val < 1000000) valStr = (p.val / 1000).toFixed(0) + "K €";
-            const isW = watchlist.includes(p.id);
-
+        filtered.slice(0, 100).forEach(p => {
             grid.innerHTML += `
-            <div class="player-card ${isW?'watched':''}">
-                <div class="card-header">
-                    <div class="rating-circle">${p.rating}</div>
-                    <div class="player-info">
-                        <h3>${p.name}</h3>
-                        <span><i class="fas fa-shield-alt"></i> ${p.team}</span>
+            <div class="card" onclick="openProfile(${p.id})">
+                <div class="card-head">
+                    <div class="rating">${p.rating}</div>
+                    <div>
+                        <h3 style="margin:0">${p.name}</h3>
+                        <small style="color:#888">${p.pos} • ${p.nation}</small>
                     </div>
-                    <button class="fav-btn ${isW?'active':''}" onclick="toggleWatch(${p.id})"><i class="fas fa-star"></i></button>
                 </div>
-                
-                <div class="status-badge st-free"><i class="fas fa-check"></i> Müsait</div>
-                
-                <div class="card-stats">
-                    <div class="stat-item"><span>MEVKİ</span> <strong>${p.pos}</strong></div>
-                    <div class="stat-item"><span>YAŞ</span> <strong>${p.age}</strong></div>
-                    <div class="stat-item"><span>UYRUK</span> <strong><i class="fas fa-flag" style="color:#888;"></i> ${p.nation}</strong></div>
-                    <div class="stat-item"><span>DEĞER</span> <strong>${valStr}</strong></div>
-                </div>
-
-                <div class="card-actions">
-                    <button class="btn-offer" onclick="buyPlayer(${p.id}, '${p.name}')">
-                        <i class="fas fa-paper-plane"></i> SATIN AL
-                    </button>
+                <div class="card-body">
+                    <div>TAKIM <b>${p.team}</b></div>
+                    <div>YAŞ <b>${p.age}</b></div>
+                    <div style="grid-column: span 2; text-align:right; color:var(--accent)">${p.valStr}</div>
                 </div>
             </div>`;
         });
     }
 
-    // --- FİLTRELER ---
-    function applyFilters() {
-        const n = document.getElementById('tName').value.toLowerCase();
-        const na = document.getElementById('tNation').value.toLowerCase();
-        const p = document.getElementById('tPos').value;
-        const l = document.getElementById('tLeague').value;
+    // --- PROFİL MODALI (ÖNEMLİ KISIM) ---
+    function openProfile(id) {
+        const p = allPlayers.find(x => x.id === id);
+        if (!p) return;
 
-        const filtered = players.filter(x => {
-            const mName = x.name.toLowerCase().includes(n);
-            const mNat = x.nation.toLowerCase().includes(na);
-            // const mL = l === "Tüm Ligler" || x.league === l; // DB'de lig sütunu varsa açın
-            const mP = p === "Tüm Mevkiler" || x.pos.includes(p); // 'Mevki' sütunu 'Forvet' içeriyorsa
-            
-            return mName && mNat && mP;
-        });
-        
-        renderList(filtered, 'transferGrid');
-    }
+        // Temel Bilgiler
+        document.getElementById('mRating').innerText = p.rating;
+        document.getElementById('mName').innerText = p.name;
+        document.getElementById('mTeam').innerText = p.team;
+        document.getElementById('mNation').innerText = p.nation;
+        document.getElementById('mAge').innerText = p.age;
+        document.getElementById('mPhys').innerText = `${p.height || '?'} cm / ${p.foot || '?'}`;
+        document.getElementById('mContract').innerText = p.contract || '-';
+        document.getElementById('mVal').innerText = p.valStr;
 
-    // --- İŞLEMLER ---
-    async function buyPlayer(id, name) {
-        if(!confirm(name + " için teklif yapılsın mı?")) return;
+        // Özellikler (Scout Mantığı)
+        // Eğer oyuncu benim takımımdaysa özellikler açık, değilse kapalı
+        const isMine = p.team === myTeam;
+        const blurClass = isMine ? '' : 'blur-stat';
         
-        // Sunucuya istek at (Eğer sunucu varsa)
-        try {
-            await fetch('http://localhost:3000/buy', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ playerId: id, teamName: user.name })
-            });
-            alert("✅ Teklif sunucuya iletildi!");
-        } catch(e) {
-            alert("⚠️ Sunucu kapalı! İşlem sadece ekranda simüle edildi.");
-        }
-    }
+        const statsHTML = `
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_pace">${p.stats.pace}</span><span class="stat-label">HIZ</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_shoot">${p.stats.shooting}</span><span class="stat-label">ŞUT</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_pass">${p.stats.passing}</span><span class="stat-label">PAS</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_drib">${p.stats.dribbling}</span><span class="stat-label">DRİB</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_def">${p.stats.defending}</span><span class="stat-label">DEF</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_phy">${p.stats.physical}</span><span class="stat-label">FİZ</span></div>
+        `;
+        document.getElementById('statsGrid').innerHTML = statsHTML;
 
-    function toggleWatch(id) {
-        if(watchlist.includes(id)) watchlist = watchlist.filter(pid => pid !== id);
-        else watchlist.push(id);
-        
-        if(document.getElementById('section-watchlist').classList.contains('active')) {
-            renderList(players.filter(p => watchlist.includes(p.id)), 'watchlistGrid');
+        // Butonlar
+        const actionsDiv = document.getElementById('modalActions');
+        actionsDiv.innerHTML = "";
+
+        if (isMine) {
+            // Benim Oyuncumsa -> Satışa Çıkar
+            actionsDiv.innerHTML = `<button class="btn-full btn-sell" onclick="sellPlayer(${p.id})">SATIŞ LİSTESİNE KOY</button>`;
         } else {
-            applyFilters();
+            // Başkasınınsa -> Scout Gönder ve Satın Al
+            actionsDiv.innerHTML = `
+                <button class="btn-full btn-scout" onclick="revealStats()">GÖZLEMCİ GÖNDER</button>
+                <button class="btn-full btn-buy" onclick="buyPlayer(${p.id}, '${p.name}')">SATIN AL</button>
+            `;
         }
+
+        document.getElementById('profileModal').style.display = 'flex';
     }
 
-    // --- RADAR ---
-    function selectRegion(r) {
-        document.getElementById('radarSystem').classList.add('blurred');
-        document.getElementById('scoutPanel').classList.add('active');
-        document.getElementById('targetRegion').innerText = r;
+    function closeModal() {
+        document.getElementById('profileModal').style.display = 'none';
     }
-    function resetRadar() {
-        document.getElementById('radarSystem').classList.remove('blurred');
-        document.getElementById('scoutPanel').classList.remove('active');
-        document.getElementById('scoutResults').style.display='none';
-    }
-    function launchScout() {
-        document.getElementById('scoutPanel').classList.remove('active');
-        alert("📡 Tarama Başladı...");
+
+    // --- SCOUT EFEKTİ ---
+    function revealStats() {
+        const stats = document.querySelectorAll('.blur-stat');
+        if(stats.length === 0) return alert("Zaten raporlandı.");
+        
+        alert("🔍 Gözlemci gönderildi... Rapor bekleniyor...");
         setTimeout(() => {
-            document.getElementById('radarSystem').classList.remove('blurred');
-            document.getElementById('scoutResults').style.display='block';
-            // Rastgele 2 oyuncu getir (Demo)
-            renderList(players.slice(0, 2), 'scoutGrid');
+            stats.forEach(el => el.classList.remove('blur-stat'));
+            alert("✅ Rapor Geldi! Özellikler açıldı.");
         }, 1000);
     }
 
-    // --- SAYFA GEÇİŞLERİ ---
-    function switchPage(sid) {
-        document.querySelectorAll('.page-section').forEach(e => e.classList.remove('active'));
-        document.getElementById(sid).classList.add('active');
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    // --- TRANSFER İŞLEMLERİ ---
+    async function buyPlayer(id, name) {
+        if(!confirm(`${name} transfer edilsin mi?`)) return;
         
-        if(sid === 'section-transfer') document.getElementById('btn-transfer').classList.add('active');
-        if(sid === 'section-scout') document.getElementById('btn-scout').classList.add('active');
-        if(sid === 'section-watchlist') {
-            document.getElementById('btn-watchlist').classList.add('active');
-            renderList(players.filter(p => watchlist.includes(p.id)), 'watchlistGrid');
-        }
+        await fetch(`${API_URL}/buy`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ playerId: id, teamName: myTeam })
+        });
+        
+        closeModal();
+        showToast("Transfer Başarılı!");
+        loadData();
     }
 
-    // --- LOGIN ---
-    function openPassModal(n,c,r) { pendingLogin={name:n,code:c,role:r}; document.getElementById('passwordModal').style.display='flex'; }
-    function closePassModal() { document.getElementById('passwordModal').style.display='none'; }
-    function checkPassword() {
-        // Şifreler: 1905, 1907, 1903, 1967, 1925, 2024
-        const p = document.getElementById('passInput').value;
-        if(p.length === 4) { // Basit kontrol
-            user = pendingLogin;
-            localStorage.setItem('u15', JSON.stringify(user));
-            init();
-        } else { alert("Hatalı Şifre"); }
+    async function sellPlayer(id) {
+        if(!confirm("Oyuncu boşa çıkarılsın mı?")) return;
+
+        await fetch(`${API_URL}/sell`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ playerId: id })
+        });
+
+        closeModal();
+        showToast("Oyuncu Satış Listesine Kondu.");
+        loadData();
     }
-    function init() {
-        document.getElementById('loginOverlay').style.display='none';
-        document.getElementById('passwordModal').style.display='none';
-        document.getElementById('headUser').innerText = user.name;
-        document.getElementById('headCode').innerText = user.code;
-        
-        if(user.role === 'admin') {
-            document.getElementById('adminPanel').style.display = 'flex';
-            document.getElementById('managerTabs').style.display = 'none';
-            document.getElementById('section-transfer').classList.remove('active');
-        } else {
-            document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('managerTabs').style.display = 'flex';
-            fetchPlayers();
-        }
+
+    // --- SEKME DEĞİŞİMİ ---
+    function switchTab(tabName) {
+        currentTab = tabName;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        render(); // Listeyi yeni moda göre yenile
     }
-    function checkSession() {
-        const s = localStorage.getItem('u15');
-        if(s) { user = JSON.parse(s); init(); }
-    }
-    function logout() { localStorage.removeItem('u15'); location.reload(); }
+
+    function search() { render(); }
+    function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
 
 </script>
 </body>
