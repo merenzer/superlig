@@ -3,176 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v14 | Canlı Veritabanı</title>
+    <title>Transfer Ligi v14 | DB Connected</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- PREMIUM TASARIM (ÖNCEKİYLE AYNI) --- */
-        :root { --bg-body: #050505; --bg-card: #121212; --accent-blue: #3da9fc; --accent-green: #2cb67d; --accent-gold: #ffd700; --danger: #ff4757; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: #e0e0e0; margin: 0; padding-bottom: 100px; }
+        :root { --bg: #090909; --card: #141414; --accent: #00ff88; --text: #eee; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* HEADER */
-        header { background: rgba(18,18,18,0.95); padding: 0 2rem; height: 80px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .brand { font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(61, 169, 252, 0.5); }
+        /* HEADER & GİRİŞ */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { text-align: center; }
+        .team-btn { padding: 15px 30px; margin: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; cursor: pointer; border-radius: 8px; font-size: 1.1rem; transition: 0.3s; }
+        .team-btn:hover { border-color: var(--accent); background: #222; transform: scale(1.05); }
+
+        header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: rgba(20,20,20,0.9); position: sticky; top: 0; z-index: 100; }
+        .brand { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; }
         
-        /* GRID */
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        
+        /* ARAMA & FİLTRE */
+        .filter-panel { padding: 20px; display: flex; gap: 10px; max-width: 1200px; margin: 0 auto; }
+        .search-input { flex: 1; padding: 15px; background: #1f1f1f; border: 1px solid #333; color: white; border-radius: 8px; }
+        .search-btn { padding: 0 30px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
         /* KART TASARIMI */
-        .player-card { background: var(--bg-card); border-radius: 16px; border: 1px solid #333; overflow: hidden; position: relative; transition: 0.3s; }
-        .player-card:hover { transform: translateY(-7px); border-color: #555; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .player-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid #333; border-radius: 12px; overflow: hidden; position: relative; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: #555; }
         
-        .card-header { padding: 20px; display: flex; align-items: center; gap: 15px; }
-        .rating-circle { width: 50px; height: 50px; background: #1a1a1a; border: 2px solid var(--accent-green); color: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
-        .player-info h3 { margin: 0; color: #fff; font-size: 1.1rem; }
-        .player-info span { font-size: 0.8rem; color: #888; }
+        .card-header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; }
+        .rating { width: 50px; height: 50px; background: #000; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+        .info h3 { margin: 0; font-size: 1.1rem; }
+        .info span { font-size: 0.85rem; color: #888; }
         
-        .card-stats { padding: 15px 20px; background: rgba(255,255,255,0.03); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #222; border-bottom: 1px solid #222; }
-        .stat-item span { display: block; font-size: 0.65rem; color: #666; text-transform: uppercase; }
-        .stat-item strong { color: #eee; font-size: 0.95rem; }
+        .stats { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: #aaa; }
+        .stats b { color: #fff; display: block; font-size: 1rem; }
         
-        .card-actions { padding: 20px; }
-        .btn-buy { width: 100%; padding: 12px; background: var(--accent-green); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-buy:hover { box-shadow: 0 0 15px rgba(44, 182, 125, 0.4); }
-        
-        /* GİRİŞ EKRANI */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: #111; padding: 40px; border-radius: 20px; border: 1px solid #333; text-align: center; }
-        .team-btn { padding: 15px 30px; margin: 10px; border: 1px solid #444; background: #222; color: #fff; cursor: pointer; border-radius: 8px; }
-        .team-btn:hover { border-color: var(--accent-blue); }
+        .actions { padding: 15px; }
+        .btn-buy { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-buy:hover { background: var(--accent); color: #000; }
+        .btn-sold { width: 100%; padding: 12px; background: #333; color: #666; border: none; border-radius: 8px; cursor: not-allowed; }
 
         /* Bildirim */
-        #notification { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #000; padding: 15px 25px; border-radius: 8px; font-weight: bold; display: none; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: #000; padding: 15px 30px; border-radius: 8px; font-weight: bold; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2>Takımını Seç</h2>
-        <button class="team-btn" onclick="login('Galatasaray')">Galatasaray</button>
-        <button class="team-btn" onclick="login('Fenerbahçe')">Fenerbahçe</button>
-        <button class="team-btn" onclick="login('Beşiktaş')">Beşiktaş</button>
+        <h1 style="color:#fff; margin-bottom:30px;">TAKIMINI SEÇ</h1>
+        <button class="team-btn" onclick="selectTeam('Galatasaray')">Galatasaray</button>
+        <button class="team-btn" onclick="selectTeam('Fenerbahçe')">Fenerbahçe</button>
+        <button class="team-btn" onclick="selectTeam('Beşiktaş')">Beşiktaş</button>
+        <button class="team-btn" onclick="selectTeam('Trabzonspor')">Trabzonspor</button>
+        <br><br>
+        <input type="text" id="customTeam" placeholder="Diğer Takım Adı..." style="padding:10px; border-radius:5px; border:none;">
+        <button class="team-btn" style="padding:10px;" onclick="selectTeam(document.getElementById('customTeam').value)">Giriş</button>
     </div>
 </div>
 
 <header>
-    <div class="brand"><i class="fas fa-bolt"></i> TRANSFER LİGİ</div>
-    <div style="color:var(--accent-blue); font-weight:bold;" id="userDisplay">--</div>
+    <div class="brand">TRANSFER MERKEZİ</div>
+    <div id="userBadge" style="color:var(--accent); font-weight:bold;">--</div>
 </header>
 
-<div class="container">
-    <h3 style="color:#888; border-bottom:1px solid #333; padding-bottom:10px;">Transfer Pazarı</h3>
-    <div class="grid" id="playerGrid">
-        </div>
+<div class="filter-panel">
+    <input type="text" id="searchInput" class="search-input" placeholder="Oyuncu ara..." onkeypress="if(event.key==='Enter') search()">
+    <button class="search-btn" onclick="search()">ARA</button>
 </div>
 
-<div id="notification">İşlem Başarılı!</div>
+<div class="grid" id="grid"></div>
+<div id="toast">İşlem Başarılı!</div>
 
 <script>
-    // --- AYARLAR ---
-    const API_URL = "http://localhost:3000"; // Backend Adresi
-    let currentTeam = null;
+    let myTeam = "";
+    let allPlayers = [];
 
-    // --- GİRİŞ ---
-    function login(team) {
-        currentTeam = team;
-        document.getElementById('userDisplay').innerText = team + " Menajeri";
+    // Takım Seçimi
+    function selectTeam(team) {
+        if(!team) return alert("Lütfen bir takım seçin!");
+        myTeam = team;
+        document.getElementById('userBadge').innerText = team + " Menajeri";
         document.getElementById('loginOverlay').style.display = 'none';
-        fetchPlayers(); // Oyuncuları veritabanından çek
+        loadData();
     }
 
-    // --- VERİTABANINDAN OKUMA (READ) ---
-    async function fetchPlayers() {
+    // Verileri Çek
+    async function loadData() {
         try {
-            const response = await fetch(`${API_URL}/players`);
-            const players = await response.json();
-            renderPlayers(players);
-        } catch (error) {
-            console.error("Bağlantı hatası:", error);
-            alert("Veritabanına bağlanılamadı. Backend'i başlattın mı?");
+            const res = await fetch('http://localhost:3000/players');
+            allPlayers = await res.json();
+            render(allPlayers.slice(0, 100)); // İlk 100 oyuncuyu göster (performans için)
+        } catch (e) {
+            alert("Veritabanı bağlantısı yok! 'node server.js' çalışıyor mu?");
         }
     }
 
-    // --- EKRANA BASMA ---
-    function renderPlayers(list) {
-        const grid = document.getElementById('playerGrid');
+    // Arama
+    function search() {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(val));
+        render(filtered.slice(0, 50));
+    }
+
+    // Ekrana Basma
+    function render(list) {
+        const grid = document.getElementById('grid');
         grid.innerHTML = "";
         
         list.forEach(p => {
-            // Eğer oyuncu bir takımdaysa SATIN AL butonu çıkmasın
-            // Veya sadece boşta olanları ('free') gösterelim
-            const isSold = p.team !== 'Boşta' && p.team !== '' && p.team !== null;
+            // Takım kontrolü: Eğer takım adı "HAYIR" veya boşsa oyuncu boştadır.
+            // Veritabanında "HAYIR" diye bir değer gördüm, onu boş kabul ediyoruz.
+            const isFree = p.team === 'HAYIR' || p.team === '' || p.team === null;
+            const isMine = p.team === myTeam;
             
-            // Kart HTML
-            grid.innerHTML += `
-            <div class="player-card" style="${isSold ? 'opacity:0.5' : ''}">
-                <div class="card-header">
-                    <div class="rating-circle">${p.rating}</div>
-                    <div class="player-info">
-                        <h3>${p.name}</h3>
-                        <span>${isSold ? p.team : '❌ Boşta'}</span>
-                    </div>
-                    <div style="margin-left:auto; font-size:1.5rem;">
-                        ${p.nation === 'Türkiye' ? '🇹🇷' : '🌍'}
-                    </div>
-                </div>
-                
-                <div class="card-stats">
-                    <div class="stat-item"><span>MEVKİ</span> <strong>${p.pos}</strong></div>
-                    <div class="stat-item"><span>YAŞ</span> <strong>${p.age}</strong></div>
-                    <div class="stat-item"><span>UYRUK</span> <strong>${p.nation}</strong></div>
-                    <div class="stat-item"><span>DEĞER</span> <strong>${(p.val/1000000).toFixed(1)}M €</strong></div>
-                </div>
+            let btnHTML = '';
+            if (isMine) {
+                btnHTML = `<button class="btn-sold" style="color:var(--accent)">KADRONUZDA</button>`;
+            } else if (!isFree) {
+                btnHTML = `<button class="btn-sold">${p.team}</button>`; // Satılmış
+            } else {
+                btnHTML = `<button class="btn-buy" onclick="buyPlayer(${p.id}, '${p.name}')">SATIN AL (${p.valString})</button>`;
+            }
 
-                <div class="card-actions">
-                    ${isSold 
-                        ? `<button class="btn-buy" style="background:#333; color:#666; cursor:not-allowed;">SATILDI</button>` 
-                        : `<button class="btn-buy" onclick="buyPlayer(${p.id}, '${p.name}', ${p.val})">SATIN AL (${(p.val/1000000).toFixed(1)}M)</button>`
-                    }
+            grid.innerHTML += `
+            <div class="card">
+                <div class="card-header">
+                    <div class="rating">${p.rating}</div>
+                    <div class="info">
+                        <h3>${p.name}</h3>
+                        <span>${p.nation}</span>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div>MEVKİ <b>${p.pos}</b></div>
+                    <div>YAŞ <b>${p.age}</b></div>
+                    <div>DEĞER <b>${p.valString}</b></div>
+                </div>
+                <div class="actions">
+                    ${btnHTML}
                 </div>
             </div>`;
         });
     }
 
-    // --- VERİTABANINA YAZMA (WRITE) ---
-    async function buyPlayer(id, name, price) {
-        if(!confirm(`${name} oyuncusunu ${price} € karşılığında ${currentTeam} kadrosuna katmak istiyor musun?`)) return;
+    // Satın Alma
+    async function buyPlayer(id, name) {
+        if(!confirm(name + " oyuncusunu " + myTeam + " kadrosuna katmak istiyor musunuz?")) return;
 
-        try {
-            // Sunucuya "Bu oyuncuyu bu takıma yaz" emri gönderiyoruz
-            const response = await fetch(`${API_URL}/buy`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    playerId: id,
-                    teamName: currentTeam
-                })
-            });
+        const res = await fetch('http://localhost:3000/buy', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ playerId: id, teamName: myTeam })
+        });
 
-            const result = await response.json();
-
-            if(result.success) {
-                showNotification(`✅ ${name} artık ${currentTeam} oyuncusu!`);
-                fetchPlayers(); // Listeyi yenile (Veritabanının son halini çek)
-            } else {
-                alert("Hata: " + result.message);
-            }
-
-        } catch (error) {
-            console.error("Satın alma hatası:", error);
+        const result = await res.json();
+        if(result.success) {
+            showToast(name + " transfer edildi!");
+            loadData(); // Listeyi yenile
+        } else {
+            alert("Hata oluştu!");
         }
     }
 
-    function showNotification(msg) {
-        const notif = document.getElementById('notification');
-        notif.innerText = msg;
-        notif.style.display = 'block';
-        setTimeout(() => notif.style.display = 'none', 3000);
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
     }
-
 </script>
+
 </body>
 </html>
