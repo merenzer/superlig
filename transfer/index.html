@@ -21,6 +21,10 @@
         header { padding: 0 20px; height: 80px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: rgba(20,20,20,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(5px); }
         .brand { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
         
+        /* CÜZDAN ALANI */
+        .user-profile { text-align: right; }
+        .wallet-box { color: var(--gold); font-weight: bold; font-size: 1.1rem; margin-top: 4px; }
+
         /* SEKMELER */
         .tabs { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #111; }
         .tab { padding: 10px 20px; background: transparent; border: 1px solid #333; color: #888; border-radius: 20px; font-weight: bold; }
@@ -33,29 +37,36 @@
         .card:hover { transform: translateY(-5px); border-color: #555; }
         
         .card-head { padding: 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222; }
-        .rating { width: 45px; height: 45px; background: #000; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--accent); }
+        
+        /* BAYRAK/REYTİNG KISMI GÜNCELLENDİ (Artık şeffaf ve büyük) */
+        .rating { 
+            width: 50px; height: 50px; 
+            background: transparent; /* Arkaplan şeffaf */
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; /* Bayrak büyük olsun */
+        }
         
         .card-body { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: #aaa; }
         .card-body b { color: #fff; display: block; font-size: 0.95rem; }
         
-        /* DETAYLI PROFİL MODALI (YENİ) */
+        /* DETAYLI PROFİL MODALI */
         #profileModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: #161616; width: 90%; max-width: 500px; border-radius: 16px; border: 1px solid var(--accent); overflow: hidden; position: relative; }
         .modal-header { background: #1a1a1a; padding: 20px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #333; }
-        .big-rating { width: 70px; height: 70px; background: #000; border: 3px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+        
+        .big-rating { width: 70px; height: 70px; background: transparent; font-size: 3rem; display: flex; align-items: center; justify-content: center; }
+        
         .close-btn { position: absolute; top: 15px; right: 15px; color: #666; font-size: 1.5rem; cursor: pointer; }
         
-        /* Profil İstatistikleri */
         .modal-body { padding: 20px; }
         .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.95rem; }
         .info-row span { color: #888; }
         
-        /* Hexagon Stat Grafiği (Basitleştirilmiş Liste) */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; background: #111; padding: 15px; border-radius: 10px; }
         .stat-box { text-align: center; }
         .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--gold); display: block; }
         .stat-label { font-size: 0.75rem; color: #666; text-transform: uppercase; }
-        .blur-stat { filter: blur(4px); user-select: none; } /* Gizli Özellik Efekti */
+        .blur-stat { filter: blur(4px); user-select: none; } 
 
         .modal-actions { padding: 20px; display: flex; gap: 10px; }
         .btn-full { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; transition: 0.3s; }
@@ -63,7 +74,6 @@
         .btn-buy { background: var(--accent); color: #000; }
         .btn-sell { background: #ff4757; color: #fff; }
 
-        /* Bildirim */
         #toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent); color: #000; padding: 15px 30px; border-radius: 8px; font-weight: bold; display: none; }
     </style>
 </head>
@@ -84,32 +94,33 @@
         <i class="fas fa-times close-btn" onclick="closeModal()"></i>
         
         <div class="modal-header">
-            <div class="big-rating" id="mRating">85</div>
+            <div class="big-rating" id="mRating">🏳️</div>
             <div>
-                <h2 id="mName" style="margin:0; color:#fff;">Icardi</h2>
-                <div id="mTeam" style="color:#888; font-size:0.9rem; margin-top:5px;">Galatasaray</div>
+                <h2 id="mName" style="margin:0; color:#fff;">--</h2>
+                <div id="mTeam" style="color:#888; font-size:0.9rem; margin-top:5px;">--</div>
             </div>
         </div>
 
         <div class="modal-body">
-            <div class="info-row"><span>Uyruk</span> <b id="mNation">Arjantin</b></div>
-            <div class="info-row"><span>Yaş</span> <b id="mAge">31</b></div>
-            <div class="info-row"><span>Boy / Ayak</span> <b id="mPhys">1.81 / Sağ</b></div>
-            <div class="info-row"><span>Sözleşme</span> <b id="mContract">2026</b></div>
-            <div class="info-row"><span>Piyasa Değeri</span> <b id="mVal" style="color:var(--accent)">20M €</b></div>
+            <div class="info-row"><span>Uyruk</span> <b id="mNation">--</b></div>
+            <div class="info-row"><span>Yaş</span> <b id="mAge">--</b></div>
+            <div class="info-row"><span>Boy / Ayak</span> <b id="mPhys">--</b></div>
+            <div class="info-row"><span>Sözleşme</span> <b id="mContract">--</b></div>
+            <div class="info-row"><span>Piyasa Değeri</span> <b id="mVal" style="color:var(--accent)">--</b></div>
 
-            <div class="stats-grid" id="statsGrid">
-                </div>
+            <div class="stats-grid" id="statsGrid"></div>
         </div>
 
-        <div class="modal-actions" id="modalActions">
-            </div>
+        <div class="modal-actions" id="modalActions"></div>
     </div>
 </div>
 
 <header>
     <div class="brand">TRANSFER V15</div>
-    <div id="userBadge" style="color:var(--accent); font-weight:bold;">--</div>
+    <div class="user-profile">
+        <div id="userBadge" style="color:#ccc; font-size:0.9rem;">Giriş Yapılmadı</div>
+        <div id="walletDisplay" class="wallet-box">0.0M €</div>
+    </div>
 </header>
 
 <div class="tabs">
@@ -125,17 +136,33 @@
 <div id="toast">İşlem Başarılı!</div>
 
 <script>
+    // SENİN CODESPACES LİNKİN (Aynen korudum)
     const API_URL = "https://probable-space-barnacle-5gjp5jp779qxfvjrv-3000.app.github.dev";
+    
     let myTeam = "";
+    let myBudget = 0; // Bütçe Değişkeni
     let allPlayers = [];
-    let currentTab = 'market'; // 'market' veya 'squad'
+    let currentTab = 'market';
 
     // --- GİRİŞ ---
-    function login(team) {
+    async function login(team) {
         myTeam = team;
         document.getElementById('userBadge').innerText = team + " Menajeri";
         document.getElementById('loginOverlay').style.display = 'none';
+        
+        await updateBudget(); // Giriş yapınca bütçeyi çek
         loadData();
+    }
+
+    // --- BÜTÇEYİ SUNUCUDAN ÇEK ---
+    async function updateBudget() {
+        try {
+            const res = await fetch(`${API_URL}/club/${myTeam}`);
+            const data = await res.json();
+            myBudget = data.budget || 0;
+            // Ekrana Yaz (50.0M € şeklinde)
+            document.getElementById('walletDisplay').innerText = (myBudget / 1000000).toFixed(1) + "M €";
+        } catch(e) { console.log("Bütçe hatası"); }
     }
 
     // --- VERİ ÇEKME ---
@@ -145,27 +172,27 @@
             allPlayers = await res.json();
             render();
         } catch (e) {
-            alert("Sunucuya bağlanılamadı! 'node server.js' açık mı?");
+            alert("Sunucuya bağlanılamadı! Codespaces'te 'node server.js' açık mı?");
         }
     }
 
-    // --- RENDER (LİSTELEME) ---
+    // --- RENDER ---
     function render() {
         const grid = document.getElementById('grid');
         grid.innerHTML = "";
         
         const term = document.getElementById('searchInput').value.toLowerCase();
         
-        // Filtreleme Mantığı
         const filtered = allPlayers.filter(p => {
             const nameMatch = p.name.toLowerCase().includes(term);
             const isMine = p.team === myTeam;
             
-            if (currentTab === 'squad') return isMine && nameMatch; // Kadrom sekmesi
-            else return !isMine && nameMatch; // Pazar sekmesi (Kendiminkileri görmeyeyim)
+            if (currentTab === 'squad') return isMine && nameMatch; 
+            else return !isMine && nameMatch; 
         });
 
         filtered.slice(0, 100).forEach(p => {
+            // p.rating sunucudan artık BAYRAK (🇦🇷) olarak geliyor.
             grid.innerHTML += `
             <div class="card" onclick="openProfile(${p.id})">
                 <div class="card-head">
@@ -184,13 +211,12 @@
         });
     }
 
-    // --- PROFİL MODALI (ÖNEMLİ KISIM) ---
+    // --- PROFİL MODALI ---
     function openProfile(id) {
         const p = allPlayers.find(x => x.id === id);
         if (!p) return;
 
-        // Temel Bilgiler
-        document.getElementById('mRating').innerText = p.rating;
+        document.getElementById('mRating').innerText = p.rating; // Bayrak
         document.getElementById('mName').innerText = p.name;
         document.getElementById('mTeam').innerText = p.team;
         document.getElementById('mNation').innerText = p.nation;
@@ -199,88 +225,92 @@
         document.getElementById('mContract').innerText = p.contract || '-';
         document.getElementById('mVal').innerText = p.valStr;
 
-        // Özellikler (Scout Mantığı)
-        // Eğer oyuncu benim takımımdaysa özellikler açık, değilse kapalı
         const isMine = p.team === myTeam;
         const blurClass = isMine ? '' : 'blur-stat';
         
         const statsHTML = `
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_pace">${p.stats.pace}</span><span class="stat-label">HIZ</span></div>
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_shoot">${p.stats.shooting}</span><span class="stat-label">ŞUT</span></div>
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_pass">${p.stats.passing}</span><span class="stat-label">PAS</span></div>
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_drib">${p.stats.dribbling}</span><span class="stat-label">DRİB</span></div>
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_def">${p.stats.defending}</span><span class="stat-label">DEF</span></div>
-            <div class="stat-box"><span class="stat-val ${blurClass}" id="s_phy">${p.stats.physical}</span><span class="stat-label">FİZ</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.pace}</span><span class="stat-label">HIZ</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.shooting}</span><span class="stat-label">ŞUT</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.passing}</span><span class="stat-label">PAS</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.dribbling}</span><span class="stat-label">DRİB</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.defending}</span><span class="stat-label">DEF</span></div>
+            <div class="stat-box"><span class="stat-val ${blurClass}">${p.stats.physical}</span><span class="stat-label">FİZ</span></div>
         `;
         document.getElementById('statsGrid').innerHTML = statsHTML;
 
-        // Butonlar
         const actionsDiv = document.getElementById('modalActions');
         actionsDiv.innerHTML = "";
 
         if (isMine) {
-            // Benim Oyuncumsa -> Satışa Çıkar
             actionsDiv.innerHTML = `<button class="btn-full btn-sell" onclick="sellPlayer(${p.id})">SATIŞ LİSTESİNE KOY</button>`;
         } else {
-            // Başkasınınsa -> Scout Gönder ve Satın Al
+            // BURADA SATIN AL BUTONUNA FİYAT (p.val) BİLGİSİNİ DE EKLİYORUZ
             actionsDiv.innerHTML = `
                 <button class="btn-full btn-scout" onclick="revealStats()">GÖZLEMCİ GÖNDER</button>
-                <button class="btn-full btn-buy" onclick="buyPlayer(${p.id}, '${p.name}')">SATIN AL</button>
+                <button class="btn-full btn-buy" onclick="buyPlayer(${p.id}, '${p.name}', ${p.val})">SATIN AL (${p.valStr})</button>
             `;
         }
 
         document.getElementById('profileModal').style.display = 'flex';
     }
 
-    function closeModal() {
-        document.getElementById('profileModal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
 
-    // --- SCOUT EFEKTİ ---
     function revealStats() {
         const stats = document.querySelectorAll('.blur-stat');
         if(stats.length === 0) return alert("Zaten raporlandı.");
-        
-        alert("🔍 Gözlemci gönderildi... Rapor bekleniyor...");
+        alert("🔍 Gözlemci gönderildi...");
         setTimeout(() => {
             stats.forEach(el => el.classList.remove('blur-stat'));
-            alert("✅ Rapor Geldi! Özellikler açıldı.");
-        }, 1000);
+            alert("✅ Rapor Geldi!");
+        }, 800);
     }
 
-    // --- TRANSFER İŞLEMLERİ ---
-    async function buyPlayer(id, name) {
-        if(!confirm(`${name} transfer edilsin mi?`)) return;
+    // --- SATIN ALMA (BÜTÇE KONTROLLÜ) ---
+    async function buyPlayer(id, name, priceVal) {
+        // 1. Önce Cüzdan Kontrolü
+        if (priceVal > myBudget) {
+            alert(`❌ BAKİYE YETERSİZ!\nGereken: ${(priceVal/1000000).toFixed(1)}M €\nSende: ${(myBudget/1000000).toFixed(1)}M €`);
+            return;
+        }
+
+        if(!confirm(`${name} oyuncusunu almak istiyor musun?`)) return;
         
-        await fetch(`${API_URL}/buy`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ playerId: id, teamName: myTeam })
+        // 2. Sunucuya Gönder (Fiyat bilgisiyle beraber)
+        const res = await fetch(`${API_URL}/buy`, {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ playerId: id, teamName: myTeam, price: priceVal }) 
         });
         
-        closeModal();
-        showToast("Transfer Başarılı!");
-        loadData();
+        const result = await res.json();
+
+        if(result.success) {
+            closeModal();
+            showToast("✅ Transfer Başarılı!");
+            updateBudget(); // Bakiyeyi yenile
+            loadData(); // Listeyi yenile
+        } else {
+            alert(result.msg || "Hata oluştu");
+        }
     }
 
     async function sellPlayer(id) {
         if(!confirm("Oyuncu boşa çıkarılsın mı?")) return;
-
         await fetch(`${API_URL}/sell`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ playerId: id })
         });
-
         closeModal();
         showToast("Oyuncu Satış Listesine Kondu.");
         loadData();
     }
 
-    // --- SEKME DEĞİŞİMİ ---
     function switchTab(tabName) {
         currentTab = tabName;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         event.target.classList.add('active');
-        render(); // Listeyi yeni moda göre yenile
+        render();
     }
 
     function search() { render(); }
