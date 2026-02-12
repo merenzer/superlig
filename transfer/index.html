@@ -249,7 +249,7 @@
             const data = await res.json();
             myBudget = data.budget || 0;
             document.getElementById('walletDisplay').innerText = (myBudget / 1000000).toFixed(1) + "M €";
-            document.getElementById('myTeamName').innerText = myTeam.replace(/_/g, ' ').toUpperCase();
+            document.getElementById('myTeamName').innerText = myTeam.toUpperCase();
         } catch(e) {}
     }
 
@@ -259,14 +259,27 @@
         renderMarket();
     }
 
+    // --- YENİ HELPER: TÜRKÇE KARAKTERLERİ İNGİLİZCEYE ÇEVİRİR ---
+    function formatFileName(name) {
+        return name.toLowerCase()
+            .replace(/ğ/g, "g")
+            .replace(/ü/g, "u")
+            .replace(/ş/g, "s")
+            .replace(/ı/g, "i")
+            .replace(/İ/g, "i")
+            .replace(/ö/g, "o")
+            .replace(/ç/g, "c")
+            .replace(/ /g, "_")
+            .trim();
+    }
+
     function renderMarket() {
         const grid = document.getElementById('grid');
         grid.innerHTML = "";
         const term = document.getElementById('searchInput').value.toLowerCase();
 
         const list = allPlayers.filter(p => {
-            // Arama yaparken de alt çizgiyi görmezden gelerek ara
-            const cleanName = p.name.replace(/_/g, ' ').toLowerCase();
+            const cleanName = p.name.toLowerCase(); 
             const matchName = cleanName.includes(term);
             
             if (currentView === 'squad') return matchName && p.team === myTeam;
@@ -278,29 +291,27 @@
     }
 
     function createCard(p, container) {
-        // --- İŞTE KRİTİK NOKTA: DİSPLAY VS PATH ---
+        // --- RESİM YOLU OLUŞTURMA (DÜZELTİLDİ) ---
         
-        // 1. GÖRÜNÜŞ (Display): Alt çizgileri sil ki güzel görünsün (Adana_Demirspor -> Adana Demirspor)
-        const displayTeam = p.team.replace(/_/g, ' '); 
+        // 1. Takım Adı: Klasör adı veritabanındakiyle aynı (Örn: Adana Demirspor)
+        // Eğer veritabanında _ varsa boşluğa çeviriyoruz.
+        const folderName = p.team.replace(/_/g, ' ').trim();
+        
+        // 2. Oyuncu Adı: Türkçe karakterleri temizle (Yusuf Demirkıran -> yusuf_demirkiran.jpg)
+        const fileName = formatFileName(p.name);
+        
+        // 3. Yol:
+        const photoUrl = `img/${folderName}/${fileName}.jpg`;
+        
+        // Görünecek İsimler
         const displayName = p.name.replace(/_/g, ' ');
-
-        // 2. RESİM YOLU (Path): 
-        // Veritabanında alt çizgi varsa (Adana_Demirspor) ama klasörde boşluk varsa (Adana Demirspor),
-        // yolun "img/Adana Demirspor/..." olması lazım.
-        // Bu yüzden klasör adı için alt çizgileri boşluğa çeviriyoruz!
-        const folderName = p.team.replace(/_/g, ' ').trim(); 
-        
-        // Dosya adı için (karim_rossi.jpg) boşluk yerine alt çizgi, hepsi küçük harf.
-        const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
-        
-        // URL'de boşluk veya özel karakter (ş, ı, ö) sıkıntı olmasın diye encodeURIComponent kullanıyoruz.
-        const photoUrl = `img/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}.jpg`;
+        const displayTeam = p.team.replace(/_/g, ' ');
         const fallbackUrl = "https://cdn-icons-png.flaticon.com/512/166/166344.png";
 
         const html = `
         <div class="card" onclick="openModal(${p.id})">
             <div class="img-bubble">
-                <img src="${photoUrl}" class="player-photo" onerror="this.src='${fallbackUrl}'">
+                <img src="${photoUrl}" class="player-photo" onerror="this.onerror=null; this.src='${fallbackUrl}';">
                 <div class="mini-flag"><span class="fi fi-${p.flagCode}"></span></div>
             </div>
             
@@ -315,20 +326,16 @@
     function openModal(id) {
         const p = allPlayers.find(x => x.id === id);
         
-        // Aynı mantık burada da geçerli
-        const displayTeam = p.team.replace(/_/g, ' ');
-        const displayName = p.name.replace(/_/g, ' ');
-
         const folderName = p.team.replace(/_/g, ' ').trim();
-        const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
-        const photoUrl = `img/${encodeURIComponent(folderName)}/${encodeURIComponent(fileName)}.jpg`;
+        const fileName = formatFileName(p.name);
+        const photoUrl = `img/${folderName}/${fileName}.jpg`;
 
         const imgEl = document.getElementById('mImg');
         imgEl.src = photoUrl;
         imgEl.onerror = function() { this.src = "https://cdn-icons-png.flaticon.com/512/166/166344.png"; };
         
-        document.getElementById('mName').innerText = displayName;
-        document.getElementById('mTeam').innerText = displayTeam;
+        document.getElementById('mName').innerText = p.name.replace(/_/g, ' ');
+        document.getElementById('mTeam').innerText = p.team.replace(/_/g, ' ');
         document.getElementById('mInfo').innerText = `${p.pos} • ${p.age} Yaş`;
         
         const s = p.raw || {};
@@ -354,7 +361,6 @@
         document.getElementById('modal').style.display = 'flex';
     }
 
-    // --- SCOUT & DİĞERLERİ ---
     function scanRegion(region) {
         const overlay = document.getElementById('scanningOverlay');
         const results = document.getElementById('scoutResults');
@@ -376,7 +382,7 @@
             });
 
             found.sort((a,b) => b.val - a.val);
-            const topTalents = found.slice(0, 12); // Sayıyı artırdık (küçük kart olduğu için sığar)
+            const topTalents = found.slice(0, 12);
             if(topTalents.length === 0) results.innerHTML = "<h3 style='color:#fff; grid-column:span 4'>Yetenek bulunamadı.</h3>";
             else topTalents.forEach(p => createCard(p, results));
         }, 1200);
