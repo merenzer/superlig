@@ -221,11 +221,19 @@
         list.slice(0, 50).forEach(p => createCard(p, grid));
     }
 
-    // --- KART OLUŞTURUCU (RESİM MANTIĞI BURADA) ---
-    function createCard(p, container) {
-        // İSİM DÜZELTME: Mauro Icardi -> Mauro_Icardi
-        const safeName = p.name.trim().replace(/ /g, "_");
-        const photoUrl = `img/${safeName}.png`; 
+        function createCard(p, container) {
+            // Takım ismindeki boşlukları temizle (Beşiktaş -> Beşiktaş, Manchester City -> Manchester_City)
+            // Eğer klasör adın boşlukluysa (Manchester City) alttaki replace kısmını silip sadece p.team yap.
+            const folderName = p.team; 
+            
+            // Oyuncu ismindeki boşlukları alt çizgi yap (Mauro Icardi -> Mauro_Icardi.png)
+            // Eğer dosya adın boşlukluysa (Mauro Icardi.png) burayı da p.name yap.
+            const fileName = p.name.trim().replace(/ /g, "_");
+        
+            // YOLU BİRLEŞTİR: img / Takım / Oyuncu.png
+            const photoUrl = `img/${folderName}/${fileName}.png`;
+            
+            // ... kodun devamı aynı ...
         
         // Hata olursa (Resim yoksa) boş kafa ikonu
         const fallbackUrl = "https://cdn-icons-png.flaticon.com/512/166/166344.png";
@@ -287,13 +295,16 @@
         }, 1500);
     }
 
-    // --- MODAL & TRANSFER ---
-    function openModal(id) {
-        const p = allPlayers.find(x => x.id === id);
-        const safeName = p.name.trim().replace(/ /g, "_");
+        function openModal(id) {
+            const p = allPlayers.find(x => x.id === id);
+            
+            const folderName = p.team;
+            const fileName = p.name.trim().replace(/ /g, "_");
         
-        document.getElementById('mImg').src = `img/${safeName}.png`;
-        document.getElementById('mImg').onerror = function(){this.src="https://cdn-icons-png.flaticon.com/512/166/166344.png"};
+            // Resmi Takım Klasöründen Çek
+            document.getElementById('mImg').src = `img/${folderName}/${fileName}.png`;
+            
+            // ... kodun devamı aynı ...
         
         document.getElementById('mName').innerText = p.name;
         document.getElementById('mInfo').innerText = `${p.team} • ${p.pos} • ${p.age} Yaş`;
