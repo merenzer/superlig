@@ -222,16 +222,16 @@
     }
 
         function createCard(p, container) {
-            // Takım ismindeki boşlukları temizle (Beşiktaş -> Beşiktaş, Manchester City -> Manchester_City)
-            // Eğer klasör adın boşlukluysa (Manchester City) alttaki replace kısmını silip sadece p.team yap.
-            const folderName = p.team; 
-            
-            // Oyuncu ismindeki boşlukları alt çizgi yap (Mauro Icardi -> Mauro_Icardi.png)
-            // Eğer dosya adın boşlukluysa (Mauro Icardi.png) burayı da p.name yap.
-            const fileName = p.name.trim().replace(/ /g, "_");
+        // HEM createCard HEM DE openModal İÇİNDEKİ İLGİLİ YERİ BUNUNLA DEĞİŞTİR:
         
-            // YOLU BİRLEŞTİR: img / Takım / Oyuncu.png
-            const photoUrl = `img/${folderName}/${fileName}.png`;
+        // 1. Takım İsmi (Klasör adı): Boşluklara DOKUNMA (Çünkü senin klasöründe "Şamahı FK" boşluklu duruyor)
+        const folderName = p.team.trim(); 
+        
+        // 2. Oyuncu İsmi (Dosya adı): Boşlukları _ yap ve küçült (Dosyaların "karim_rossi.jpg" gibi küçük harfli duruyor)
+        const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
+        
+        // 3. UZANTIYI jpg YAP:
+        const photoUrl = `img/${folderName}/${fileName}.jpg`;
             
             // ... kodun devamı aynı ...
         
@@ -298,8 +298,16 @@
         function openModal(id) {
             const p = allPlayers.find(x => x.id === id);
             
-            const folderName = p.team;
-            const fileName = p.name.trim().replace(/ /g, "_");
+            // HEM createCard HEM DE openModal İÇİNDEKİ İLGİLİ YERİ BUNUNLA DEĞİŞTİR:
+            
+            // 1. Takım İsmi (Klasör adı): Boşluklara DOKUNMA (Çünkü senin klasöründe "Şamahı FK" boşluklu duruyor)
+            const folderName = p.team.trim(); 
+            
+            // 2. Oyuncu İsmi (Dosya adı): Boşlukları _ yap ve küçült (Dosyaların "karim_rossi.jpg" gibi küçük harfli duruyor)
+            const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
+            
+            // 3. UZANTIYI jpg YAP:
+            const photoUrl = `img/${folderName}/${fileName}.jpg`;
         
             // Resmi Takım Klasöründen Çek
             document.getElementById('mImg').src = `img/${folderName}/${fileName}.png`;
