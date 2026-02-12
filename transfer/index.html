@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer Ligi v19 | Neon Glass</title>
+    <title>Transfer Ligi v21 | Final Neon</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"/>
     
@@ -14,7 +14,6 @@
             --border: rgba(255, 255, 255, 0.1);
             --neon-blue: #00f3ff;
             --neon-green: #00ff88;
-            --neon-pink: #bc13fe;
             --gold: #ffd700;
             --text: #fff;
         }
@@ -29,7 +28,6 @@
             min-height: 100vh;
         }
         
-        /* HEADER - CİLASI ARTIRILMIŞ */
         header { 
             padding: 15px 40px; 
             border-bottom: 1px solid var(--border); 
@@ -38,147 +36,56 @@
             position: sticky; top: 0; z-index: 100;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .brand { 
-            font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; 
-            color: #fff; text-shadow: 0 0 15px var(--neon-blue);
-        }
-        .wallet { 
-            font-size: 1.1rem; font-weight: bold; color: var(--gold); 
-            border: 1px solid var(--gold); padding: 8px 20px; border-radius: 30px; 
-            background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-        }
+        .brand { font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; color: #fff; text-shadow: 0 0 15px var(--neon-blue); }
+        .wallet { font-size: 1.1rem; font-weight: bold; color: var(--gold); border: 1px solid var(--gold); padding: 8px 20px; border-radius: 30px; background: rgba(255, 215, 0, 0.1); }
 
-        /* SEKMELER */
         .tabs { display: flex; justify-content: center; margin: 20px 0; gap: 15px; }
-        .tab-btn { 
-            background: var(--glass); border: 1px solid var(--border); color: #888; 
-            padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; 
-        }
-        .tab-btn.active { 
-            background: var(--neon-blue); color: #000; border-color: var(--neon-blue); 
-            box-shadow: 0 0 20px var(--neon-blue); transform: scale(1.05);
-        }
+        .tab-btn { background: var(--glass); border: 1px solid var(--border); color: #888; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .tab-btn.active { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); transform: scale(1.05); }
 
-        /* TOOLBAR */
         .toolbar { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
-        input { 
-            padding: 12px 20px; background: #111; border: 1px solid #333; color: #fff; 
-            border-radius: 30px; width: 300px; outline: none; transition: 0.3s; text-align: center;
-        }
-        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+        input { padding: 12px 20px; background: #111; border: 1px solid #333; color: #fff; border-radius: 30px; width: 300px; outline: none; transition: 0.3s; text-align: center; }
 
-        /* --- OYUNCU KARTLARI (İSTEDİĞİN GİBİ MİNİK & BALONCUKLU) --- */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Daha küçük kartlar */
-            gap: 20px; 
-            padding: 0 40px; 
-            max-width: 1400px; margin: 0 auto; 
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 0 40px; max-width: 1400px; margin: 0 auto; }
         
         .card { 
-            background: var(--glass); 
-            border: 1px solid var(--border); 
-            border-radius: 20px; 
-            padding: 20px 10px; 
-            position: relative; 
-            transition: 0.4s; 
-            backdrop-filter: blur(10px);
-            cursor: pointer;
+            background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 20px 10px; 
+            position: relative; transition: 0.4s; backdrop-filter: blur(10px); cursor: pointer;
             display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .card:hover { 
-            transform: translateY(-8px); 
-            background: rgba(255,255,255,0.08);
-            border-color: var(--neon-green); 
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.15); 
-        }
+        .card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.08); border-color: var(--neon-green); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.15); }
 
-        /* BALONCUK RESİM EFEKTİ */
         .img-bubble { 
-            width: 90px; height: 90px; 
-            border-radius: 50%; 
-            padding: 4px;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-            position: relative;
+            width: 90px; height: 90px; border-radius: 50%; padding: 4px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px; position: relative;
         }
-        .player-photo { 
-            width: 100%; height: 100%; 
-            object-fit: cover; 
-            border-radius: 50%; 
-            border: 3px solid #111; /* Resim ile çerçeve arası boşluk */
-            background: #000;
-        }
-        
-        /* Bayrak Küçültüldü ve Yanına Kondu */
-        .mini-flag {
-            position: absolute; bottom: 0; right: 0;
-            width: 28px; height: 28px;
-            background: #fff; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid #111;
-            font-size: 1.2rem;
-        }
+        .player-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #111; background: #000; }
+        .mini-flag { position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #111; font-size: 1.2rem; }
 
-        .p-name { color: #fff; font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .p-name { color: #fff; font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; text-transform: uppercase; }
         .p-team { color: #888; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
         .p-meta { color: var(--neon-blue); font-size: 0.75rem; margin-bottom: 8px; }
-        .p-val { 
-            background: rgba(0, 255, 136, 0.1); color: var(--neon-green); 
-            padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 0.85rem; border: 1px solid rgba(0, 255, 136, 0.3);
-        }
+        .p-val { background: rgba(0, 255, 136, 0.1); color: var(--neon-green); padding: 4px 12px; border-radius: 10px; font-weight: bold; font-size: 0.85rem; border: 1px solid rgba(0, 255, 136, 0.3); }
 
-        /* SCOUT MERKEZİ */
-        #scoutCenter { display: none; text-align: center; padding: 40px; }
-        .radar-screen { 
-            max-width: 900px; margin: 0 auto; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 20px; padding: 40px; 
-            backdrop-filter: blur(20px); position: relative; overflow: hidden;
-        }
-        .regions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
-        .region-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 25px; border-radius: 15px; cursor: pointer; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
-        .region-btn:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 20px var(--neon-green); transform: scale(1.05); }
-        .region-btn i { font-size: 2rem; }
-
-        /* TARAMA ANİMASYONU */
-        #scanningOverlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); 
-            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
-        }
-        .scanner-line { 
-            width: 100%; height: 2px; background: var(--neon-green); box-shadow: 0 0 20px var(--neon-green);
-            position: absolute; top: 0; animation: scan 1.5s infinite linear;
-        }
-        @keyframes scan { 0% {top:0;} 100% {top:100%;} }
-
-        /* MODAL */
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .modal-box { 
-            background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--neon-blue); 
-            width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.2); 
-            position: relative;
-        }
-        .modal-img { 
-            width: 140px; height: 140px; border-radius: 50%; object-fit: cover; 
-            border: 4px solid var(--neon-blue); margin-bottom: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
-        }
-        .btn-buy { 
-            background: var(--neon-green); color: #000; padding: 15px; width: 100%; border: none; border-radius: 10px;
-            font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1.1rem; transition: 0.3s; 
-        }
-        .btn-buy:hover { box-shadow: 0 0 20px var(--neon-green); }
+        .modal-box { background: #111; padding: 30px; border-radius: 20px; border: 1px solid var(--neon-blue); width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.2); position: relative; }
+        .modal-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid var(--neon-blue); margin-bottom: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .btn-buy { background: var(--neon-green); color: #000; padding: 15px; width: 100%; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1.1rem; transition: 0.3s; }
+        
+        #scoutCenter { display: none; text-align: center; padding: 40px; }
+        .regions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .region-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 25px; border-radius: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .region-btn:hover { background: var(--neon-green); color: #000; }
+        .region-btn i { font-size: 2rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="brand"><i class="fas fa-bolt" style="color:var(--neon-blue)"></i> TRANSFER RADARI</div>
+    <div class="brand"><i class="fas fa-bolt" style="color:var(--neon-blue)"></i> TRANSFER LİGİ</div>
     <div class="user-info">
-        <span id="myTeamName" style="margin-right:15px; font-weight:bold; color:#fff; text-transform:uppercase;">--</span>
+        <span id="myTeamName" style="margin-right:15px; font-weight:bold; color:#fff;">--</span>
         <span id="walletDisplay" class="wallet">0.0M €</span>
     </div>
 </header>
@@ -197,25 +104,13 @@
 </div>
 
 <div id="scoutCenter">
-    <div class="radar-screen">
-        <h2 style="color:var(--neon-blue); letter-spacing:2px;">BÖLGESEL TARAMA</h2>
-        <p style="color:#aaa;">Kıtaları tarayarak gizli yetenekleri keşfet.</p>
-        
-        <div id="scanningOverlay">
-            <div class="scanner-line"></div>
-            <h3 style="color:var(--neon-green); margin-top:20px; letter-spacing:2px;">UYDU BAĞLANTISI KURULUYOR...</h3>
-        </div>
-
-        <div class="regions-grid">
-            <div class="region-btn" onclick="scanRegion('güney_amerika')"><i class="fas fa-globe-americas"></i><b>GÜNEY AMERİKA</b></div>
-            <div class="region-btn" onclick="scanRegion('avrupa')"><i class="fas fa-globe-europe"></i><b>AVRUPA</b></div>
-            <div class="region-btn" onclick="scanRegion('afrika')"><i class="fas fa-globe-africa"></i><b>AFRİKA</b></div>
-            <div class="region-btn" onclick="scanRegion('asya')"><i class="fas fa-globe-asia"></i><b>ASYA</b></div>
-            <div class="region-btn" onclick="scanRegion('yerli')"><i class="fas fa-star-and-crescent"></i><b>TÜRKİYE</b></div>
-        </div>
-        
-        <div id="scoutResults" class="grid" style="margin-top:40px;"></div>
+    <h2 style="color:var(--neon-blue);">BÖLGESEL TARAMA</h2>
+    <div class="regions-grid" style="max-width:800px; margin:0 auto;">
+        <div class="region-btn" onclick="scanRegion('güney_amerika')"><i class="fas fa-globe-americas"></i><b>GÜNEY AMERİKA</b></div>
+        <div class="region-btn" onclick="scanRegion('avrupa')"><i class="fas fa-globe-europe"></i><b>AVRUPA</b></div>
+        <div class="region-btn" onclick="scanRegion('yerli')"><i class="fas fa-star-and-crescent"></i><b>TÜRKİYE</b></div>
     </div>
+    <div id="scoutResults" class="grid" style="margin-top:40px;"></div>
 </div>
 
 <div id="modal">
@@ -223,7 +118,7 @@
         <i class="fas fa-times" onclick="document.getElementById('modal').style.display='none'" style="position:absolute; top:20px; right:20px; color:#666; cursor:pointer; font-size:1.5rem;"></i>
         <img id="mImg" class="modal-img">
         <h2 id="mName" style="color:#fff; margin:0; text-transform:uppercase;">--</h2>
-        <div id="mTeam" style="color:#888; margin:5px 0; font-weight:bold;">--</div>
+        <div id="mTeam" style="color:#888; margin:5px 0;">--</div>
         <p id="mInfo" style="color:var(--neon-blue);">--</p>
         <div id="mStats" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; color:#ccc; font-size:0.9rem; text-align:left;"></div>
         <button id="mBtn" class="btn-buy" onclick="">SATIN AL</button>
@@ -231,8 +126,10 @@
 </div>
 
 <script>
+    // 👇👇👇 LİNKİ BURAYA YAPIŞTIR (Tırnakların arasına) 👇👇👇
     const API_URL = "https://probable-space-barnacle-5gjp5jp779qxfvjrv-3000.app.github.dev";
-    
+    // 👆👆👆 -------------------------------------------- 👆👆👆
+
     let myTeam = "Galatasaray"; 
     let myBudget = 0;
     let allPlayers = [];
@@ -250,87 +147,75 @@
             myBudget = data.budget || 0;
             document.getElementById('walletDisplay').innerText = (myBudget / 1000000).toFixed(1) + "M €";
             document.getElementById('myTeamName').innerText = myTeam.toUpperCase();
-        } catch(e) {}
+        } catch(e) { console.error("Bütçe Hatası:", e); }
     }
 
     async function loadPlayers() {
-        const res = await fetch(`${API_URL}/players`);
-        allPlayers = await res.json();
-        renderMarket();
+        try {
+            const res = await fetch(`${API_URL}/players`);
+            allPlayers = await res.json();
+            renderMarket();
+        } catch(e) { console.error("Veri Çekme Hatası:", e); }
     }
 
-    // --- DOSYA ADI FORMATLAYICI (GÜNCELLENDİ) ---
+    // --- DOSYA ADI FORMATLAYICI ---
     function formatFileName(name) {
-        // Senin dosyalarında Türkçe karakterler duruyor (habib_ismayılov.jpg)
-        // O yüzden harfleri İngilizceye çevirmiyoruz! Sadece küçültüp boşlukları _ yapıyoruz.
-        return name.toLocaleLowerCase('tr') // Türkçe uyumlu küçültme (I -> ı)
-            .trim()
-            .replace(/ /g, "_");
+        return name.toLowerCase()
+            .replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s")
+            .replace(/ı/g, "i").replace(/İ/g, "i").replace(/ö/g, "o")
+            .replace(/ç/g, "c").replace(/ /g, "_").trim();
     }
 
     function renderMarket() {
         const grid = document.getElementById('grid');
         grid.innerHTML = "";
-        const term = document.getElementById('searchInput').value.toLocaleLowerCase('tr');
+        const term = document.getElementById('searchInput').value.toLowerCase();
 
         const list = allPlayers.filter(p => {
-            const cleanName = p.name.toLocaleLowerCase('tr'); 
+            const cleanName = p.name.toLowerCase();
             const matchName = cleanName.includes(term);
-            
             if (currentView === 'squad') return matchName && p.team === myTeam;
             if (currentView === 'market') return matchName && p.team !== myTeam;
             return false;
         });
-
         list.slice(0, 50).forEach(p => createCard(p, grid));
     }
 
     function createCard(p, container) {
-        // 1. KLASÖR ADI: Veritabanındaki takım adı (Örn: "Adana Demirspor")
-        // Senin klasörlerinde boşluk var, o yüzden replace yapmıyoruz. Sadece boşlukları temizliyoruz.
-        const folderName = p.team.trim();
-        
-        // 2. DOSYA ADI: "Hasan Alp Kaya" -> "hasan_alp_kaya.jpg"
+        // --- KLASÖR VE DOSYA ADI AYARI ---
+        const folderName = p.team.replace(/_/g, ' ').trim(); // Alt çizgi varsa boşluk yap (Klasör adın boşluklu çünkü)
         const fileName = formatFileName(p.name);
         
-        // 3. RESİM YOLU:
-        // encodeURIComponent: URL'de Türkçe karakter ve boşluk sorunu olmasın diye kodlar.
-        const photoUrl = `img/${folderName}/${fileName}.jpg`;
-        
-        // Görünecek İsimler
-        const displayName = p.name;
-        const displayTeam = p.team;
+        // Türkçe karakterleri ve boşlukları URL formatına çevir (encodeURIComponent)
+        const photoUrl = `img/${encodeURIComponent(folderName)}/${fileName}.jpg`;
         const fallbackUrl = "https://cdn-icons-png.flaticon.com/512/166/166344.png";
 
         const html = `
         <div class="card" onclick="openModal(${p.id})">
             <div class="img-bubble">
-                <img src="${photoUrl}" class="player-photo" onerror="this.onerror=null; this.src='${fallbackUrl}'; console.log('Bulunamadı:', '${photoUrl}')">
+                <img src="${photoUrl}" class="player-photo" onerror="this.src='${fallbackUrl}'">
                 <div class="mini-flag"><span class="fi fi-${p.flagCode}"></span></div>
             </div>
-            
-            <div class="p-name">${displayName}</div>
-            <div class="p-team">${displayTeam}</div>
+            <div class="p-name">${p.name.replace(/_/g, ' ')}</div>
+            <div class="p-team">${p.team.replace(/_/g, ' ')}</div>
             <div class="p-meta">${p.age} YAS • ${p.pos}</div>
             <div class="p-val">${p.valStr}</div>
         </div>`;
         container.innerHTML += html;
     }
 
-    // --- MODAL, SCOUT ve TRANSFER fonksiyonları (Aynen kalacak) ---
     function openModal(id) {
         const p = allPlayers.find(x => x.id === id);
         
-        const folderName = p.team.trim();
+        const folderName = p.team.replace(/_/g, ' ').trim();
         const fileName = formatFileName(p.name);
-        const photoUrl = `img/${folderName}/${fileName}.jpg`;
+        const photoUrl = `img/${encodeURIComponent(folderName)}/${fileName}.jpg`;
 
-        const imgEl = document.getElementById('mImg');
-        imgEl.src = photoUrl;
-        imgEl.onerror = function() { this.src = "https://cdn-icons-png.flaticon.com/512/166/166344.png"; };
+        document.getElementById('mImg').src = photoUrl;
+        document.getElementById('mImg').onerror = function(){this.src="https://cdn-icons-png.flaticon.com/512/166/166344.png"};
         
-        document.getElementById('mName').innerText = p.name;
-        document.getElementById('mTeam').innerText = p.team;
+        document.getElementById('mName').innerText = p.name.replace(/_/g, ' ');
+        document.getElementById('mTeam').innerText = p.team.replace(/_/g, ' ');
         document.getElementById('mInfo').innerText = `${p.pos} • ${p.age} Yaş`;
         
         const s = p.raw || {};
@@ -352,35 +237,7 @@
             btn.style.background = "var(--neon-green)";
             btn.onclick = () => buyPlayer(p.id, p.name, p.val);
         }
-
         document.getElementById('modal').style.display = 'flex';
-    }
-
-    function scanRegion(region) {
-        const overlay = document.getElementById('scanningOverlay');
-        const results = document.getElementById('scoutResults');
-        overlay.style.display = 'flex';
-        results.innerHTML = "";
-
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            let found = allPlayers.filter(p => {
-                if (p.age >= 24) return false; 
-                if (p.team === myTeam) return false; 
-                const code = p.flagCode;
-                if (region === 'güney_amerika' && !['br','ar','uy','co','cl'].includes(code)) return false;
-                if (region === 'avrupa' && !['de','fr','es','it','gb-eng','pt','nl','be'].includes(code)) return false;
-                if (region === 'afrika' && !['ng','sn','cm','gh','ci','ma','eg'].includes(code)) return false;
-                if (region === 'asya' && !['jp','kr','sa'].includes(code)) return false;
-                if (region === 'yerli' && code !== 'tr') return false;
-                return true;
-            });
-
-            found.sort((a,b) => b.val - a.val);
-            const topTalents = found.slice(0, 12);
-            if(topTalents.length === 0) results.innerHTML = "<h3 style='color:#fff; grid-column:span 4'>Yetenek bulunamadı.</h3>";
-            else topTalents.forEach(p => createCard(p, results));
-        }, 1200);
     }
 
     async function buyPlayer(id, name, price) {
@@ -405,16 +262,18 @@
         loadPlayers();
     }
 
+    function scanRegion(region) {
+        alert("Scout sistemi verileri tarıyor... (Bu özellik demo)");
+    }
+
     function showTab(view) {
         currentView = view;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById('marketView').style.display = (view === 'scout') ? 'none' : 'block';
         document.getElementById('scoutCenter').style.display = (view === 'scout') ? 'block' : 'none';
-        document.getElementById('toolbar').style.display = (view === 'scout') ? 'none' : 'flex';
         if(view !== 'scout') renderMarket();
     }
 </script>
-
 </body>
 </html>
