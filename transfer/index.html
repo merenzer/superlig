@@ -259,27 +259,22 @@
         renderMarket();
     }
 
-    // --- YENİ HELPER: TÜRKÇE KARAKTERLERİ İNGİLİZCEYE ÇEVİRİR ---
+    // --- DOSYA ADI FORMATLAYICI (GÜNCELLENDİ) ---
     function formatFileName(name) {
-        return name.toLowerCase()
-            .replace(/ğ/g, "g")
-            .replace(/ü/g, "u")
-            .replace(/ş/g, "s")
-            .replace(/ı/g, "i")
-            .replace(/İ/g, "i")
-            .replace(/ö/g, "o")
-            .replace(/ç/g, "c")
-            .replace(/ /g, "_")
-            .trim();
+        // Senin dosyalarında Türkçe karakterler duruyor (habib_ismayılov.jpg)
+        // O yüzden harfleri İngilizceye çevirmiyoruz! Sadece küçültüp boşlukları _ yapıyoruz.
+        return name.toLocaleLowerCase('tr') // Türkçe uyumlu küçültme (I -> ı)
+            .trim()
+            .replace(/ /g, "_");
     }
 
     function renderMarket() {
         const grid = document.getElementById('grid');
         grid.innerHTML = "";
-        const term = document.getElementById('searchInput').value.toLowerCase();
+        const term = document.getElementById('searchInput').value.toLocaleLowerCase('tr');
 
         const list = allPlayers.filter(p => {
-            const cleanName = p.name.toLowerCase(); 
+            const cleanName = p.name.toLocaleLowerCase('tr'); 
             const matchName = cleanName.includes(term);
             
             if (currentView === 'squad') return matchName && p.team === myTeam;
@@ -291,27 +286,26 @@
     }
 
     function createCard(p, container) {
-        // --- RESİM YOLU OLUŞTURMA (DÜZELTİLDİ) ---
+        // 1. KLASÖR ADI: Veritabanındaki takım adı (Örn: "Adana Demirspor")
+        // Senin klasörlerinde boşluk var, o yüzden replace yapmıyoruz. Sadece boşlukları temizliyoruz.
+        const folderName = p.team.trim();
         
-        // 1. Takım Adı: Klasör adı veritabanındakiyle aynı (Örn: Adana Demirspor)
-        // Eğer veritabanında _ varsa boşluğa çeviriyoruz.
-        const folderName = p.team.replace(/_/g, ' ').trim();
-        
-        // 2. Oyuncu Adı: Türkçe karakterleri temizle (Yusuf Demirkıran -> yusuf_demirkiran.jpg)
+        // 2. DOSYA ADI: "Hasan Alp Kaya" -> "hasan_alp_kaya.jpg"
         const fileName = formatFileName(p.name);
         
-        // 3. Yol:
+        // 3. RESİM YOLU:
+        // encodeURIComponent: URL'de Türkçe karakter ve boşluk sorunu olmasın diye kodlar.
         const photoUrl = `img/${folderName}/${fileName}.jpg`;
         
         // Görünecek İsimler
-        const displayName = p.name.replace(/_/g, ' ');
-        const displayTeam = p.team.replace(/_/g, ' ');
+        const displayName = p.name;
+        const displayTeam = p.team;
         const fallbackUrl = "https://cdn-icons-png.flaticon.com/512/166/166344.png";
 
         const html = `
         <div class="card" onclick="openModal(${p.id})">
             <div class="img-bubble">
-                <img src="${photoUrl}" class="player-photo" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                <img src="${photoUrl}" class="player-photo" onerror="this.onerror=null; this.src='${fallbackUrl}'; console.log('Bulunamadı:', '${photoUrl}')">
                 <div class="mini-flag"><span class="fi fi-${p.flagCode}"></span></div>
             </div>
             
@@ -323,10 +317,11 @@
         container.innerHTML += html;
     }
 
+    // --- MODAL, SCOUT ve TRANSFER fonksiyonları (Aynen kalacak) ---
     function openModal(id) {
         const p = allPlayers.find(x => x.id === id);
         
-        const folderName = p.team.replace(/_/g, ' ').trim();
+        const folderName = p.team.trim();
         const fileName = formatFileName(p.name);
         const photoUrl = `img/${folderName}/${fileName}.jpg`;
 
@@ -334,8 +329,8 @@
         imgEl.src = photoUrl;
         imgEl.onerror = function() { this.src = "https://cdn-icons-png.flaticon.com/512/166/166344.png"; };
         
-        document.getElementById('mName').innerText = p.name.replace(/_/g, ' ');
-        document.getElementById('mTeam').innerText = p.team.replace(/_/g, ' ');
+        document.getElementById('mName').innerText = p.name;
+        document.getElementById('mTeam').innerText = p.team;
         document.getElementById('mInfo').innerText = `${p.pos} • ${p.age} Yaş`;
         
         const s = p.raw || {};
