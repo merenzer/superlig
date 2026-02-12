@@ -177,12 +177,11 @@
 <script>
     const API_URL = "https://probable-space-barnacle-5gjp5jp779qxfvjrv-3000.app.github.dev";
     
-    let myTeam = "Galatasaray"; // Varsayılan (Giriş ekranı ekleyebilirsin yine)
+    let myTeam = "Galatasaray"; 
     let myBudget = 0;
     let allPlayers = [];
-    let currentView = 'market'; // market, scout, squad
+    let currentView = 'market'; 
 
-    // Başlangıç
     window.onload = async () => {
         await updateBudget();
         loadPlayers();
@@ -204,13 +203,11 @@
         renderMarket();
     }
 
-    // --- MARKET GÖRÜNÜMÜ ---
     function renderMarket() {
         const grid = document.getElementById('grid');
         grid.innerHTML = "";
         const term = document.getElementById('searchInput').value.toLowerCase();
 
-        // Filtreleme
         const list = allPlayers.filter(p => {
             const matchName = p.name.toLowerCase().includes(term);
             if (currentView === 'squad') return matchName && p.team === myTeam;
@@ -221,28 +218,26 @@
         list.slice(0, 50).forEach(p => createCard(p, grid));
     }
 
-        function createCard(p, container) {
-        // HEM createCard HEM DE openModal İÇİNDEKİ İLGİLİ YERİ BUNUNLA DEĞİŞTİR:
+    // --- İŞTE DÜZELTİLMİŞ KART OLUŞTURUCU ---
+    function createCard(p, container) {
         
-        // 1. Takım İsmi (Klasör adı): Boşluklara DOKUNMA (Çünkü senin klasöründe "Şamahı FK" boşluklu duruyor)
-        const folderName = p.team.trim(); 
+        // 1. Klasör Adı (Takım): "Şamahı FK" olduğu gibi kalsın
+        const folderName = p.team.trim();
         
-        // 2. Oyuncu İsmi (Dosya adı): Boşlukları _ yap ve küçült (Dosyaların "karim_rossi.jpg" gibi küçük harfli duruyor)
+        // 2. Dosya Adı (İsim): "karim_rossi" gibi küçük harf ve alt çizgili olsun
         const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
         
-        // 3. UZANTIYI jpg YAP:
+        // 3. Resim Yolu (JPG)
         const photoUrl = `img/${folderName}/${fileName}.jpg`;
-            
-            // ... kodun devamı aynı ...
-        
-        // Hata olursa (Resim yoksa) boş kafa ikonu
         const fallbackUrl = "https://cdn-icons-png.flaticon.com/512/166/166344.png";
 
         const html = `
         <div class="card" onclick="openModal(${p.id})">
             <div class="img-area">
                 <span class="flag-corner fi fi-${p.flagCode}"></span>
+                
                 <img src="${photoUrl}" class="player-photo" onerror="this.src='${fallbackUrl}'">
+                
             </div>
             <div class="card-info">
                 <div class="p-name">${p.name}</div>
@@ -253,71 +248,23 @@
         container.innerHTML += html;
     }
 
-    // --- SCOUT (RADAR) MANTIĞI ---
-    function scanRegion(region) {
-        const overlay = document.getElementById('scanningOverlay');
-        const results = document.getElementById('scoutResults');
+    // --- DÜZELTİLMİŞ DETAY PENCERESİ (MODAL) ---
+    function openModal(id) {
+        const p = allPlayers.find(x => x.id === id);
         
-        // Animasyon Başlat
-        overlay.style.display = 'flex';
-        results.innerHTML = "";
+        // Modal için de aynı resim mantığını kuruyoruz
+        const folderName = p.team.trim();
+        const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
+        const photoUrl = `img/${folderName}/${fileName}.jpg`;
 
-        // 1.5 Saniye Bekle (Tarama Efekti)
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            
-            // WONDERKID KRİTERLERİ: Yaş < 24 VE (Piyasa Değeri Yüksek VEYA Hızı Yüksek)
-            let found = allPlayers.filter(p => {
-                if (p.age >= 24) return false; // Yaşlıları ele
-                if (p.team === myTeam) return false; // Zaten bendeyse gösterme
-
-                const code = p.flagCode;
-                // Bölge Filtreleri
-                if (region === 'güney_amerika' && !['br','ar','uy','co','cl'].includes(code)) return false;
-                if (region === 'avrupa' && !['de','fr','es','it','gb-eng','pt','nl','be'].includes(code)) return false;
-                if (region === 'afrika' && !['ng','sn','cm','gh','ci','ma','eg'].includes(code)) return false;
-                if (region === 'asya' && !['jp','kr','sa'].includes(code)) return false;
-                if (region === 'yerli' && code !== 'tr') return false;
-
-                return true;
-            });
-
-            // En değerli 8 tanesini göster
-            found.sort((a,b) => b.val - a.val);
-            const topTalents = found.slice(0, 8);
-
-            if(topTalents.length === 0) {
-                results.innerHTML = "<h3 style='color:#fff; grid-column:span 3;'>Bu bölgede uygun yetenek bulunamadı.</h3>";
-            } else {
-                topTalents.forEach(p => createCard(p, results));
-            }
-
-        }, 1500);
-    }
-
-        function openModal(id) {
-            const p = allPlayers.find(x => x.id === id);
-            
-            // HEM createCard HEM DE openModal İÇİNDEKİ İLGİLİ YERİ BUNUNLA DEĞİŞTİR:
-            
-            // 1. Takım İsmi (Klasör adı): Boşluklara DOKUNMA (Çünkü senin klasöründe "Şamahı FK" boşluklu duruyor)
-            const folderName = p.team.trim(); 
-            
-            // 2. Oyuncu İsmi (Dosya adı): Boşlukları _ yap ve küçült (Dosyaların "karim_rossi.jpg" gibi küçük harfli duruyor)
-            const fileName = p.name.trim().replace(/ /g, "_").toLowerCase();
-            
-            // 3. UZANTIYI jpg YAP:
-            const photoUrl = `img/${folderName}/${fileName}.jpg`;
-        
-            // Resmi Takım Klasöründen Çek
-            document.getElementById('mImg').src = `img/${folderName}/${fileName}.png`;
-            
-            // ... kodun devamı aynı ...
+        const imgEl = document.getElementById('mImg');
+        imgEl.src = photoUrl;
+        // Eğer resim yüklenmezse (hata verirse) varsayılan resmi koy
+        imgEl.onerror = function() { this.src = "https://cdn-icons-png.flaticon.com/512/166/166344.png"; };
         
         document.getElementById('mName').innerText = p.name;
         document.getElementById('mInfo').innerText = `${p.team} • ${p.pos} • ${p.age} Yaş`;
         
-        // Hangi veriler varsa onları göster
         const s = p.raw || {};
         const statsHtml = `
             <div>Hız: <b style="color:#00ff88">${s.Hiz || s.Hizlanma || '--'}</b></div>
@@ -341,17 +288,44 @@
         document.getElementById('modal').style.display = 'flex';
     }
 
+    // --- DİĞER FONKSİYONLAR ---
+    function scanRegion(region) {
+        const overlay = document.getElementById('scanningOverlay');
+        const results = document.getElementById('scoutResults');
+        overlay.style.display = 'flex';
+        results.innerHTML = "";
+
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            let found = allPlayers.filter(p => {
+                if (p.age >= 24) return false; 
+                if (p.team === myTeam) return false; 
+                const code = p.flagCode;
+                if (region === 'güney_amerika' && !['br','ar','uy','co','cl'].includes(code)) return false;
+                if (region === 'avrupa' && !['de','fr','es','it','gb-eng','pt','nl','be'].includes(code)) return false;
+                if (region === 'afrika' && !['ng','sn','cm','gh','ci','ma','eg'].includes(code)) return false;
+                if (region === 'asya' && !['jp','kr','sa'].includes(code)) return false;
+                if (region === 'yerli' && code !== 'tr') return false;
+                return true;
+            });
+
+            found.sort((a,b) => b.val - a.val);
+            const topTalents = found.slice(0, 8);
+            if(topTalents.length === 0) results.innerHTML = "<h3 style='color:#fff;'>Yetenek bulunamadı.</h3>";
+            else topTalents.forEach(p => createCard(p, results));
+        }, 1500);
+    }
+
     async function buyPlayer(id, name, price) {
         if(price > myBudget) return alert("Paran Yetmiyor!");
         if(!confirm(name + " alınsın mı?")) return;
-        
         await fetch(`${API_URL}/buy`, {
             method: 'POST', headers: {'Content-Type':'application/json'},
             body: JSON.stringify({playerId: id, teamName: myTeam, price: price})
         });
         document.getElementById('modal').style.display = 'none';
         updateBudget();
-        loadPlayers(); // Listeyi yenile
+        loadPlayers(); 
     }
 
     async function sellPlayer(id) {
@@ -368,11 +342,9 @@
         currentView = view;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
-
         document.getElementById('marketView').style.display = (view === 'scout') ? 'none' : 'block';
         document.getElementById('scoutCenter').style.display = (view === 'scout') ? 'block' : 'none';
         document.getElementById('toolbar').style.display = (view === 'scout') ? 'none' : 'flex';
-
         if(view !== 'scout') renderMarket();
     }
 </script>
