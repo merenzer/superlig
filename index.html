@@ -227,51 +227,50 @@
         let fixtureData = [];
         let penaltiesData = {};
 
-        // --- TÜM TAKIMLAR VE STADYUMLARI (1. VE 2. LİG KARIŞIK - SİSTEM KENDİ AYIRACAK) ---
+        // --- TÜM TAKIMLAR VE STADYUMLARI (GÜNCEL LOGO İSİMLERİYLE) ---
         const teamDetails = [
             // Lig 1 Takımları
-            { name: "Galatasaray", shortName: "GS", logo: "LOGOS/gs.png", stadium: "RAMS Park" },
-            { name: "Fenerbahçe", shortName: "FB", logo: "LOGOS/fb.png", stadium: "Ülker Stadyumu" },
-            { name: "Beşiktaş JK", shortName: "BJK", logo: "LOGOS/bjk.png", stadium: "Tüpraş Stadyumu" },
-            { name: "Trabzonspor", shortName: "TS", logo: "LOGOS/ts.png", stadium: "Papara Park" },
-            { name: "Alanyaspor", shortName: "Alanya", logo: "LOGOS/aly.png", stadium: "GAİN Park Stadyumu" },
-            { name: "Kasımpaşa SK", shortName: "Kasımpaşa", logo: "LOGOS/kas.png", stadium: "Recep Tayyip Erdoğan Stadyumu" },
-            { name: "Sivasspor", shortName: "Sivas", logo: "LOGOS/siv.png", stadium: "BG Grup 4 Eylül Stadyumu" },
-            { name: "Kayserispor", shortName: "Kayseri", logo: "LOGOS/kay.png", stadium: "RHG Enertürk Enerji Stadyumu" },
-            { name: "Ankaragücü", shortName: "Ankaragücü", logo: "LOGOS/ag.png", stadium: "Eryaman Stadyumu" },
-            { name: "ÇAYKUR Rizespor", shortName: "Rizespor", logo: "LOGOS/crs.png", stadium: "Çaykur Didi Stadyumu" },
-            { name: "Samsunspor", shortName: "Samsun", logo: "LOGOS/sam.png", stadium: "Samsun Yeni 19 Mayıs Stadyumu" },
-            { name: "Göztepe", shortName: "Göztepe", logo: "LOGOS/goz.png", stadium: "Gürsel Aksel Stadyumu" },
-            { name: "Kocaelispor", shortName: "Kocaeli", logo: "LOGOS/ks.png", stadium: "Turka Araç Muayene Kocaeli Stadyumu" },
-            { name: "Çorum FK", shortName: "Çorum", logo: "LOGOS/cor.png", stadium: "Çorum Şehir Stadyumu" },
-            { name: "Redbull Eyüpspor", shortName: "Eyüpspor", logo: "LOGOS/eyu.png", stadium: "Eyüp Stadyumu" },
-            { name: "Gençlerbirliği", shortName: "Gençler", logo: "LOGOS/gencler.png", stadium: "Eryaman Stadyumu" },
-            { name: "İstanbulspor", shortName: "İstanbul", logo: "LOGOS/istanbul.png", stadium: "Esenyurt Necmi Kadıoğlu Stadyumu" },
-            { name: "Bursaspor", shortName: "Bursa", logo: "LOGOS/bursa.png", stadium: "Yüzüncü Yıl Atatürk Stadyumu" },
+            { name: "Galatasaray", shortName: "GS", logo: "LOGOS/galatasaray.png", stadium: "RAMS Park" },
+            { name: "Fenerbahçe", shortName: "FB", logo: "LOGOS/fenerbahce.png", stadium: "Ülker Stadyumu" },
+            { name: "Beşiktaş JK", shortName: "BJK", logo: "LOGOS/besiktas.png", stadium: "Tüpraş Stadyumu" },
+            { name: "Trabzonspor", shortName: "TS", logo: "LOGOS/trabzonspor.png", stadium: "Papara Park" },
+            { name: "Alanyaspor", shortName: "Alanya", logo: "LOGOS/alanyaspor.png", stadium: "GAİN Park Stadyumu" },
+            { name: "Kasımpaşa SK", shortName: "Kasımpaşa", logo: "LOGOS/kasimpasa.png", stadium: "Recep Tayyip Erdoğan Stadyumu" },
+            { name: "Sivasspor", shortName: "Sivas", logo: "LOGOS/sivasspor.png", stadium: "BG Grup 4 Eylül Stadyumu" },
+            { name: "Kayserispor", shortName: "Kayseri", logo: "LOGOS/kayserispor.png", stadium: "RHG Enertürk Enerji Stadyumu" },
+            { name: "Ankaragücü", shortName: "Ankaragücü", logo: "LOGOS/ankaragucu.png", stadium: "Eryaman Stadyumu" },
+            { name: "ÇAYKUR Rizespor", shortName: "Rizespor", logo: "LOGOS/rizespor.png", stadium: "Çaykur Didi Stadyumu" },
+            { name: "Samsunspor", shortName: "Samsun", logo: "LOGOS/samsunspor.png", stadium: "Samsun Yeni 19 Mayıs Stadyumu" },
+            { name: "Göztepe", shortName: "Göztepe", logo: "LOGOS/goztepe.png", stadium: "Gürsel Aksel Stadyumu" },
+            { name: "Kocaelispor", shortName: "Kocaeli", logo: "LOGOS/kocaelispor.png", stadium: "Turka Araç Muayene Kocaeli Stadyumu" },
+            { name: "Çorum FK", shortName: "Çorum", logo: "LOGOS/corumfk.png", stadium: "Çorum Şehir Stadyumu" },
+            { name: "Redbull Eyüpspor", shortName: "Eyüpspor", logo: "LOGOS/eyupspor.png", stadium: "Eyüp Stadyumu" },
+            { name: "Gençlerbirliği", shortName: "Gençler", logo: "LOGOS/genclerbirligi.png", stadium: "Eryaman Stadyumu" },
+            { name: "İstanbulspor", shortName: "İstanbul", logo: "LOGOS/istanbulspor.png", stadium: "Esenyurt Necmi Kadıoğlu Stadyumu" },
+            { name: "Bursaspor", shortName: "Bursa", logo: "LOGOS/bursaspor.png", stadium: "Yüzüncü Yıl Atatürk Stadyumu" },
             
             // Lig 2 Takımları
-            { name: "Diyarbakırspor", shortName: "Diyarbakır", logo: "LOGOS/diyarbakirspor.png", stadium: "Diyarbakır Stadyumu" }, // Amed SK yerine değiştirildi
-            { name: "Esenler Erokspor", shortName: "Erokspor", logo: "LOGOS/erok.png", stadium: "Esenler Stadyumu" },
+            { name: "Diyarbakırspor", shortName: "Diyarbakır", logo: "LOGOS/diyarbakirspor.png", stadium: "Diyarbakır Stadyumu" }, 
+            { name: "Esenler Erokspor", shortName: "Erokspor", logo: "LOGOS/erokspor.png", stadium: "Esenler Stadyumu" },
             { name: "Bodrum FK", shortName: "Bodrum", logo: "LOGOS/bodrum.png", stadium: "Bodrum İlçe Stadyumu" },
-            { name: "Pendikspor", shortName: "Pendik", logo: "LOGOS/pendik.png", stadium: "Pendik Stadyumu" },
-            { name: "Bandırmaspor", shortName: "Bandırma", logo: "LOGOS/bandirma.png", stadium: "Bandırma 17 Eylül Stadyumu" },
-            { name: "Keçiörengücü", shortName: "Keçiörengücü", logo: "LOGOS/kecioren.png", stadium: "Ankara Aktepe Stadyumu" },
-            { name: "Iğdır FK", shortName: "Iğdır", logo: "LOGOS/igdir.png", stadium: "Iğdır Şehir Stadyumu" },
-            { name: "Vanspor", shortName: "Vanspor", logo: "LOGOS/van.png", stadium: "Van Atatürk Stadyumu" },
-            { name: "Manisa Fk", shortName: "Manisa", logo: "LOGOS/manisa.png", stadium: "Manisa 19 Mayıs Stadyumu" },
-            { name: "Boluspor", shortName: "Boluspor", logo: "LOGOS/bolu.png", stadium: "Bolu Atatürk Stadyumu" },
+            { name: "Pendikspor", shortName: "Pendik", logo: "LOGOS/pendikspor.png", stadium: "Pendik Stadyumu" },
+            { name: "Bandırmaspor", shortName: "Bandırma", logo: "LOGOS/bandirmaspor.png", stadium: "Bandırma 17 Eylül Stadyumu" },
+            { name: "Keçiörengücü", shortName: "Keçiörengücü", logo: "LOGOS/keciorengucu.png", stadium: "Ankara Aktepe Stadyumu" },
+            { name: "Iğdır FK", shortName: "Iğdır", logo: "LOGOS/igdirfk.png", stadium: "Iğdır Şehir Stadyumu" },
+            { name: "Vanspor", shortName: "Vanspor", logo: "LOGOS/vanspor.png", stadium: "Van Atatürk Stadyumu" },
+            { name: "Manisa Fk", shortName: "Manisa", logo: "LOGOS/manisafk.png", stadium: "Manisa 19 Mayıs Stadyumu" },
+            { name: "Boluspor", shortName: "Boluspor", logo: "LOGOS/boluspor.png", stadium: "Bolu Atatürk Stadyumu" },
             { name: "Ümraniyespor", shortName: "Ümraniye", logo: "LOGOS/umraniye.png", stadium: "Ümraniye Belediyesi Şehir Stadyumu" },
-            { name: "Sarıyer fk", shortName: "Sarıyer", logo: "LOGOS/sariyer.png", stadium: "Yusuf Ziya Öniş Stadyumu" },
-            { name: "Serikspor", shortName: "Serikspor", logo: "LOGOS/serik.png", stadium: "Serik İsmail Oğan Stadyumu" },
-            { name: "Sakaryaspor", shortName: "Sakarya", logo: "LOGOS/sakarya.png", stadium: "Yeni Sakarya Atatürk Stadyumu" },
-            { name: "Hatayspor", shortName: "Hatay", logo: "LOGOS/hatay.png", stadium: "Mersin Stadyumu" },
-            { name: "Adana Demirspor", shortName: "ADS", logo: "LOGOS/ads.png", stadium: "Yeni Adana Stadyumu" },
-            { name: "Başakşehir", shortName: "Başakşehir", logo: "LOGOS/basaksehir.png", stadium: "RAMS Başakşehir Fatih Terim Stadyumu" },
-            { name: "Gaziantep", shortName: "Gaziantep", logo: "LOGOS/gfk.png", stadium: "Kalyon Stadyumu" },
+            { name: "Sarıyer fk", shortName: "Sarıyer", logo: "LOGOS/sariyersk.png", stadium: "Yusuf Ziya Öniş Stadyumu" },
+            { name: "Serikspor", shortName: "Serikspor", logo: "LOGOS/serikspor.png", stadium: "Serik İsmail Oğan Stadyumu" },
+            { name: "Sakaryaspor", shortName: "Sakarya", logo: "LOGOS/sakaryaspor.png", stadium: "Yeni Sakarya Atatürk Stadyumu" },
+            { name: "Hatayspor", shortName: "Hatay", logo: "LOGOS/hatayspor.png", stadium: "Mersin Stadyumu" },
+            { name: "Adana Demirspor", shortName: "ADS", logo: "LOGOS/adanademirspor.png", stadium: "Yeni Adana Stadyumu" },
+            { name: "Başakşehir", shortName: "Başakşehir", logo: "LOGOS/basaksehir fk.png", stadium: "RAMS Başakşehir Fatih Terim Stadyumu" },
+            { name: "Gaziantep", shortName: "Gaziantep", logo: "LOGOS/gaziantepfk.png", stadium: "Kalyon Stadyumu" },
             { name: "Karagümrük", shortName: "Karagümrük", logo: "LOGOS/karagumruk.png", stadium: "Atatürk Olimpiyat Stadyumu" },
-            { name: "Erzurumspor", shortName: "Erzurum", logo: "LOGOS/erz.png", stadium: "Kazım Karabekir Stadyumu" }
+            { name: "Erzurumspor", shortName: "Erzurum", logo: "LOGOS/erzurumspor.png", stadium: "Kazım Karabekir Stadyumu" }
         ];
-
         function getStadium(teamName) {
             const team = teamDetails.find(t => t.name === teamName);
             return team && team.stadium ? team.stadium : "Bilinmeyen Stadyum";
