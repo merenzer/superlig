@@ -8,186 +8,203 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
-        /* TEMEL DEĞİŞKENLER VE LİG TEMALARI */
+        /* --- PREMİUM DARK TEMA VE DEĞİŞKENLER --- */
         :root {
-            /* Lig 1 (Pembe Tema) */
-            --accent-main: #ed1e79;
-            --accent-hover: #f34494;
-            --accent-light: #f96bb0;
-            --accent-fade: rgba(237, 30, 121, 0.15);
+            /* Lig 1 (Neon Pembe) */
+            --accent-main: #ff1f87; /* Daha canlı neon pembe */
+            --accent-hover: #ff71b7;
+            --accent-fade: rgba(255, 31, 135, 0.1);
+            --accent-glow: 0 0 15px rgba(255, 31, 135, 0.3);
             
-            /* Gündüz Modu Renkleri */
-            --bg-color: #f4f7f6;
-            --card-bg-transparent: rgba(255, 255, 255, 0.6);
-            --text-dark: #2c3e50;
-            --text-stadium: #7f8c8d;
-            --card-border: rgba(255, 255, 255, 0.5);
-            --shadow-color: rgba(31, 38, 135, 0.08);
-            --team-c1: var(--text-dark);
+            /* Derin Dark Arka Plan (Referanslardaki gibi) */
+            --bg-color: #05070a; 
+            --bg-gradient: radial-gradient(circle at 50% 30%, #1a2235 0%, #05070a 70%); /* Hafif üstten aydınlatmalı derinlik */
+            
+            /* Sleek Kart Tasarımı (Dark Translucent) */
+            --card-bg: rgba(20, 25, 35, 0.7); 
+            --card-border: rgba(240, 246, 252, 0.06); /* Çok ince kenarlık */
+            
+            /* Yazı Renkleri (Premium Light) */
+            --text-main: #f0f6fc; /* Tam beyaz değil, mat beyaz */
+            --text-sub: #8b949e; /* Mat gri */
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Lig 2 (Mavi Tema) */
+        /* Lig 2 (Neon Mavi - Referans Odaklı) */
         body.lig2 {
-            --accent-main: #05217a;
-            --accent-hover: #054a96;
-            --accent-light: #0473b2;
-            --accent-fade: rgba(5, 33, 122, 0.15);
+            --accent-main: #33b5ff; /* Elektrik mavisi */
+            --accent-hover: #80d4ff;
+            --accent-fade: rgba(51, 181, 255, 0.1);
+            --accent-glow: 0 0 15px rgba(51, 181, 255, 0.3);
+            
+            /* Lig 2'ye özel hafif mavi background ışıltısı */
+            --bg-gradient: radial-gradient(circle at 50% 30%, #102a4a 0%, #05070a 70%);
         }
 
-        /* Karanlık Mod (Dark Mode) */
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --card-bg-transparent: rgba(30, 41, 59, 0.7);
-            --text-dark: #f8fafc;
-            --text-stadium: #94a3b8;
-            --card-border: rgba(255, 255, 255, 0.05);
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --team-c1: #ffffff;
-        }
-
-        /* GENEL STİLLER */
+        /* --- GENEL AYARLAR --- */
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(var(--accent-fade) 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-image: var(--bg-gradient);
             margin: 0; padding: 20px 15px 200px 15px;
-            color: var(--text-dark);
+            color: var(--text-main);
             min-height: 100vh; display: flex; flex-direction: column;
-            transition: background-color 0.5s ease, color 0.5s ease;
+            transition: background 0.5s ease;
+            background-attachment: fixed; /* Background gradyanı sabit kalsın derinlik için */
         }
 
-        /* Üst Menü ve Kontroller */
+        /* --- ÜST MENÜ VE KONTROLLER (SLEEK) --- */
         .top-controls {
-            display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
-            margin-bottom: 20px; z-index: 3000;
+            display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;
+            margin-bottom: 30px; z-index: 3000;
         }
 
         .control-btn {
-            padding: 8px 18px; border-radius: 25px; background: var(--card-bg-transparent); 
-            border: 2px solid var(--accent-main); cursor: pointer; font-weight: 800; font-size: 0.85em;
-            color: var(--accent-main); backdrop-filter: blur(10px);
-            transition: all 0.3s ease; box-shadow: 0 4px 15px var(--shadow-color);
+            padding: 9px 20px; border-radius: 8px; /* Daha köşeli sleek butonlar */
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border); cursor: pointer; font-weight: 700; font-size: 0.8em;
+            color: var(--text-main); backdrop-filter: blur(10px); text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s ease;
         }
-        .control-btn:hover { background: var(--accent-main); color: white; transform: translateY(-2px); }
-        .control-btn.active { background: var(--accent-main); color: white; }
+        .control-btn:hover { border-color: var(--accent-main); box-shadow: var(--accent-glow); color: var(--accent-main); transform: translateY(-1px); }
+        .control-btn.active { background: var(--accent-main); color: #000; border-color: var(--accent-main); box-shadow: var(--accent-glow); font-weight: 800; }
 
         .icon-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 1.1em;
-            background: var(--card-bg-transparent); color: var(--text-dark); cursor: pointer;
-            backdrop-filter: blur(10px); box-shadow: 0 4px 15px var(--shadow-color);
-            transition: transform 0.3s, background 0.3s;
+            width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--card-border); font-size: 1.1em;
+            background: var(--card-bg); color: var(--text-main); cursor: pointer;
+            backdrop-filter: blur(10px); transition: all 0.3s ease;
         }
-        .icon-btn:hover { transform: scale(1.1); background: var(--accent-fade); }
+        .icon-btn:hover { border-color: var(--accent-main); box-shadow: var(--accent-glow); color: var(--accent-main); }
 
-        #admin-toggle.on { background: #2ecc71; border-color: #2ecc71; color: white;}
-        #reset-db-btn { display: none; background: #e74c3c; border-color: #e74c3c; color: white; }
+        #admin-toggle.on { background: #2ecc71; border-color: #2ecc71; color: #000;}
+        #reset-db-btn { display: none; background: #e74c3c; border-color: #e74c3c; color: #fff; margin-left: 10px;}
 
         h1.main-title {
-            text-align: center; color: var(--accent-main); font-weight: 800;
-            font-size: 2.2em; margin-bottom: 30px; text-transform: uppercase;
-            letter-spacing: 1px; text-shadow: 0 4px 15px var(--accent-fade);
+            text-align: center; color: var(--text-main); font-weight: 800;
+            font-size: 2em; margin-bottom: 35px; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: var(--accent-glow); /* Başlıkta neon parlama */
             transition: color 0.5s ease;
         }
 
-        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent-main); color: white; padding: 20px 40px; border-radius: 30px; font-weight: 800; z-index: 9999; box-shadow: 0 10px 30px var(--accent-fade); }
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent-main); color: #000; padding: 15px 35px; border-radius: 8px; font-weight: 800; z-index: 9999; box-shadow: var(--accent-glow); text-transform: uppercase; font-size: 0.9em;}
 
-        #main-view, #standings-view, #team-view { display: none; animation: fadeIn 0.4s ease; }
+        #main-view, #standings-view, #team-view { display: none; animation: fadeIn Sleek 0.5s ease; }
 
-        /* FİKSTÜR KARTLARI (ŞİRİN VE MİNİK) */
+        /* --- FİKSTÜR KARTLARI (SLEEK DARK) --- */
         .fixture-container {
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); /* Kartlar daha dar oldu */
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px; max-width: 1200px; margin: 0 auto 100px auto;
         }
         .week-card {
-            background: var(--card-bg-transparent); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 24px; padding: 15px; box-shadow: 0 8px 25px 0 var(--shadow-color);
-            border: 1px solid var(--card-border); transition: transform 0.3s ease, border-color 0.3s ease;
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 12px; padding: 18px; box-shadow: var(--shadow-premium);
+            border: 1px solid var(--card-border); transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
-        .week-card:hover { transform: translateY(-3px); border-color: var(--accent-main); box-shadow: 0 12px 30px var(--accent-fade); }
-        .week-header { display: flex; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px dashed var(--accent-fade); }
-        .week-number { font-size: 1.8em; font-weight: 800; color: var(--accent-main); margin-right: 8px; line-height: 1;}
-        .week-label { font-size: 1em; font-weight: 700; text-transform: uppercase;}
+        /* Kartın üstüne ince neon çizgi (Referanslardaki gibi) */
+        .week-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-main); opacity: 0.5;
+        }
+
+        .week-card:hover { transform: translateY(-3px) scale(1.01); border-color: rgba(240, 246, 252, 0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.6), var(--accent-glow); }
         
-        /* Yeni Kompakt Maç Satırı */
-        .match-row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; border-bottom: 1px solid rgba(128,128,128,0.1); }
+        .week-header { display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--card-border); }
+        .week-number { font-size: 1.8em; font-weight: 800; color: var(--accent-main); margin-right: 10px; line-height: 1; text-shadow: var(--accent-glow);}
+        .week-label { font-size: 0.9em; font-weight: 700; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px;}
+        
+        .match-row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; border-bottom: 1px solid rgba(240, 246, 252, 0.03); }
         .match-row:last-child { border-bottom: none; padding-bottom: 0;}
         
         .match-teams { display: flex; width: 100%; justify-content: space-between; align-items: center; }
         
-        .team-box { display: flex; align-items: center; gap: 8px; flex: 1; font-weight: 700; font-size: 0.85em; }
+        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 700; font-size: 0.85em; color: var(--text-main); }
         .team-box.home { justify-content: flex-start; text-align: left; }
         .team-box.away { justify-content: flex-end; text-align: right; }
         
+        /* --- LOGO DÜZELTME: Pixelated kaldırıldı, Object-fit eklendi --- */
         .mini-logo { 
-            width: 22px; height: 22px; object-fit: contain;
-            image-rendering: -moz-crisp-edges; image-rendering: pixelated;
+            width: 24px; height: 24px; object-fit: contain; /* Büyük logoyu sığdırır */
+            /* image-rendering KODLARI SİLİNDİ - YUMUŞAK GEÇİŞ İÇİN */
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); /* Logoya hafif derinlik */
         }
         
-        .match-score { flex: 0 0 auto; text-align: center; margin: 0 10px; }
-        .vs { color: var(--accent-light); font-weight: 800; font-size: 1.1em;}
-        .score-input { width: 35px; text-align: center; font-weight: 800; border: 2px solid var(--accent-fade); border-radius: 6px; margin: 0 2px; padding: 4px; font-size: 0.9em; background: var(--bg-color); color: var(--text-dark); transition: border-color 0.3s;}
-        .score-input:focus { border-color: var(--accent-main); outline: none; }
+        .match-score { flex: 0 0 auto; text-align: center; margin: 0 8px; min-width: 60px;}
+        .vs { color: var(--text-sub); font-weight: 700; font-size: 1em; opacity: 0.8;}
+        .score-input { width: 32px; text-align: center; font-weight: 800; border: 1px solid var(--card-border); border-radius: 4px; margin: 0 2px; padding: 5px; font-size: 0.9em; background: rgba(0,0,0,0.3); color: var(--text-main); transition: border-color 0.3s;}
+        .score-input:focus { border-color: var(--accent-main); outline: none; box-shadow: var(--accent-glow); }
 
-        .match-stadium-mini { font-size: 0.7em; color: var(--text-stadium); margin-top: 8px; font-weight: 600; opacity: 0.8; text-align: center; }
+        .match-stadium-mini { font-size: 0.7em; color: var(--text-sub); margin-top: 9px; font-weight: 600; text-align: center; opacity: 0.8; }
 
-        /* TAKIM DETAY SAYFASI ÖZEL TASARIM */
-        .team-header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
-        .team-header-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 5px 15px var(--shadow-color)); image-rendering: pixelated; }
-        .team-name-big { font-size: 2em; font-weight: 800; color: var(--team-c1); text-transform: uppercase; text-shadow: 1px 1px 0px var(--card-border); margin: 0; text-align: center; }
-        .team-header-stadium { font-size: 0.95em; color: var(--text-stadium); font-weight: 600; margin-top: 8px; background: var(--card-bg-transparent); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--card-border); }
+        /* --- TAKIM DETAY SAYFASI (PREMİUM) --- */
+        .team-header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 35px; background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--card-border); box-shadow: var(--shadow-premium); }
+        
+        /* Logo Düzeltme */
+        .team-header-logo { width: 100px; height: 100px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(var(--accent-glow)); /* Logoya neon ışıltı */ }
+        
+        .team-name-big { font-size: 2.2em; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; margin: 0; text-align: center; text-shadow: var(--shadow-premium); }
+        .team-header-stadium { font-size: 0.9em; color: var(--text-sub); font-weight: 600; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 6px 18px; border-radius: 4px; border: 1px solid var(--card-border); text-transform: uppercase; letter-spacing: 1px;}
         
         .gs-match-card {
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 12px; border: 1px solid var(--card-border); box-shadow: var(--shadow-premium);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 15px; margin-bottom: 12px;
+            padding: 15px 20px; margin-bottom: 12px; transition: all 0.3s ease;
         }
-        .card-left { display: flex; align-items: center; flex: 2; gap: 10px;}
-        .week-badge { background-color: var(--accent-main); color: white; font-weight: 700; padding: 5px 8px; border-radius: 8px; min-width: 25px; text-align: center; font-size: 0.85em; }
-        .location-icon { font-size: 1.2em; }
-        .match-details { font-size: 0.95em; font-weight: 700; }
-        .stadium-info-list { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 10px;}
+        .gs-match-card:hover { border-color: rgba(240, 246, 252, 0.15); transform: translateX(3px); }
+        .card-left { display: flex; align-items: center; flex: 2; gap: 12px;}
+        .week-badge { background-color: rgba(0,0,0,0.4); color: var(--accent-main); font-weight: 800; padding: 6px 10px; border-radius: 4px; min-width: 25px; text-align: center; font-size: 0.85em; border: 1px solid var(--card-border); }
+        .location-icon { font-size: 1.2em; opacity: 0.7; }
+        .match-details { font-size: 1em; font-weight: 700; color: var(--text-main); }
+        .stadium-info-list { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 12px;}
 
-        /* ALT LOGO SEÇİCİ */
+        /* --- ALT LOGO SEÇİCİ (SLEEK) --- */
         .team-selector-container {
             position: fixed; bottom: 0; left: 0; right: 0;
-            padding: 15px 10px; background: var(--card-bg-transparent);
-            border-radius: 25px 25px 0 0; border-top: 1px solid var(--card-border);
-            box-shadow: 0 -10px 30px var(--shadow-color); text-align: center;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 2000;
-            max-height: 30vh; overflow-y: auto;
+            padding: 18px 10px; background: rgba(13, 17, 27, 0.9); /* Daha koyu alt menü */
+            border-radius: 16px 16px 0 0; border-top: 1px solid var(--card-border);
+            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.6); text-align: center;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 2000;
+            max-height: 28vh; overflow-y: auto;
         }
-        .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+        
+        /* Logo Düzeltme ve Sleek Buton */
         .team-logo-btn {
-            width: 48px; height: 48px; background-color: var(--bg-color);
-            border: 2px solid transparent; border-radius: 50%;
+            width: 52px; height: 52px; background-color: #000;
+            border: 1px solid var(--card-border); border-radius: 8px; /* Köşeli sleek */
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 10px var(--shadow-color);
-            background-size: 65%; background-position: center; background-repeat: no-repeat;
-            image-rendering: -moz-crisp-edges; image-rendering: pixelated;
+            box-shadow: var(--shadow-premium);
+            background-size: 70%; background-position: center; background-repeat: no-repeat;
+            /* image-rendering SİLİNDİ */
         }
         .team-logo-btn:hover, .team-logo-btn.active {
-            border-color: var(--accent-main); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 20px var(--accent-fade);
+            border-color: var(--accent-main); transform: translateY(-5px) scale(1.1); box-shadow: var(--accent-glow);
         }
 
-        /* PUAN DURUMU */
-        .standings-container { max-width: 900px; margin: 0 auto; background: var(--card-bg-transparent); backdrop-filter: blur(15px); padding: 20px; border-radius: 24px; border: 1px solid var(--card-border); overflow-x: auto; box-shadow: 0 8px 32px var(--shadow-color); }
+        /* --- PUAN DURUMU (SLEEK TABLE) --- */
+        .standings-container { max-width: 900px; margin: 0 auto; background: var(--card-bg); backdrop-filter: blur(20px); padding: 15px; border-radius: 12px; border: 1px solid var(--card-border); overflow-x: auto; box-shadow: var(--shadow-premium); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
-        th { padding: 12px; color: var(--accent-main); border-bottom: 2px dashed var(--accent-fade); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;}
-        td { padding: 10px; border-bottom: 1px solid rgba(128,128,128,0.1); font-weight: 700; vertical-align: middle; font-size: 0.9em;}
+        th { padding: 15px; color: var(--text-sub); border-bottom: 1px solid var(--card-border); font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
+        td { padding: 12px; border-bottom: 1px solid rgba(240, 246, 252, 0.02); font-weight: 700; vertical-align: middle; font-size: 0.95em; color: var(--text-main);}
         tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(255,255,255,0.02); } /* Satır hover efekti */
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        /* Puan sütununu neon renkle vurgula (Referans gibi) */
+        td:last-child { color: var(--accent-main); font-weight: 800; text-shadow: var(--accent-glow); }
+
+        @keyframes fadeInSleek { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         @media (max-width: 768px) {
-            h1.main-title { font-size: 1.5em; }
+            h1.main-title { font-size: 1.4em; }
             .fixture-container { grid-template-columns: 1fr; gap: 15px;}
-            .team-logo-btn { width: 40px; height: 40px; }
+            .team-logo-btn { width: 44px; height: 44px; }
             .team-name-big { font-size: 1.6em; }
             .team-header-logo { width: 70px; height: 70px; }
-            .gs-match-card { flex-direction: column; align-items: flex-start; gap: 10px;}
+            .gs-match-card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px;}
             .stadium-info-list { width: 100%; justify-content: space-between; flex-direction: row-reverse;}
+            th, td { padding: 10px 5px; font-size: 0.8em; }
         }
     </style>
 </head>
@@ -218,10 +235,10 @@
 
     <div id="team-view">
         <div class="team-header-container">
-            <div class="control-btn" style="display:inline-block; margin-bottom:15px; font-size: 0.8em;" onclick="showMainView()">← Tüm Fikstür</div>
+            <div class="control-btn" style="display:inline-block; margin-bottom:20px; font-size: 0.75em;" onclick="showMainView()">← Tüm Fikstür</div>
             <div id="team-view-header-content" style="display: flex; flex-direction: column; align-items: center;">
                 </div>
-            <div style="font-weight: 600; font-size: 0.8em; color: var(--text-stadium); margin-top: 15px;">🏠 Ev Sahibi | ✈️ Deplasman</div>
+            <div style="font-weight: 600; font-size: 0.75em; color: var(--text-sub); margin-top: 18px; text-transform: uppercase; letter-spacing: 1px;">🏠 Ev Sahibi | ✈️ Deplasman</div>
         </div>
         <div id="team-fixture-list" style="max-width: 650px; margin: 0 auto;"></div>
     </div>
@@ -234,6 +251,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Firebase config (Aynı kalıyor)
         const firebaseConfig = {
             apiKey: "AIzaSyAknclwFdilfFnzbPjtSXyjCPepZm5dM6k",
             authDomain: "discordtoto-5b23b.firebaseapp.com",
@@ -256,8 +274,9 @@
         let fixtureData = [];
         let penaltiesData = {};
 
-        // --- TÜM TAKIMLAR VE STADYUMLARI ---
+        // --- TAKIM DETAYLARI VE LOGOLAR (LOGOS klasörü ve tam isimler) ---
         const teamDetails = [
+            // Lig 1
             { name: "Galatasaray", shortName: "GS", logo: "LOGOS/galatasaray.png", stadium: "RAMS Park" },
             { name: "Fenerbahçe", shortName: "FB", logo: "LOGOS/fenerbahce.png", stadium: "Ülker Stadyumu" },
             { name: "Beşiktaş JK", shortName: "BJK", logo: "LOGOS/besiktas.png", stadium: "Tüpraş Stadyumu" },
@@ -276,6 +295,8 @@
             { name: "Gençlerbirliği", shortName: "Gençler", logo: "LOGOS/genclerbirligi.png", stadium: "Eryaman Stadyumu" },
             { name: "İstanbulspor", shortName: "İstanbul", logo: "LOGOS/istanbulspor.png", stadium: "Esenyurt Necmi Kadıoğlu Stadyumu" },
             { name: "Bursaspor", shortName: "Bursa", logo: "LOGOS/bursaspor.png", stadium: "Yüzüncü Yıl Atatürk Stadyumu" },
+            
+            // Lig 2
             { name: "Diyarbakırspor", shortName: "Diyarbakır", logo: "LOGOS/diyarbakirspor.png", stadium: "Diyarbakır Stadyumu" }, 
             { name: "Esenler Erokspor", shortName: "Erokspor", logo: "LOGOS/erokspor.png", stadium: "Esenler Stadyumu" },
             { name: "Bodrum FK", shortName: "Bodrum", logo: "LOGOS/bodrum.png", stadium: "Bodrum İlçe Stadyumu" },
@@ -298,13 +319,13 @@
             { name: "Erzurumspor", shortName: "Erzurum", logo: "LOGOS/erzurumspor.png", stadium: "Kazım Karabekir Stadyumu" }
         ];
 
-        // Yeni Veri Çekme Fonksiyonu
         function getTeamData(teamName) {
             const team = teamDetails.find(t => t.name === teamName);
-            return team || { name: teamName, shortName: teamName, logo: '', stadium: 'Bilinmeyen Stadyum' };
+            // Default veri, logo yoksa hata vermesin diye boş resim
+            return team || { name: teamName, shortName: teamName, logo: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', stadium: 'Bilinmeyen Stadyum' };
         }
 
-        // Fikstür Verileri (Aynı)
+        // Fikstür Şablonları (Aynı)
         const defaultFixtureData = [
             {w:1,h:"Sivasspor",a:"Göztepe"},{w:1,h:"Alanyaspor",a:"Kocaelispor"},{w:1,h:"Trabzonspor",a:"Gençlerbirliği"},{w:1,h:"Beşiktaş JK",a:"Kayserispor"},{w:1,h:"ÇAYKUR Rizespor",a:"Çorum FK"},{w:1,h:"İstanbulspor",a:"Redbull Eyüpspor"},{w:1,h:"Kasımpaşa SK",a:"Samsunspor"},{w:1,h:"Fenerbahçe",a:"Ankaragücü"},{w:1,h:"Bursaspor",a:"Galatasaray"},
             {w:2,h:"Ankaragücü",a:"Göztepe"},{w:2,h:"Galatasaray",a:"Kocaelispor"},{w:2,h:"Çorum FK",a:"Samsunspor"},{w:2,h:"Kasımpaşa SK",a:"Gençlerbirliği"},{w:2,h:"Trabzonspor",a:"Alanyaspor"},{w:2,h:"Bursaspor",a:"Beşiktaş JK"},{w:2,h:"Sivasspor",a:"Redbull Eyüpspor"},{w:2,h:"Kayserispor",a:"Fenerbahçe"},{w:2,h:"İstanbulspor",a:"ÇAYKUR Rizespor"},
@@ -355,7 +376,7 @@
             {w:10,h:"Manisa Fk",a:"Başakşehir"},{w:10,h:"Erzurumspor",a:"Vanspor"},{w:10,h:"Serikspor",a:"Bandırmaspor"},{w:10,h:"Adana Demirspor",a:"Karagümrük"},{w:10,h:"Sakaryaspor",a:"Pendikspor"},{w:10,h:"Ümraniyespor",a:"Esenler Erokspor"},{w:10,h:"Iğdır FK",a:"Boluspor"},{w:10,h:"Hatayspor",a:"Keçiörengücü"},{w:10,h:"Diyarbakırspor",a:"Sarıyer fk"},{w:10,h:"Gaziantep",a:"Bodrum FK"},
             {w:11,h:"Boluspor",a:"Manisa Fk"},{w:11,h:"Esenler Erokspor",a:"Keçiörengücü"},{w:11,h:"Sakaryaspor",a:"Sarıyer fk"},{w:11,h:"Bodrum FK",a:"Karagümrük"},{w:11,h:"Bandırmaspor",a:"Gaziantep"},{w:11,h:"Vanspor",a:"Diyarbakırspor"},{w:11,h:"Başakşehir",a:"Hatayspor"},{w:11,h:"Erzurumspor",a:"Iğdır FK"},{w:11,h:"Serikspor",a:"Ümraniyespor"},{w:11,h:"Adana Demirspor",a:"Pendikspor"},
             {w:12,h:"Manisa Fk",a:"Ümraniyespor"},{w:12,h:"Iğdır FK",a:"Pendikspor"},{w:12,h:"Hatayspor",a:"Adana Demirspor"},{w:12,h:"Serikspor",a:"Diyarbakırspor"},{w:12,h:"Gaziantep",a:"Erzurumspor"},{w:12,h:"Bodrum FK",a:"Başakşehir"},{w:12,h:"Sarıyer fk",a:"Vanspor"},{w:12,h:"Keçiörengücü",a:"Bandırmaspor"},{w:12,h:"Boluspor",a:"Karagümrük"},{w:12,h:"Esenler Erokspor",a:"Sakaryaspor"},
-            {w:13,h:"Bandırmaspor",a:"Manisa Fk"},{w:13,h:"Vanspor",a:"Karagümrük"},{w:13,h:"Başakşehir",a:"Sakaryaspor"},{w:13,h:"Erzurumspor",a:"Esenler Erokspor"},{w:13,h:"Serikspor",a:"Boluspor"},{w:13,h:"Adana Demirspor",a:"Keçiörengücü"},{w:13,h:"Pendikspor",a:"Sarıyer fk"},{w:13,h:"Ümraniyespor",a:"Bodrum FK"},{w:13,h:"Iğdır FK",a:"Gaziantep"},{w:13,h:"Diyarbakırspor",a:"Hatayspor"},
+            {w:13,h:"Bandırmaspor",a:"Manisa Fk"},{w:13,h:"Vanspor",a:"Karagümrük"},{w:13,h:"Başakşehir",a:"Sakaryaspor"},{w:13,h:"Erzurumspor",a:"Esenler Erokspor"},{w:13,h:"Serikspor",a:"Boluspor"},{w:13,h:"Adana Demirspor",a:"Keçiörengücü"},{w:13,h:"Sarıyer fk",a:"Sarıyer fk"},{w:13,h:"Pendikspor",a:"Sarıyer fk"},{w:13,h:"Ümraniyespor",a:"Bodrum FK"},{w:13,h:"Iğdır FK",a:"Gaziantep"},{w:13,h:"Diyarbakırspor",a:"Hatayspor"},
             {w:14,h:"Manisa Fk",a:"Sarıyer fk"},{w:14,h:"Keçiörengücü",a:"Bodrum FK"},{w:14,h:"Boluspor",a:"Gaziantep"},{w:14,h:"Diyarbakırspor",a:"Esenler Erokspor"},{w:14,h:"Sakaryaspor",a:"Hatayspor"},{w:14,h:"Karagümrük",a:"Iğdır FK"},{w:14,h:"Bandırmaspor",a:"Ümraniyespor"},{w:14,h:"Vanspor",a:"Pendikspor"},{w:14,h:"Başakşehir",a:"Adana Demirspor"},{w:14,h:"Erzurumspor",a:"Serikspor"},
             {w:15,h:"Adana Demirspor",a:"Manisa Fk"},{w:15,h:"Pendikspor",a:"Serikspor"},{w:15,h:"Ümraniyespor",a:"Erzurumspor"},{w:15,h:"Iğdır FK",a:"Başakşehir"},{w:15,h:"Hatayspor",a:"Vanspor"},{w:15,h:"Diyarbakırspor",a:"Bandırmaspor"},{w:15,h:"Gaziantep",a:"Karagümrük"},{w:15,h:"Bodrum FK",a:"Sakaryaspor"},{w:15,h:"Sarıyer fk",a:"Esenler Erokspor"},{w:15,h:"Boluspor",a:"Keçiörengücü"},
             {w:16,h:"Manisa Fk",a:"Sakaryaspor"},{w:16,h:"Karagümrük",a:"Esenler Erokspor"},{w:16,h:"Bandırmaspor",a:"Boluspor"},{w:16,h:"Vanspor",a:"Keçiörengücü"},{w:16,h:"Başakşehir",a:"Sarıyer fk"},{w:16,h:"Erzurumspor",a:"Bodrum FK"},{w:16,h:"Serikspor",a:"Gaziantep"},{w:16,h:"Adana Demirspor",a:"Diyarbakırspor"},{w:16,h:"Pendikspor",a:"Hatayspor"},{w:16,h:"Ümraniyespor",a:"Iğdır FK"},
@@ -376,13 +397,166 @@
             {w:31,h:"Ümraniyespor",a:"Manisa Fk"},{w:31,h:"Pendikspor",a:"Iğdır FK"},{w:31,h:"Adana Demirspor",a:"Hatayspor"},{w:31,h:"Diyarbakırspor",a:"Serikspor"},{w:31,h:"Erzurumspor",a:"Gaziantep"},{w:31,h:"Başakşehir",a:"Bodrum FK"},{w:31,h:"Vanspor",a:"Sarıyer fk"},{w:31,h:"Bandırmaspor",a:"Keçiörengücü"},{w:31,h:"Karagümrük",a:"Boluspor"},{w:31,h:"Sakaryaspor",a:"Esenler Erokspor"},
             {w:32,h:"Manisa Fk",a:"Bandırmaspor"},{w:32,h:"Karagümrük",a:"Vanspor"},{w:32,h:"Sakaryaspor",a:"Başakşehir"},{w:32,h:"Esenler Erokspor",a:"Erzurumspor"},{w:32,h:"Boluspor",a:"Serikspor"},{w:32,h:"Keçiörengücü",a:"Adana Demirspor"},{w:32,h:"Sarıyer fk",a:"Pendikspor"},{w:32,h:"Bodrum FK",a:"Ümraniyespor"},{w:32,h:"Gaziantep",a:"Iğdır FK"},{w:32,h:"Hatayspor",a:"Diyarbakırspor"},
             {w:33,h:"Sarıyer fk",a:"Manisa Fk"},{w:33,h:"Bodrum FK",a:"Keçiörengücü"},{w:33,h:"Gaziantep",a:"Boluspor"},{w:33,h:"Esenler Erokspor",a:"Diyarbakırspor"},{w:33,h:"Hatayspor",a:"Sakaryaspor"},{w:33,h:"Iğdır FK",a:"Karagümrük"},{w:33,h:"Ümraniyespor",a:"Bandırmaspor"},{w:33,h:"Pendikspor",a:"Vanspor"},{w:33,h:"Adana Demirspor",a:"Başakşehir"},{w:33,h:"Serikspor",a:"Erzurumspor"},
-            {w:34,h:"Manisa Fk",a:"Adana Demirspor"},{w:34,h:"Serikspor",a:"Pendikspor"},{w:34,h:"Erzurumspor",a:"Ümraniyespor"},{w:34,h:"Başakşehir",a:"Iğdır FK"},{w:34,h:"Vanspor",a:"Hatayspor"},{w:34,h:"Bandırmaspor",a:"Diyarbakırspor"},{w:34,h:"Karagümrük",a:"Gaziantep"},{w:34,h:"Sakaryaspor",a:"Bodrum FK"},{w:34,h:"Esenler Erokspor",a:"Sarıyer fk"},{w:34,h:"Keçiörengücü",a:"Boluspor"},
-            {w:35,h:"Sakaryaspor",a:"Manisa Fk"},{w:35,h:"Esenler Erokspor",a:"Karagümrük"},{w:35,h:"Boluspor",a:"Bandırmaspor"},{w:35,h:"Keçiörengücü",a:"Vanspor"},{w:35,h:"Sarıyer fk",a:"Başakşehir"},{w:35,h:"Bodrum FK",a:"Erzurumspor"},{w:35,h:"Gaziantep",a:"Serikspor"},{w:35,h:"Diyarbakırspor",a:"Adana Demirspor"},{w:35,h:"Hatayspor",a:"Pendikspor"},{w:35,h:"Iğdır FK",a:"Ümraniyespor"},
-            {w:36,h:"Manisa Fk",a:"Gaziantep"},{w:36,h:"Diyarbakırspor",a:"Bodrum FK"},{w:36,h:"Hatayspor",a:"Sarıyer fk"},{w:36,h:"Iğdır FK",a:"Keçiörengücü"},{w:36,h:"Ümraniyespor",a:"Boluspor"},{w:36,h:"Pendikspor",a:"Esenler Erokspor"},{w:36,h:"Adana Demirspor",a:"Sakaryaspor"},{w:36,h:"Serikspor",a:"Karagümrük"},{w:36,h:"Erzurumspor",a:"Bandırmaspor"},{w:36,h:"Vanspor",a:"Başakşehir"},
-            {w:37,h:"Erzurumspor",a:"Manisa Fk"},{w:37,h:"Başakşehir",a:"Serikspor"},{w:37,h:"Vanspor",a:"Adana Demirspor"},{w:37,h:"Bandırmaspor",a:"Pendikspor"},{w:37,h:"Karagümrük",a:"Ümraniyespor"},{w:37,h:"Sakaryaspor",a:"Iğdır FK"},{w:37,h:"Esenler Erokspor",a:"Hatayspor"},{w:37,h:"Boluspor",a:"Diyarbakırspor"},{w:37,h:"Keçiörengücü",a:"Gaziantep"},{w:37,h:"Sarıyer fk",a:"Bodrum FK"},
-            {w:38,h:"Manisa Fk",a:"Hatayspor"},{w:38,h:"Iğdır FK",a:"Diyarbakırspor"},{w:38,h:"Ümraniyespor",a:"Gaziantep"},{w:38,h:"Pendikspor",a:"Bodrum FK"},{w:38,h:"Adana Demirspor",a:"Sarıyer fk"},{w:38,h:"Serikspor",a:"Keçiörengücü"},{w:38,h:"Erzurumspor",a:"Boluspor"},{w:38,h:"Başakşehir",a:"Esenler Erokspor"},{w:38,h:"Vanspor",a:"Sakaryaspor"},{w:38,h:"Bandırmaspor",a:"Karagümrük"}
+            {w:34,h:"Manisa Fk",a:"Adana Demirspor"},{w:34,h:"Serikspor",a:"Pendikspor"},{w:34,h:"Erzurumspor",a:"Ümraniyespor"},{w:34,h:"Başakşehir",a:"Iğdır FK"},{w:34,h:"Vanspor",a:"Hatayspor"},{w:34,h:"Bandırmaspor",a:"Diyarbakırspor"},{w:34,h:"Karagümrük",a:"Gaziantep"},{w:34,h:"Sakaryaspor",a:"Bodrum FK"},{w:34,h:"Esenler Erokspor",a:"Sarıyer fk"},{w:34,h:"Keçiörengücü",a:"Boluspor"}
         ];
 
+        // --- GLOBAL FONKSİYONLAR ---
+        window.toggleLeague = function() {
+            const btn = document.getElementById('league-toggle');
+            const title = document.getElementById('league-title');
+
+            if (currentLeague === 'lig1') {
+                currentLeague = 'lig2';
+                document.body.classList.add('lig2');
+                title.innerText = "DiscordToto 2. Lig 2027-2028 Sezonu";
+                btn.innerText = "🔄 1. LİG'E DÖN";
+            } else {
+                currentLeague = 'lig1';
+                document.body.classList.remove('lig2');
+                title.innerText = "DiscordToto 2027-2028 Sezonu";
+                btn.innerText = "🔄 2. LİG'E GEÇ";
+            }
+            loadLeagueData(currentLeague);
+        }
+
+        window.toggleDarkMode = function() {
+            // Zaten hep dark moddayız referanslar gereği, 
+            // ama ilerde bişey eklenirse diye dursun.
+            alert("Süper lig karanlığı hep bizimle!");
+        }
+
+        // Skor ve Veri İşlemleri (Değişmedi)
+        window.setScore = function(index, side, val) {
+            if(!isAdmin) return;
+            const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
+            const newValue = val === "" ? null : parseInt(val);
+            set(ref(db, `${fixPath}/${index}/${side}`), newValue);
+        }
+
+        window.setPenalty = function(teamName) {
+            if(!isAdmin) return;
+            const penPath = currentLeague === 'lig1' ? 'penalties' : 'penalties_lig2';
+            let current = penaltiesData[teamName] || 0;
+            let val = prompt(`${teamName} takımından SİLİNECEK toplam puanı girin:\n(Şu an silinen: ${current})`, current);
+            if(val !== null) {
+                set(ref(db, `${penPath}/${teamName}`), parseInt(val) || 0);
+            }
+        }
+
+        // --- RENDER FONKSİYONLARI ---
+        function renderAll() {
+            const scrollPos = window.scrollY;
+            const activeId = document.activeElement ? document.activeElement.id : null;
+            const grid = document.getElementById('main-fixture-grid');
+            grid.innerHTML = "";
+            let currentWeek = 0;
+            let weekHtml = "";
+
+            fixtureData.forEach((m, i) => {
+                if (m.w !== currentWeek) {
+                    if (currentWeek !== 0) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
+                    currentWeek = m.w;
+                    weekHtml = `<div class="week-card"><div class="week-header"><span class="week-number">${currentWeek}</span><span class="week-label">Hafta</span></div><div class="match-list">`;
+                }
+                
+                let hData = getTeamData(m.h);
+                let aData = getTeamData(m.a);
+                let center = isAdmin ? `<input type="number" id="hs-${i}" class="score-input" value="${m.hs ?? ''}" oninput="setScore(${i},'hs',this.value)"> <span class="vs">-</span> <input type="number" id="as-${i}" class="score-input" value="${m.as ?? ''}" oninput="setScore(${i},'as',this.value)">` : `<span class="vs">${(m.hs != null && m.as != null) ? m.hs + ' - ' + m.as : 'VS'}</span>`;
+                
+                weekHtml += `
+                <div class="match-row">
+                    <div class="match-teams">
+                        <div class="team-box home">
+                            <img src="${hData.logo}" class="mini-logo" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'">
+                            <span>${hData.shortName}</span>
+                        </div>
+                        <div class="match-score">${center}</div>
+                        <div class="team-box away">
+                            <span>${aData.shortName}</span>
+                            <img src="${aData.logo}" class="mini-logo" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'">
+                        </div>
+                    </div>
+                    <div class="match-stadium-mini">🏟️ ${hData.stadium}</div>
+                </div>`;
+                
+                if (i === fixtureData.length - 1) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
+            });
+
+            // Puan Durumu Render
+            let statsMap = {};
+            teamDetails.forEach(t => { statsMap[t.name] = { name: t.name, logo: t.logo, om:0, g:0, b:0, m:0, ag:0, yg:0, av:0, p:0 }; });
+            
+            fixtureData.forEach(m => {
+                if (m.hs != null && m.as != null) {
+                    let h = statsMap[m.h]; let a = statsMap[m.a];
+                    if(h && a) {
+                        h.om++; a.om++; h.ag += parseInt(m.hs); h.yg += parseInt(m.as); a.ag += parseInt(m.as); a.yg += parseInt(m.hs);
+                        if (m.hs > m.as) { h.g++; h.p += 3; a.m++; } else if (m.as > m.hs) { a.g++; a.p += 3; h.m++; } else { h.b++; h.p++; a.b++; a.p++; }
+                        h.av = h.ag - h.yg; a.av = a.ag - a.yg;
+                    }
+                }
+            });
+
+            Object.keys(penaltiesData).forEach(team => {
+                if(statsMap[team]) statsMap[team].p -= parseInt(penaltiesData[team]);
+            });
+
+            let activeTeams = Object.values(statsMap).filter(t => t.om > 0 || fixtureData.some(m => m.h === t.name || m.a === t.name));
+            let sortedStats = activeTeams.sort((a, b) => b.p - a.p || b.av - a.av || b.ag - a.ag);
+            
+            document.getElementById('standings-body').innerHTML = sortedStats.map((t, i) => {
+                const penaltyBtn = isAdmin ? `<br><span onclick="setPenalty('${t.name}')" style="cursor:pointer; color:#e74c3c; font-size:0.6em; border:1px solid #e74c3c; padding:2px; border-radius:4px;">[SİL: ${penaltiesData[t.name] || 0}]</span>` : "";
+
+                return `<tr>
+                    <td>${i + 1}</td>
+                    <td style="text-align:left; display:flex; align-items:center; gap: 15px;">
+                        <img src="${t.logo}" style="width:30px; height:30px; object-fit:contain; cursor:pointer;" onclick="showTeam('${t.name}')">
+                        <div>${t.name}${penaltyBtn}</div>
+                    </td>
+                    <td>${t.om}</td><td>${t.g}</td><td>${t.b}</td><td>${t.m}</td><td>${t.av}</td>
+                    <td>${t.p}</td>
+                </tr>`;
+            }).join('');
+
+            window.scrollTo(0, scrollPos);
+            if(activeId) { document.getElementById(activeId)?.focus(); }
+        }
+
+        // Takım Detay Sayfası Render
+        window.showTeam = function(name) {
+            let tData = getTeamData(name);
+            
+            document.getElementById('team-view-header-content').innerHTML = `
+                <img src="${tData.logo}" class="team-header-logo" onerror="this.style.display='none'">
+                <h2 class="team-name-big">${tData.name}</h2>
+                <div class="team-header-stadium">🏟️ ${tData.stadium}</div>
+            `;
+
+            const teamMatches = fixtureData.filter(m => m.h === name || m.a === name);
+            document.getElementById('team-fixture-list').innerHTML = teamMatches.map(m => {
+                const isHome = m.h === name; 
+                const opponent = isHome ? m.a : m.h; 
+                const oppData = getTeamData(opponent);
+                const icon = isHome ? "🏠" : "✈️";
+                let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'#2ecc71':(m.hs==m.as?'#95a5a6':'#e74c3c')}; color:#000; border-radius:4px; text-align:center; font-weight:800; font-size: 0.9em;">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:var(--text-sub); font-weight:700; font-size:0.9em;">VS</span>`;
+                
+                return `
+                <div class="gs-match-card">
+                    <div class="card-left">
+                        <div class="week-badge">${m.w}.H</div>
+                        <div class="location-icon">${icon}</div>
+                        <img src="${oppData.logo}" style="width:28px; height:28px; object-fit:contain;" onerror="this.style.display='none'">
+                        <div class="match-details">${oppData.name}</div>
+                    </div>
+                    <div class="stadium-info-list">
+                        ${displayContent}
+                    </div>
+                </div>`;
+            }).join('');
+            showView('team');
+        }
+
+        // Temel JS Fonksiyonları (Logo Grid Güncelleme Eklendi)
         function updateLogoGrid() {
             const activeTeams = new Set();
             fixtureData.forEach(m => { activeTeams.add(m.h); activeTeams.add(m.a); });
@@ -434,180 +608,15 @@
             });
         }
 
-        window.toggleLeague = function() {
-            const btn = document.getElementById('league-toggle');
-            const title = document.getElementById('league-title');
-
-            if (currentLeague === 'lig1') {
-                currentLeague = 'lig2';
-                document.body.classList.add('lig2');
-                title.innerText = "DiscordToto 2. Lig 2027-2028 Sezonu";
-                btn.innerText = "🔄 1. LİG'E DÖN";
-            } else {
-                currentLeague = 'lig1';
-                document.body.classList.remove('lig2');
-                title.innerText = "DiscordToto 2027-2028 Sezonu";
-                btn.innerText = "🔄 2. LİG'E GEÇ";
-            }
-            loadLeagueData(currentLeague);
-        }
-
-        window.toggleDarkMode = function() {
-            document.body.classList.toggle('dark-mode');
-        }
-
-        window.setScore = function(index, side, val) {
-            if(!isAdmin) return;
-            const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
-            const newValue = val === "" ? null : parseInt(val);
-            set(ref(db, `${fixPath}/${index}/${side}`), newValue);
-        }
-
-        window.resetDatabase = function() {
-            if(!isAdmin) return;
-            if(confirm(`DİKKAT: ${currentLeague === 'lig1' ? '1. Lig' : '2. Lig'} tüm skorlar sıfırlanacak. Emin misin?`)) {
-                const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
-                const activeDefaultFixture = currentLeague === 'lig1' ? defaultFixtureData : defaultFixtureDataLig2;
-                set(ref(db, fixPath), activeDefaultFixture);
-                alert("Veritabanı sıfırlandı!");
-            }
-        }
-
-        window.setPenalty = function(teamName) {
-            if(!isAdmin) return;
-            const penPath = currentLeague === 'lig1' ? 'penalties' : 'penalties_lig2';
-            let current = penaltiesData[teamName] || 0;
-            let val = prompt(`${teamName} takımından SİLİNECEK toplam puanı girin:\n(Şu an silinen: ${current})`, current);
-            if(val !== null) {
-                set(ref(db, `${penPath}/${teamName}`), parseInt(val) || 0);
-            }
-        }
-
-        function renderAll() {
-            const scrollPos = window.scrollY;
-            const activeId = document.activeElement ? document.activeElement.id : null;
-            const grid = document.getElementById('main-fixture-grid');
-            grid.innerHTML = "";
-            let currentWeek = 0;
-            let weekHtml = "";
-
-            fixtureData.forEach((m, i) => {
-                if (m.w !== currentWeek) {
-                    if (currentWeek !== 0) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
-                    currentWeek = m.w;
-                    weekHtml = `<div class="week-card"><div class="week-header"><span class="week-number">${currentWeek}</span><span class="week-label">Hafta</span></div><div class="match-list">`;
-                }
-                
-                let hData = getTeamData(m.h);
-                let aData = getTeamData(m.a);
-                let center = isAdmin ? `<input type="number" id="hs-${i}" class="score-input" value="${m.hs ?? ''}" oninput="setScore(${i},'hs',this.value)"> <span class="vs">-</span> <input type="number" id="as-${i}" class="score-input" value="${m.as ?? ''}" oninput="setScore(${i},'as',this.value)">` : `<span class="vs">${(m.hs != null && m.as != null) ? m.hs + ' - ' + m.as : 'VS'}</span>`;
-                
-                // MİNİ LOGOLU YENİ TASARIM
-                weekHtml += `
-                <div class="match-row">
-                    <div class="match-teams">
-                        <div class="team-box home">
-                            <img src="${hData.logo}" class="mini-logo" onerror="this.style.display='none'">
-                            <span>${hData.shortName}</span>
-                        </div>
-                        <div class="match-score">${center}</div>
-                        <div class="team-box away">
-                            <span>${aData.shortName}</span>
-                            <img src="${aData.logo}" class="mini-logo" onerror="this.style.display='none'">
-                        </div>
-                    </div>
-                    <div class="match-stadium-mini">🏟️ ${hData.stadium}</div>
-                </div>`;
-                
-                if (i === fixtureData.length - 1) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
-            });
-
-            let statsMap = {};
-            teamDetails.forEach(t => { statsMap[t.name] = { name: t.name, logo: t.logo, om:0, g:0, b:0, m:0, ag:0, yg:0, av:0, p:0 }; });
-            
-            fixtureData.forEach(m => {
-                if (m.hs != null && m.as != null) {
-                    let h = statsMap[m.h]; let a = statsMap[m.a];
-                    if(h && a) {
-                        h.om++; a.om++; h.ag += parseInt(m.hs); h.yg += parseInt(m.as); a.ag += parseInt(m.as); a.yg += parseInt(m.hs);
-                        if (m.hs > m.as) { h.g++; h.p += 3; a.m++; } else if (m.as > m.hs) { a.g++; a.p += 3; h.m++; } else { h.b++; h.p++; a.b++; a.p++; }
-                        h.av = h.ag - h.yg; a.av = a.ag - a.yg;
-                    }
-                }
-            });
-
-            Object.keys(penaltiesData).forEach(team => {
-                if(statsMap[team]) statsMap[team].p -= parseInt(penaltiesData[team]);
-            });
-
-            let activeTeams = Object.values(statsMap).filter(t => t.om > 0 || fixtureData.some(m => m.h === t.name || m.a === t.name));
-            let sortedStats = activeTeams.sort((a, b) => b.p - a.p || b.av - a.av || b.ag - a.ag);
-            
-            document.getElementById('standings-body').innerHTML = sortedStats.map((t, i) => {
-                const rank = i + 1;
-                let barColor = "transparent";
-                if (rank <= 2) barColor = "#2ecc71"; else if (rank <= 4) barColor = "#f39c12"; else if (rank > sortedStats.length - 3) barColor = "#e74c3c";
-                
-                const penaltyBtn = isAdmin ? `<br><span onclick="setPenalty('${t.name}')" style="cursor:pointer; color:#e74c3c; font-size:0.6em; border:1px solid #e74c3c; padding:2px; border-radius:4px;">[PUAN SİL: ${penaltiesData[t.name] || 0}]</span>` : "";
-
-                return `<tr style="box-shadow: inset 5px 0 0 0 ${barColor};">
-                    <td>${rank}</td>
-                    <td style="text-align:left; display:flex; align-items:center;">
-                        <div class="team-logo-btn" style="width:40px; height:40px; margin-right:15px; border:none; background-image:url('${t.logo}'); background-color:rgba(128,128,128,0.1);" onclick="showTeam('${t.name}')"></div>
-                        <div>${t.name}${penaltyBtn}</div>
-                    </td>
-                    <td>${t.om}</td><td>${t.g}</td><td>${t.b}</td><td>${t.m}</td><td>${t.av}</td>
-                    <td style="color:var(--accent-main); font-weight:800;">${t.p}</td>
-                </tr>`;
-            }).join('');
-
-            window.scrollTo(0, scrollPos);
-            if(activeId) { const el = document.getElementById(activeId); if(el) el.focus(); }
-        }
-
-        window.showTeam = function(name) {
-            let tData = getTeamData(name);
-            
-            // TAKIM SAYFASI ÜST KISMI (LOGO VE STADYUM İLE)
-            document.getElementById('team-view-header-content').innerHTML = `
-                <img src="${tData.logo}" class="team-header-logo" onerror="this.style.display='none'">
-                <h2 class="team-name-big">${tData.name}</h2>
-                <div class="team-header-stadium">🏟️ ${tData.stadium}</div>
-            `;
-
-            const teamMatches = fixtureData.filter(m => m.h === name || m.a === name);
-            document.getElementById('team-fixture-list').innerHTML = teamMatches.map(m => {
-                const isHome = m.h === name; 
-                const opponent = isHome ? m.a : m.h; 
-                const oppData = getTeamData(opponent);
-                const icon = isHome ? "🏠" : "✈️";
-                
-                let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'#2ecc71':(m.hs==m.as?'#95a5a6':'#e74c3c')}; color:white; border-radius:8px; text-align:center; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:#aaa; font-weight:bold; font-size:0.9em;">VS</span>`;
-                
-                return `
-                <div class="week-card gs-match-card">
-                    <div class="card-left">
-                        <div class="week-badge">${m.w}.</div>
-                        <div class="location-icon">${icon}</div>
-                        <img src="${oppData.logo}" class="mini-logo" style="width:28px; height:28px;" onerror="this.style.display='none'">
-                        <div class="match-details">${oppData.name}</div>
-                    </div>
-                    <div class="stadium-info-list">
-                        ${displayContent}
-                    </div>
-                </div>`;
-            }).join('');
-            showView('team');
-        }
-
+        // View değiştirme fonksiyonu
         window.showView = function(view, el) {
             ['main-view', 'standings-view', 'team-view'].forEach(id => document.getElementById(id).style.display = 'none');
-            if(el) { document.querySelectorAll('.control-btn').forEach(btn => { if(btn.innerText.includes('FİKSTÜR') || btn.innerText.includes('PUAN')) btn.classList.remove('active'); }); el.classList.add('active'); }
+            if(el) { document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active')); el.classList.add('active'); }
             document.getElementById(view + '-view').style.display = 'block';
             document.querySelector('.team-selector-container').style.display = (view === 'standings') ? 'none' : 'block';
         }
 
-        window.showMainView = function() { showView('main', document.querySelector('.control-btn:nth-child(3)')); }
+        window.showMainView = function() { showView('main', document.querySelector('.top-controls .control-btn:nth-child(3)')); }
 
         window.toggleAdmin = function() {
             if (isAdmin) { isAdmin = false; } 
@@ -619,6 +628,7 @@
             renderAll();
         }
 
+        // Başlangıç
         loadLeagueData(currentLeague);
 
     </script>
