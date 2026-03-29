@@ -163,10 +163,8 @@
     <div class="top-controls">
         <button class="control-btn" id="league-toggle" onclick="toggleLeague()">🔄 1. LİG'E GEÇ</button>
         <button class="icon-btn" onclick="toggleDarkMode()">🌙</button>
-        
         <button class="control-btn active" onclick="showView('main', this)">📅 FİKSTÜR</button>
         <button class="control-btn" onclick="showView('standings', this)">🏆 PUAN DURUMU</button>
-        
         <button id="admin-toggle" class="control-btn" onclick="toggleAdmin()">⚙️ YÖNETİCİ</button>
         <button id="reset-db-btn" class="control-btn" onclick="resetDatabase()">⚠️ SIFIRLA</button>
     </div>
@@ -215,368 +213,406 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- YENİ ŞİFRE ---
         let isAdmin = false;
         const ADMIN_PASSWORD = "toto2027"; 
 
-        // LİG DEĞİŞKENLERİ
-        let currentLeague = 'lig1'; // 'lig1' veya 'lig2'
+        let currentLeague = 'lig1'; 
         let unsubscribeFixtures = null;
         let unsubscribePenalties = null;
         let fixtureData = [];
         let penaltiesData = {};
 
-        // (Varsayılan Takımlar - İstenirse Lig 2 için ayrı takım dizisi oluşturulabilir)
+        // --- STADYUM DESTEKLİ TÜM TAKIMLAR VERİTABANI ---
         const teamDetails = [
-            { name: "Galatasaray", shortName: "GS", logo: "logolar/gs.png" },
-            { name: "Fenerbahçe", shortName: "FB", logo: "logolar/fb.png" },
-            { name: "Beşiktaş JK", shortName: "BJK", logo: "logolar/bjk.png" },
-            { name: "Trabzonspor", shortName: "TS", logo: "logolar/ts.png" },
-            { name: "Alanyaspor", shortName: "Alanyaspor", logo: "logolar/aly.png" },
-            { name: "Antalyaspor", shortName: "Antalyaspor", logo: "logolar/ant.png" },
-            { name: "Kasımpaşa", shortName: "Kasımpaşa", logo: "logolar/kas.png" },
-            { name: "Sivasspor", shortName: "Sivasspor", logo: "logolar/siv.png" },
-            { name: "Kayserispor", shortName: "Kayserispor", logo: "logolar/kay.png" },
-            { name: "Konyaspor", shortName: "Konyaspor", logo: "logolar/kon.png" },
-            { name: "MKE Ankaragücü", shortName: "Ankaragücü", logo: "logolar/ag.png" },
-            { name: "Çaykur Rizespor", shortName: "Rizespor", logo: "logolar/crs.png" },
-            { name: "Samsunspor", shortName: "Samsunspor", logo: "logolar/sam.png" },
-            { name: "Göztepe", shortName: "Göztepe", logo: "logolar/göz.png" },
-            { name: "Kocaelispor", shortName: "Kocaelispor", logo: "logolar/ks.png" },
-            { name: "Erzurumspor", shortName: "Erzurumspor", logo: "logolar/erz.png" },
-            { name: "Arca Çorum FK", shortName: "Çorum FK", logo: "logolar/cor.png" },
-            { name: "Redbull Eyüpspor", shortName: "Eyüpspor", logo: "logolar/eyu.png" }
+            // Lig 1 (Süper Lig) Takımları
+            { name: "Galatasaray", shortName: "GS", logo: "logolar/gs.png", stadium: "RAMS Park" },
+            { name: "Fenerbahçe", shortName: "FB", logo: "logolar/fb.png", stadium: "Ülker Stadyumu" },
+            { name: "Beşiktaş JK", shortName: "BJK", logo: "logolar/bjk.png", stadium: "Tüpraş Stadyumu" },
+            { name: "Trabzonspor", shortName: "TS", logo: "logolar/ts.png", stadium: "Papara Park" },
+            { name: "Alanyaspor", shortName: "Alanyaspor", logo: "logolar/aly.png", stadium: "GAİN Park Stadyumu" },
+            { name: "Antalyaspor", shortName: "Antalyaspor", logo: "logolar/ant.png", stadium: "Corendon Airlines Park" },
+            { name: "Kasımpaşa", shortName: "Kasımpaşa", logo: "logolar/kas.png", stadium: "Recep Tayyip Erdoğan Stadyumu" },
+            { name: "Sivasspor", shortName: "Sivasspor", logo: "logolar/siv.png", stadium: "BG Grup 4 Eylül Stadyumu" },
+            { name: "Kayserispor", shortName: "Kayserispor", logo: "logolar/kay.png", stadium: "RHG Enertürk Enerji Stadyumu" },
+            { name: "Konyaspor", shortName: "Konyaspor", logo: "logolar/kon.png", stadium: "MEDAŞ Konya Büyükşehir Stadyumu" },
+            { name: "MKE Ankaragücü", shortName: "Ankaragücü", logo: "logolar/ag.png", stadium: "Eryaman Stadyumu" },
+            { name: "Çaykur Rizespor", shortName: "Rizespor", logo: "logolar/crs.png", stadium: "Çaykur Didi Stadyumu" },
+            { name: "Samsunspor", shortName: "Samsunspor", logo: "logolar/sam.png", stadium: "Samsun Yeni 19 Mayıs Stadyumu" },
+            { name: "Göztepe", shortName: "Göztepe", logo: "logolar/göz.png", stadium: "Gürsel Aksel Stadyumu" },
+            { name: "Kocaelispor", shortName: "Kocaelispor", logo: "logolar/ks.png", stadium: "Turka Araç Muayene Kocaeli Stadyumu" },
+            { name: "Erzurumspor", shortName: "Erzurumspor", logo: "logolar/erz.png", stadium: "Kazım Karabekir Stadyumu" },
+            { name: "Arca Çorum FK", shortName: "Çorum FK", logo: "logolar/cor.png", stadium: "Çorum Şehir Stadyumu" },
+            { name: "Redbull Eyüpspor", shortName: "Eyüpspor", logo: "logolar/eyu.png", stadium: "Eyüp Stadyumu" },
+            
+            // Lig 2 / Diğer Takımlar
+            { name: "Amed SK", shortName: "Amed", logo: "logolar/amed.png", stadium: "Diyarbakır Stadyumu" },
+            { name: "Esenler Erokspor", shortName: "Erokspor", logo: "logolar/erok.png", stadium: "Esenler Stadyumu" },
+            { name: "Bodrum FK", shortName: "Bodrum", logo: "logolar/bodrum.png", stadium: "Bodrum İlçe Stadyumu" },
+            { name: "Pendikspor", shortName: "Pendik", logo: "logolar/pendik.png", stadium: "Pendik Stadyumu" },
+            { name: "Bandırmaspor", shortName: "Bandırma", logo: "logolar/bandirma.png", stadium: "Bandırma 17 Eylül Stadyumu" },
+            { name: "Keçiörengücü", shortName: "Keçiörengücü", logo: "logolar/kecioren.png", stadium: "Ankara Aktepe Stadyumu" },
+            { name: "Iğdır FK", shortName: "Iğdır", logo: "logolar/igdir.png", stadium: "Iğdır Şehir Stadyumu" },
+            { name: "Vanspor", shortName: "Vanspor", logo: "logolar/van.png", stadium: "Van Atatürk Stadyumu" },
+            { name: "Manisa FK", shortName: "Manisa", logo: "logolar/manisa.png", stadium: "Manisa 19 Mayıs Stadyumu" },
+            { name: "Boluspor", shortName: "Boluspor", logo: "logolar/bolu.png", stadium: "Bolu Atatürk Stadyumu" },
+            { name: "Ümraniyespor", shortName: "Ümraniye", logo: "logolar/umraniye.png", stadium: "Ümraniye Belediyesi Şehir Stadyumu" },
+            { name: "Sarıyer FK", shortName: "Sarıyer", logo: "logolar/sariyer.png", stadium: "Yusuf Ziya Öniş Stadyumu" },
+            { name: "Serikspor", shortName: "Serikspor", logo: "logolar/serik.png", stadium: "Serik İsmail Oğan Stadyumu" },
+            { name: "Sakaryaspor", shortName: "Sakarya", logo: "logolar/sakarya.png", stadium: "Yeni Sakarya Atatürk Stadyumu" },
+            { name: "Hatayspor", shortName: "Hatay", logo: "logolar/hatay.png", stadium: "Mersin Stadyumu" },
+            { name: "Adana Demirspor", shortName: "ADS", logo: "logolar/ads.png", stadium: "Yeni Adana Stadyumu" },
+            { name: "Başakşehir", shortName: "Başakşehir", logo: "logolar/basaksehir.png", stadium: "RAMS Başakşehir Fatih Terim Stadyumu" },
+            { name: "Gaziantep FK", shortName: "Gaziantep", logo: "logolar/gfk.png", stadium: "Kalyon Stadyumu" },
+            { name: "Fatih Karagümrük", shortName: "Karagümrük", logo: "logolar/karagumruk.png", stadium: "Atatürk Olimpiyat Stadyumu" },
+            { name: "Gençlerbirliği", shortName: "Gençlerbirliği", logo: "logolar/gencler.png", stadium: "Eryaman Stadyumu" },
+            { name: "İstanbulspor", shortName: "İstanbulspor", logo: "logolar/istanbul.png", stadium: "Esenyurt Necmi Kadıoğlu Stadyumu" },
+            { name: "Bursaspor", shortName: "Bursaspor", logo: "logolar/bursa.png", stadium: "Yüzüncü Yıl Atatürk Stadyumu" }
         ];
 
-        // Sizin verdiğiniz 34 Haftalık Fikstür Şablonu
+        // Takım adına göre stadyumu bulan yardımcı fonksiyon
+        function getStadium(teamName) {
+            const team = teamDetails.find(t => t.name === teamName);
+            return team && team.stadium ? team.stadium : "Bilinmeyen Stadyum";
+        }
+
         const defaultFixtureData = [
-            {w:1, h:"Fenerbahçe", a:"Antalyaspor", s:"ACIBADEM Stadı"}, 
-            {w:1, h:"Redbull Eyüpspor", a:"Arca Çorum FK", s:"VİAPORT Arena"}, 
-            {w:1, h:"Göztepe", a:"MKE Ankaragücü", s:"ZURICH Stadı"}, 
-            {w:1, h:"Konyaspor", a:"Sivasspor", s:"MEDAŞ Arena"}, 
-            {w:1, h:"Beşiktaş JK", a:"Alanyaspor", s:"VODAFONE Park"}, 
-            {w:1, h:"Trabzonspor", a:"Kasımpaşa", s:"VESTEL Stadı"}, 
-            {w:1, h:"Erzurumspor", a:"Galatasaray", s:"Türk Telekom Arena"}, 
-            {w:1, h:"Kocaelispor", a:"Çaykur Rizespor", s:"BRİSA Stadı"}, 
-            {w:1, h:"Kayserispor", a:"Samsunspor", s:"RHG Arena"},
-            {w:2, h:"Kayserispor", a:"Redbull Eyüpspor", s:"RHG Arena"}, 
-            {w:2, h:"Beşiktaş JK", a:"Sivasspor", s:"VODAFONE Park"}, 
-            {w:2, h:"Samsunspor", a:"Fenerbahçe", s:"YILPORT 19 Mayıs"}, 
-            {w:2, h:"Göztepe", a:"Kocaelispor", s:"ZURICH Stadı"}, 
-            {w:2, h:"Çaykur Rizespor", a:"Erzurumspor", s:"ÇAYKUR Didi"}, 
-            {w:2, h:"Galatasaray", a:"Kasımpaşa", s:"SOCAR Enerji Park"}, 
-            {w:2, h:"Alanyaspor", a:"Arca Çorum FK", s:"ANEX Arena"}, 
-            {w:2, h:"Konyaspor", a:"Trabzonspor", s:"MEDAŞ Arena"}, 
-            {w:2, h:"MKE Ankaragücü", a:"Antalyaspor", s:"TUSAŞ Başkent"},
-            {w:3, h:"Fenerbahçe", a:"Galatasaray", s:"ACIBADEM Stadı"}, 
-            {w:3, h:"Kayserispor", a:"Çaykur Rizespor", s:"RHG Arena"}, 
-            {w:3, h:"Arca Çorum FK", a:"Göztepe", s:"ARCA Gold Park"}, 
-            {w:3, h:"Kasımpaşa", a:"MKE Ankaragücü", s:"CİNER Stadyum"}, 
-            {w:3, h:"Samsunspor", a:"Konyaspor", s:"YILPORT 19 Mayıs"}, 
-            {w:3, h:"Erzurumspor", a:"Kocaelispor", s:"Türk Telekom Arena"}, 
-            {w:3, h:"Sivasspor", a:"Redbull Eyüpspor", s:"LİMAK"}, 
-            {w:3, h:"Alanyaspor", a:"Trabzonspor", s:"ANEX Arena"}, 
-            {w:3, h:"Antalyaspor", a:"Beşiktaş JK", s:"SUNEXPRESS"},
-            {w:4, h:"Beşiktaş JK", a:"Çaykur Rizespor", s:"VODAFONE Park"}, 
-            {w:4, h:"Konyaspor", a:"Göztepe", s:"MEDAŞ Arena"}, 
-            {w:4, h:"Redbull Eyüpspor", a:"Trabzonspor", s:"VİAPORT Arena"}, 
-            {w:4, h:"Samsunspor", a:"Alanyaspor", s:"YILPORT 19 Mayıs"}, 
-            {w:4, h:"MKE Ankaragücü", a:"Kocaelispor", s:"TUSAŞ Başkent"}, 
-            {w:4, h:"Galatasaray", a:"Arca Çorum FK", s:"SOCAR Enerji Park"}, 
-            {w:4, h:"Fenerbahçe", a:"Erzurumspor", s:"ACIBADEM Stadı"}, 
-            {w:4, h:"Kayserispor", a:"Kasımpaşa", s:"RHG Arena"}, 
-            {w:4, h:"Antalyaspor", a:"Sivasspor", s:"SUNEXPRESS"},
-            {w:5, h:"Alanyaspor", a:"Kasımpaşa", s:"ANEX Arena"}, 
-            {w:5, h:"Erzurumspor", a:"Sivasspor", s:"Türk Telekom Arena"}, 
-            {w:5, h:"Antalyaspor", a:"Göztepe", s:"SUNEXPRESS"}, 
-            {w:5, h:"Fenerbahçe", a:"Arca Çorum FK", s:"ACIBADEM Stadı"}, 
-            {w:5, h:"MKE Ankaragücü", a:"Beşiktaş JK", s:"TUSAŞ Başkent"}, 
-            {w:5, h:"Samsunspor", a:"Çaykur Rizespor", s:"YILPORT 19 Mayıs"}, 
-            {w:5, h:"Kocaelispor", a:"Konyaspor", s:"BRİSA Stadı"}, 
-            {w:5, h:"Trabzonspor", a:"Kayserispor", s:"VESTEL Stadı"}, 
-            {w:5, h:"Redbull Eyüpspor", a:"Galatasaray", s:"VİAPORT Arena"},
-            {w:6, h:"Antalyaspor", a:"Redbull Eyüpspor", s:"SUNEXPRESS"}, 
-            {w:6, h:"Alanyaspor", a:"Göztepe", s:"ANEX Arena"}, 
-            {w:6, h:"Samsunspor", a:"Trabzonspor", s:"YILPORT 19 Mayıs"}, 
-            {w:6, h:"Sivasspor", a:"Çaykur Rizespor", s:"LİMAK"}, 
-            {w:6, h:"Galatasaray", a:"Konyaspor", s:"SOCAR Enerji Park"}, 
-            {w:6, h:"Kayserispor", a:"Kocaelispor", s:"RHG Arena"}, 
-            {w:6, h:"Fenerbahçe", a:"MKE Ankaragücü", s:"ACIBADEM Stadı"}, 
-            {w:6, h:"Erzurumspor", a:"Arca Çorum FK", s:"Türk Telekom Arena"}, 
-            {w:6, h:"Beşiktaş JK", a:"Kasımpaşa", s:"VODAFONE Park"},
-            {w:7, h:"Fenerbahçe", a:"Alanyaspor", s:"ACIBADEM Stadı"}, 
-            {w:7, h:"Göztepe", a:"Kasımpaşa", s:"ZURICH Stadı"}, 
-            {w:7, h:"Trabzonspor", a:"Beşiktaş JK", s:"VESTEL Stadı"}, 
-            {w:7, h:"Sivasspor", a:"Kayserispor", s:"LİMAK"}, 
-            {w:7, h:"Arca Çorum FK", a:"Konyaspor", s:"ARCA Gold Park"}, 
-            {w:7, h:"Çaykur Rizespor", a:"Galatasaray", s:"ÇAYKUR Didi"}, 
-            {w:7, h:"Antalyaspor", a:"Erzurumspor", s:"SUNEXPRESS"}, 
-            {w:7, h:"MKE Ankaragücü", a:"Redbull Eyüpspor", s:"TUSAŞ Başkent"}, 
-            {w:7, h:"Samsunspor", a:"Kocaelispor", s:"YILPORT 19 Mayıs"},
-            {w:8, h:"Kasımpaşa", a:"Sivasspor", s:"CİNER Stadyum"}, 
-            {w:8, h:"Fenerbahçe", a:"Kayserispor", s:"ACIBADEM Stadı"}, 
-            {w:8, h:"Beşiktaş JK", a:"Kocaelispor", s:"VODAFONE Park"}, 
-            {w:8, h:"Göztepe", a:"Samsunspor", s:"ZURICH Stadı"}, 
-            {w:8, h:"Çaykur Rizespor", a:"Redbull Eyüpspor", s:"ÇAYKUR Didi"}, 
-            {w:8, h:"Trabzonspor", a:"Antalyaspor", s:"VESTEL Stadı"}, 
-            {w:8, h:"Galatasaray", a:"Alanyaspor", s:"SOCAR Enerji Park"}, 
-            {w:8, h:"Konyaspor", a:"Erzurumspor", s:"MEDAŞ Arena"}, 
-            {w:8, h:"Arca Çorum FK", a:"MKE Ankaragücü", s:"ARCA Gold Park"},
-            {w:9, h:"Fenerbahçe", a:"Redbull Eyüpspor", s:"ACIBADEM Stadı"}, 
-            {w:9, h:"Kocaelispor", a:"Antalyaspor", s:"BRİSA Stadı"}, 
-            {w:9, h:"Konyaspor", a:"Beşiktaş JK", s:"MEDAŞ Arena"}, 
-            {w:9, h:"Sivasspor", a:"Arca Çorum FK", s:"LİMAK"}, 
-            {w:9, h:"MKE Ankaragücü", a:"Samsunspor", s:"TUSAŞ Başkent"}, 
-            {w:9, h:"Göztepe", a:"Erzurumspor", s:"ZURICH Stadı"}, 
-            {w:9, h:"Galatasaray", a:"Trabzonspor", s:"SOCAR Enerji Park"}, 
-            {w:9, h:"Çaykur Rizespor", a:"Kasımpaşa", s:"ÇAYKUR Didi"}, 
-            {w:9, h:"Kayserispor", a:"Alanyaspor", s:"RHG Arena"},
-            {w:10, h:"Sivasspor", a:"Samsunspor", s:"LİMAK"}, 
-            {w:10, h:"Redbull Eyüpspor", a:"Alanyaspor", s:"VİAPORT Arena"}, 
-            {w:10, h:"Göztepe", a:"Beşiktaş JK", s:"ZURICH Stadı"}, 
-            {w:10, h:"Antalyaspor", a:"Konyaspor", s:"SUNEXPRESS"}, 
-            {w:10, h:"Kayserispor", a:"Galatasaray", s:"RHG Arena"}, 
-            {w:10, h:"Trabzonspor", a:"Kocaelispor", s:"VESTEL Stadı"}, 
-            {w:10, h:"Fenerbahçe", a:"Kasımpaşa", s:"ACIBADEM Stadı"}, 
-            {w:10, h:"Erzurumspor", a:"MKE Ankaragücü", s:"Türk Telekom Arena"}, 
-            {w:10, h:"Arca Çorum FK", a:"Çaykur Rizespor", s:"ARCA Gold Park"},
-            {w:11, h:"Kocaelispor", a:"Galatasaray", s:"BRİSA Stadı"}, 
-            {w:11, h:"Samsunspor", a:"Arca Çorum FK", s:"YILPORT 19 Mayıs"}, 
-            {w:11, h:"Kayserispor", a:"Antalyaspor", s:"RHG Arena"}, 
-            {w:11, h:"Konyaspor", a:"Alanyaspor", s:"MEDAŞ Arena"}, 
-            {w:11, h:"Kasımpaşa", a:"Erzurumspor", s:"CİNER Stadyum"}, 
-            {w:11, h:"Trabzonspor", a:"Sivasspor", s:"VESTEL Stadı"}, 
-            {w:11, h:"Fenerbahçe", a:"Göztepe", s:"ACIBADEM Stadı"}, 
-            {w:11, h:"Beşiktaş JK", a:"Redbull Eyüpspor", s:"VODAFONE Park"}, 
-            {w:11, h:"MKE Ankaragücü", a:"Çaykur Rizespor", s:"TUSAŞ Başkent"},
-            {w:12, h:"Trabzonspor", a:"Göztepe", s:"VESTEL Stadı"}, 
-            {w:12, h:"Arca Çorum FK", a:"Kayserispor", s:"ARCA Gold Park"}, 
-            {w:12, h:"Antalyaspor", a:"Çaykur Rizespor", s:"SUNEXPRESS"}, 
-            {w:12, h:"Kocaelispor", a:"Sivasspor", s:"BRİSA Stadı"}, 
-            {w:12, h:"Galatasaray", a:"Samsunspor", s:"SOCAR Enerji Park"}, 
-            {w:12, h:"Beşiktaş JK", a:"Fenerbahçe", s:"VODAFONE Park"}, 
-            {w:12, h:"Redbull Eyüpspor", a:"Kasımpaşa", s:"VİAPORT Arena"}, 
-            {w:12, h:"Erzurumspor", a:"Alanyaspor", s:"Türk Telekom Arena"}, 
-            {w:12, h:"MKE Ankaragücü", a:"Konyaspor", s:"TUSAŞ Başkent"},
-            {w:13, h:"Erzurumspor", a:"Trabzonspor", s:"Türk Telekom Arena"}, 
-            {w:13, h:"Antalyaspor", a:"Arca Çorum FK", s:"SUNEXPRESS"}, 
-            {w:13, h:"Beşiktaş JK", a:"Samsunspor", s:"VODAFONE Park"}, 
-            {w:13, h:"Kayserispor", a:"Göztepe", s:"RHG Arena"}, 
-            {w:13, h:"Kocaelispor", a:"Kasımpaşa", s:"BRİSA Stadı"}, 
-            {w:13, h:"Çaykur Rizespor", a:"Fenerbahçe", s:"ÇAYKUR Didi"}, 
-            {w:13, h:"Konyaspor", a:"Redbull Eyüpspor", s:"MEDAŞ Arena"}, 
-            {w:13, h:"MKE Ankaragücü", a:"Galatasaray", s:"TUSAŞ Başkent"}, 
-            {w:13, h:"Sivasspor", a:"Alanyaspor", s:"LİMAK"},
-            {w:14, h:"Alanyaspor", a:"MKE Ankaragücü", s:"ANEX Arena"}, 
-            {w:14, h:"Çaykur Rizespor", a:"Trabzonspor", s:"ÇAYKUR Didi"}, 
-            {w:14, h:"Antalyaspor", a:"Kasımpaşa", s:"SUNEXPRESS"}, 
-            {w:14, h:"Sivasspor", a:"Fenerbahçe", s:"LİMAK"}, 
-            {w:14, h:"Erzurumspor", a:"Samsunspor", s:"Türk Telekom Arena"}, 
-            {w:14, h:"Kocaelispor", a:"Redbull Eyüpspor", s:"BRİSA Stadı"}, 
-            {w:14, h:"Konyaspor", a:"Kayserispor", s:"MEDAŞ Arena"}, 
-            {w:14, h:"Galatasaray", a:"Göztepe", s:"SOCAR Enerji Park"}, 
-            {w:14, h:"Beşiktaş JK", a:"Arca Çorum FK", s:"VODAFONE Park"},
-            {w:15, h:"Fenerbahçe", a:"Trabzonspor", s:"ACIBADEM Stadı"}, 
-            {w:15, h:"Konyaspor", a:"Kasımpaşa", s:"MEDAŞ Arena"}, 
-            {w:15, h:"Antalyaspor", a:"Samsunspor", s:"SUNEXPRESS"}, 
-            {w:15, h:"Erzurumspor", a:"Beşiktaş JK", s:"Türk Telekom Arena"}, 
-            {w:15, h:"Göztepe", a:"Redbull Eyüpspor", s:"ZURICH Stadı"}, 
-            {w:15, h:"Galatasaray", a:"Sivasspor", s:"SOCAR Enerji Park"}, 
-            {w:15, h:"Çaykur Rizespor", a:"Alanyaspor", s:"ÇAYKUR Didi"}, 
-            {w:15, h:"Kayserispor", a:"MKE Ankaragücü", s:"RHG Arena"}, 
-            {w:15, h:"Kocaelispor", a:"Arca Çorum FK", s:"BRİSA Stadı"},
-            {w:16, h:"Trabzonspor", a:"Arca Çorum FK", s:"VESTEL Stadı"}, 
-            {w:16, h:"Kocaelispor", a:"Alanyaspor", s:"BRİSA Stadı"}, 
-            {w:16, h:"Konyaspor", a:"Fenerbahçe", s:"MEDAŞ Arena"}, 
-            {w:16, h:"Beşiktaş JK", a:"Kayserispor", s:"VODAFONE Park"}, 
-            {w:16, h:"Kasımpaşa", a:"Samsunspor", s:"CİNER Stadyum"}, 
-            {w:16, h:"Antalyaspor", a:"Galatasaray", s:"SUNEXPRESS"}, 
-            {w:16, h:"Çaykur Rizespor", a:"Göztepe", s:"ÇAYKUR Didi"}, 
-            {w:16, h:"MKE Ankaragücü", a:"Sivasspor", s:"TUSAŞ Başkent"}, 
-            {w:16, h:"Redbull Eyüpspor", a:"Erzurumspor", s:"VİAPORT Arena"},
-            {w:17, h:"Samsunspor", a:"Redbull Eyüpspor", s:"YILPORT 19 Mayıs"}, 
-            {w:17, h:"Antalyaspor", a:"Alanyaspor", s:"SUNEXPRESS"}, 
-            {w:17, h:"Kayserispor", a:"Erzurumspor", s:"RHG Arena"}, 
-            {w:17, h:"Arca Çorum FK", a:"Kasımpaşa", s:"ARCA Gold Park"}, 
-            {w:17, h:"Trabzonspor", a:"MKE Ankaragücü", s:"VESTEL Stadı"}, 
-            {w:17, h:"Sivasspor", a:"Göztepe", s:"LİMAK"}, 
-            {w:17, h:"Kocaelispor", a:"Fenerbahçe", s:"BRİSA Stadı"}, 
-            {w:17, h:"Konyaspor", a:"Çaykur Rizespor", s:"MEDAŞ Arena"}, 
-            {w:17, h:"Galatasaray", a:"Beşiktaş JK", s:"SOCAR Enerji Park"},
-            // ... (Tüm 34 hafta burada. Yer tasarrufu için yarısını ekledim, sizin orijinal defaultFixtureData dizinizin tamamı kullanılabilir. Geri kalanı aşağıda kopyalandığı gibi eklenmeli.)
-            {w:18, h:"Antalyaspor", a:"Fenerbahçe", s:"SUNEXPRESS"}, 
-            {w:18, h:"Arca Çorum FK", a:"Redbull Eyüpspor", s:"ARCA Gold Park"}, 
-            {w:18, h:"MKE Ankaragücü", a:"Göztepe", s:"TUSAŞ Başkent"}, 
-            {w:18, h:"Sivasspor", a:"Konyaspor", s:"LİMAK"}, 
-            {w:18, h:"Alanyaspor", a:"Beşiktaş JK", s:"ANEX Arena"}, 
-            {w:18, h:"Kasımpaşa", a:"Trabzonspor", s:"CİNER Stadyum"}, 
-            {w:18, h:"Galatasaray", a:"Erzurumspor", s:"SOCAR Enerji Park"}, 
-            {w:18, h:"Çaykur Rizespor", a:"Kocaelispor", s:"ÇAYKUR Didi"}, 
-            {w:18, h:"Samsunspor", a:"Kayserispor", s:"YILPORT 19 Mayıs"},
-            {w:19, h:"Redbull Eyüpspor", a:"Kayserispor", s:"VİAPORT Arena"}, 
-            {w:19, h:"Sivasspor", a:"Beşiktaş JK", s:"LİMAK"}, 
-            {w:19, h:"Fenerbahçe", a:"Samsunspor", s:"ACIBADEM Stadı"}, 
-            {w:19, h:"Kocaelispor", a:"Göztepe", s:"BRİSA Stadı"}, 
-            {w:19, h:"Erzurumspor", a:"Çaykur Rizespor", s:"Türk Telekom Arena"}, 
-            {w:19, h:"Kasımpaşa", a:"Galatasaray", s:"CİNER Stadyum"}, 
-            {w:19, h:"Arca Çorum FK", a:"Alanyaspor", s:"ARCA Gold Park"}, 
-            {w:19, h:"Trabzonspor", a:"Konyaspor", s:"VESTEL Stadı"}, 
-            {w:19, h:"Antalyaspor", a:"MKE Ankaragücü", s:"SUNEXPRESS"},
-            {w:20, h:"Galatasaray", a:"Fenerbahçe", s:"SOCAR Enerji Park"}, 
-            {w:20, h:"Çaykur Rizespor", a:"Kayserispor", s:"ÇAYKUR Didi"}, 
-            {w:20, h:"Göztepe", a:"Arca Çorum FK", s:"ZURICH Stadı"}, 
-            {w:20, h:"MKE Ankaragücü", a:"Kasımpaşa", s:"TUSAŞ Başkent"}, 
-            {w:20, h:"Konyaspor", a:"Samsunspor", s:"MEDAŞ Arena"}, 
-            {w:20, h:"Kocaelispor", a:"Erzurumspor", s:"BRİSA Stadı"}, 
-            {w:20, h:"Redbull Eyüpspor", a:"Sivasspor", s:"VİAPORT Arena"}, 
-            {w:20, h:"Trabzonspor", a:"Alanyaspor", s:"VESTEL Stadı"}, 
-            {w:20, h:"Beşiktaş JK", a:"Antalyaspor", s:"VODAFONE Park"},
-            {w:21, h:"Çaykur Rizespor", a:"Beşiktaş JK", s:"ÇAYKUR Didi"}, 
-            {w:21, h:"Göztepe", a:"Konyaspor", s:"ZURICH Stadı"}, 
-            {w:21, h:"Trabzonspor", a:"Redbull Eyüpspor", s:"VESTEL Stadı"}, 
-            {w:21, h:"Alanyaspor", a:"Samsunspor", s:"ANEX Arena"}, 
-            {w:21, h:"Kocaelispor", a:"MKE Ankaragücü", s:"BRİSA Stadı"}, 
-            {w:21, h:"Arca Çorum FK", a:"Galatasaray", s:"ARCA Gold Park"}, 
-            {w:21, h:"Erzurumspor", a:"Fenerbahçe", s:"Türk Telekom Arena"}, 
-            {w:21, h:"Kasımpaşa", a:"Kayserispor", s:"CİNER Stadyum"}, 
-            {w:21, h:"Sivasspor", a:"Antalyaspor", s:"LİMAK"},
-            {w:22, h:"Kasımpaşa", a:"Alanyaspor", s:"CİNER Stadyum"}, 
-            {w:22, h:"Sivasspor", a:"Erzurumspor", s:"LİMAK"}, 
-            {w:22, h:"Göztepe", a:"Antalyaspor", s:"ZURICH Stadı"}, 
-            {w:22, h:"Arca Çorum FK", a:"Fenerbahçe", s:"ARCA Gold Park"}, 
-            {w:22, h:"Beşiktaş JK", a:"MKE Ankaragücü", s:"VODAFONE Park"}, 
-            {w:22, h:"Çaykur Rizespor", a:"Samsunspor", s:"ÇAYKUR Didi"}, 
-            {w:22, h:"Konyaspor", a:"Kocaelispor", s:"MEDAŞ Arena"}, 
-            {w:22, h:"Kayserispor", a:"Trabzonspor", s:"RHG Arena"}, 
-            {w:22, h:"Galatasaray", a:"Redbull Eyüpspor", s:"SOCAR Enerji Park"},
-            {w:23, h:"Redbull Eyüpspor", a:"Antalyaspor", s:"VİAPORT Arena"}, 
-            {w:23, h:"Göztepe", a:"Alanyaspor", s:"ZURICH Stadı"}, 
-            {w:23, h:"Trabzonspor", a:"Samsunspor", s:"VESTEL Stadı"}, 
-            {w:23, h:"Çaykur Rizespor", a:"Sivasspor", s:"ÇAYKUR Didi"}, 
-            {w:23, h:"Konyaspor", a:"Galatasaray", s:"MEDAŞ Arena"}, 
-            {w:23, h:"Kocaelispor", a:"Kayserispor", s:"BRİSA Stadı"}, 
-            {w:23, h:"MKE Ankaragücü", a:"Fenerbahçe", s:"TUSAŞ Başkent"}, 
-            {w:23, h:"Arca Çorum FK", a:"Erzurumspor", s:"ARCA Gold Park"}, 
-            {w:23, h:"Kasımpaşa", a:"Beşiktaş JK", s:"CİNER Stadyum"},
-            {w:24, h:"Alanyaspor", a:"Fenerbahçe", s:"ANEX Arena"}, 
-            {w:24, h:"Kasımpaşa", a:"Göztepe", s:"CİNER Stadyum"}, 
-            {w:24, h:"Beşiktaş JK", a:"Trabzonspor", s:"VODAFONE Park"}, 
-            {w:24, h:"Kayserispor", a:"Sivasspor", s:"RHG Arena"}, 
-            {w:24, h:"Konyaspor", a:"Arca Çorum FK", s:"MEDAŞ Arena"}, 
-            {w:24, h:"Galatasaray", a:"Çaykur Rizespor", s:"SOCAR Enerji Park"}, 
-            {w:24, h:"Erzurumspor", a:"Antalyaspor", s:"Türk Telekom Arena"}, 
-            {w:24, h:"Redbull Eyüpspor", a:"MKE Ankaragücü", s:"VİAPORT Arena"}, 
-            {w:24, h:"Kocaelispor", a:"Samsunspor", s:"BRİSA Stadı"},
-            {w:25, h:"Sivasspor", a:"Kasımpaşa", s:"LİMAK"}, 
-            {w:25, h:"Kayserispor", a:"Fenerbahçe", s:"RHG Arena"}, 
-            {w:25, h:"Kocaelispor", a:"Beşiktaş JK", s:"BRİSA Stadı"}, 
-            {w:25, h:"Samsunspor", a:"Göztepe", s:"YILPORT 19 Mayıs"}, 
-            {w:25, h:"Redbull Eyüpspor", a:"Çaykur Rizespor", s:"VİAPORT Arena"}, 
-            {w:25, h:"Antalyaspor", a:"Trabzonspor", s:"SUNEXPRESS"}, 
-            {w:25, h:"Alanyaspor", a:"Galatasaray", s:"ANEX Arena"}, 
-            {w:25, h:"Erzurumspor", a:"Konyaspor", s:"Türk Telekom Arena"}, 
-            {w:25, h:"MKE Ankaragücü", a:"Arca Çorum FK", s:"TUSAŞ Başkent"},
-            {w:26, h:"Redbull Eyüpspor", a:"Fenerbahçe", s:"VİAPORT Arena"}, 
-            {w:26, h:"Antalyaspor", a:"Kocaelispor", s:"SUNEXPRESS"}, 
-            {w:26, h:"Beşiktaş JK", a:"Konyaspor", s:"VODAFONE Park"}, 
-            {w:26, h:"Arca Çorum FK", a:"Sivasspor", s:"ARCA Gold Park"}, 
-            {w:26, h:"Samsunspor", a:"MKE Ankaragücü", s:"YILPORT 19 Mayıs"}, 
-            {w:26, h:"Erzurumspor", a:"Göztepe", s:"Türk Telekom Arena"}, 
-            {w:26, h:"Trabzonspor", a:"Galatasaray", s:"VESTEL Stadı"}, 
-            {w:26, h:"Kasımpaşa", a:"Çaykur Rizespor", s:"CİNER Stadyum"}, 
-            {w:26, h:"Alanyaspor", a:"Kayserispor", s:"ANEX Arena"},
-            {w:27, h:"Samsunspor", a:"Sivasspor", s:"YILPORT 19 Mayıs"}, 
-            {w:27, h:"Alanyaspor", a:"Redbull Eyüpspor", s:"ANEX Arena"}, 
-            {w:27, h:"Beşiktaş JK", a:"Göztepe", s:"VODAFONE Park"}, 
-            {w:27, h:"Konyaspor", a:"Antalyaspor", s:"MEDAŞ Arena"}, 
-            {w:27, h:"Galatasaray", a:"Kayserispor", s:"SOCAR Enerji Park"}, 
-            {w:27, h:"Kocaelispor", a:"Trabzonspor", s:"BRİSA Stadı"}, 
-            {w:27, h:"Kasımpaşa", a:"Fenerbahçe", s:"CİNER Stadyum"}, 
-            {w:27, h:"MKE Ankaragücü", a:"Erzurumspor", s:"TUSAŞ Başkent"}, 
-            {w:27, h:"Çaykur Rizespor", a:"Arca Çorum FK", s:"ÇAYKUR Didi"},
-            {w:28, h:"Galatasaray", a:"Kocaelispor", s:"SOCAR Enerji Park"}, 
-            {w:28, h:"Arca Çorum FK", a:"Samsunspor", s:"ARCA Gold Park"}, 
-            {w:28, h:"Antalyaspor", a:"Kayserispor", s:"SUNEXPRESS"}, 
-            {w:28, h:"Alanyaspor", a:"Konyaspor", s:"ANEX Arena"}, 
-            {w:28, h:"Erzurumspor", a:"Kasımpaşa", s:"Türk Telekom Arena"}, 
-            {w:28, h:"Sivasspor", a:"Trabzonspor", s:"LİMAK"}, 
-            {w:28, h:"Göztepe", a:"Fenerbahçe", s:"ZURICH Stadı"}, 
-            {w:28, h:"Redbull Eyüpspor", a:"Beşiktaş JK", s:"VİAPORT Arena"}, 
-            {w:28, h:"Çaykur Rizespor", a:"MKE Ankaragücü", s:"ÇAYKUR Didi"},
-            {w:29, h:"Göztepe", a:"Trabzonspor", s:"ZURICH Stadı"}, 
-            {w:29, h:"Kayserispor", a:"Arca Çorum FK", s:"RHG Arena"}, 
-            {w:29, h:"Çaykur Rizespor", a:"Antalyaspor", s:"ÇAYKUR Didi"}, 
-            {w:29, h:"Sivasspor", a:"Kocaelispor", s:"LİMAK"}, 
-            {w:29, h:"Samsunspor", a:"Galatasaray", s:"YILPORT 19 Mayıs"}, 
-            {w:29, h:"Fenerbahçe", a:"Beşiktaş JK", s:"ACIBADEM Stadı"}, 
-            {w:29, h:"Kasımpaşa", a:"Redbull Eyüpspor", s:"CİNER Stadyum"}, 
-            {w:29, h:"Alanyaspor", a:"Erzurumspor", s:"ANEX Arena"}, 
-            {w:29, h:"Konyaspor", a:"MKE Ankaragücü", s:"MEDAŞ Arena"},
-            {w:30, h:"Trabzonspor", a:"Erzurumspor", s:"VESTEL Stadı"}, 
-            {w:30, h:"Arca Çorum FK", a:"Antalyaspor", s:"ARCA Gold Park"}, 
-            {w:30, h:"Samsunspor", a:"Beşiktaş JK", s:"YILPORT 19 Mayıs"}, 
-            {w:30, h:"Göztepe", a:"Kayserispor", s:"ZURICH Stadı"}, 
-            {w:30, h:"Kasımpaşa", a:"Kocaelispor", s:"CİNER Stadyum"}, 
-            {w:30, h:"Fenerbahçe", a:"Çaykur Rizespor", s:"ACIBADEM Stadı"}, 
-            {w:30, h:"Redbull Eyüpspor", a:"Konyaspor", s:"VİAPORT Arena"}, 
-            {w:30, h:"Galatasaray", a:"MKE Ankaragücü", s:"SOCAR Enerji Park"}, 
-            {w:30, h:"Alanyaspor", a:"Sivasspor", s:"ANEX Arena"},
-            {w:31, h:"MKE Ankaragücü", a:"Alanyaspor", s:"TUSAŞ Başkent"}, 
-            {w:31, h:"Trabzonspor", a:"Çaykur Rizespor", s:"VESTEL Stadı"}, 
-            {w:31, h:"Kasımpaşa", a:"Antalyaspor", s:"CİNER Stadyum"}, 
-            {w:31, h:"Fenerbahçe", a:"Sivasspor", s:"ACIBADEM Stadı"}, 
-            {w:31, h:"Samsunspor", a:"Erzurumspor", s:"YILPORT 19 Mayıs"}, 
-            {w:31, h:"Redbull Eyüpspor", a:"Kocaelispor", s:"VİAPORT Arena"}, 
-            {w:31, h:"Kayserispor", a:"Konyaspor", s:"RHG Arena"}, 
-            {w:31, h:"Göztepe", a:"Galatasaray", s:"ZURICH Stadı"}, 
-            {w:31, h:"Arca Çorum FK", a:"Beşiktaş JK", s:"ARCA Gold Park"},
-            {w:32, h:"Trabzonspor", a:"Fenerbahçe", s:"VESTEL Stadı"}, 
-            {w:32, h:"Kasımpaşa", a:"Konyaspor", s:"CİNER Stadyum"}, 
-            {w:32, h:"Samsunspor", a:"Antalyaspor", s:"YILPORT 19 Mayıs"}, 
-            {w:32, h:"Beşiktaş JK", a:"Erzurumspor", s:"VODAFONE Park"}, 
-            {w:32, h:"Redbull Eyüpspor", a:"Göztepe", s:"VİAPORT Arena"}, 
-            {w:32, h:"Sivasspor", a:"Galatasaray", s:"LİMAK"}, 
-            {w:32, h:"Alanyaspor", a:"Çaykur Rizespor", s:"ANEX Arena"}, 
-            {w:32, h:"MKE Ankaragücü", a:"Kayserispor", s:"TUSAŞ Başkent"}, 
-            {w:32, h:"Arca Çorum FK", a:"Kocaelispor", s:"ARCA Gold Park"},
-            {w:33, h:"Arca Çorum FK", a:"Trabzonspor", s:"ARCA Gold Park"}, 
-            {w:33, h:"Alanyaspor", a:"Kocaelispor", s:"ANEX Arena"}, 
-            {w:33, h:"Fenerbahçe", a:"Konyaspor", s:"ACIBADEM Stadı"}, 
-            {w:33, h:"Kayserispor", a:"Beşiktaş JK", s:"RHG Arena"}, 
-            {w:33, h:"Samsunspor", a:"Kasımpaşa", s:"YILPORT 19 Mayıs"}, 
-            {w:33, h:"Galatasaray", a:"Antalyaspor", s:"SOCAR Enerji Park"}, 
-            {w:33, h:"Göztepe", a:"Çaykur Rizespor", s:"ZURICH Stadı"}, 
-            {w:33, h:"Sivasspor", a:"MKE Ankaragücü", s:"LİMAK"}, 
-            {w:33, h:"Erzurumspor", a:"Redbull Eyüpspor", s:"Türk Telekom Arena"},
-            {w:34, h:"Redbull Eyüpspor", a:"Samsunspor", s:"VİAPORT Arena"}, 
-            {w:34, h:"Alanyaspor", a:"Antalyaspor", s:"ANEX Arena"}, 
-            {w:34, h:"Erzurumspor", a:"Kayserispor", s:"Türk Telekom Arena"}, 
-            {w:34, h:"Kasımpaşa", a:"Arca Çorum FK", s:"CİNER Stadyum"}, 
-            {w:34, h:"MKE Ankaragücü", a:"Trabzonspor", s:"TUSAŞ Başkent"}, 
-            {w:34, h:"Göztepe", a:"Sivasspor", s:"ZURICH Stadı"}, 
-            {w:34, h:"Fenerbahçe", a:"Kocaelispor", s:"ACIBADEM Stadı"}, 
-            {w:34, h:"Çaykur Rizespor", a:"Konyaspor", s:"ÇAYKUR Didi"}, 
-            {w:34, h:"Beşiktaş JK", a:"Galatasaray", s:"VODAFONE Park"}
+            {w:1, h:"Fenerbahçe", a:"Antalyaspor"}, 
+            {w:1, h:"Redbull Eyüpspor", a:"Arca Çorum FK"}, 
+            {w:1, h:"Göztepe", a:"MKE Ankaragücü"}, 
+            {w:1, h:"Konyaspor", a:"Sivasspor"}, 
+            {w:1, h:"Beşiktaş JK", a:"Alanyaspor"}, 
+            {w:1, h:"Trabzonspor", a:"Kasımpaşa"}, 
+            {w:1, h:"Erzurumspor", a:"Galatasaray"}, 
+            {w:1, h:"Kocaelispor", a:"Çaykur Rizespor"}, 
+            {w:1, h:"Kayserispor", a:"Samsunspor"},
+            {w:2, h:"Kayserispor", a:"Redbull Eyüpspor"}, 
+            {w:2, h:"Beşiktaş JK", a:"Sivasspor"}, 
+            {w:2, h:"Samsunspor", a:"Fenerbahçe"}, 
+            {w:2, h:"Göztepe", a:"Kocaelispor"}, 
+            {w:2, h:"Çaykur Rizespor", a:"Erzurumspor"}, 
+            {w:2, h:"Galatasaray", a:"Kasımpaşa"}, 
+            {w:2, h:"Alanyaspor", a:"Arca Çorum FK"}, 
+            {w:2, h:"Konyaspor", a:"Trabzonspor"}, 
+            {w:2, h:"MKE Ankaragücü", a:"Antalyaspor"},
+            {w:3, h:"Fenerbahçe", a:"Galatasaray"}, 
+            {w:3, h:"Kayserispor", a:"Çaykur Rizespor"}, 
+            {w:3, h:"Arca Çorum FK", a:"Göztepe"}, 
+            {w:3, h:"Kasımpaşa", a:"MKE Ankaragücü"}, 
+            {w:3, h:"Samsunspor", a:"Konyaspor"}, 
+            {w:3, h:"Erzurumspor", a:"Kocaelispor"}, 
+            {w:3, h:"Sivasspor", a:"Redbull Eyüpspor"}, 
+            {w:3, h:"Alanyaspor", a:"Trabzonspor"}, 
+            {w:3, h:"Antalyaspor", a:"Beşiktaş JK"},
+            {w:4, h:"Beşiktaş JK", a:"Çaykur Rizespor"}, 
+            {w:4, h:"Konyaspor", a:"Göztepe"}, 
+            {w:4, h:"Redbull Eyüpspor", a:"Trabzonspor"}, 
+            {w:4, h:"Samsunspor", a:"Alanyaspor"}, 
+            {w:4, h:"MKE Ankaragücü", a:"Kocaelispor"}, 
+            {w:4, h:"Galatasaray", a:"Arca Çorum FK"}, 
+            {w:4, h:"Fenerbahçe", a:"Erzurumspor"}, 
+            {w:4, h:"Kayserispor", a:"Kasımpaşa"}, 
+            {w:4, h:"Antalyaspor", a:"Sivasspor"},
+            {w:5, h:"Alanyaspor", a:"Kasımpaşa"}, 
+            {w:5, h:"Erzurumspor", a:"Sivasspor"}, 
+            {w:5, h:"Antalyaspor", a:"Göztepe"}, 
+            {w:5, h:"Fenerbahçe", a:"Arca Çorum FK"}, 
+            {w:5, h:"MKE Ankaragücü", a:"Beşiktaş JK"}, 
+            {w:5, h:"Samsunspor", a:"Çaykur Rizespor"}, 
+            {w:5, h:"Kocaelispor", a:"Konyaspor"}, 
+            {w:5, h:"Trabzonspor", a:"Kayserispor"}, 
+            {w:5, h:"Redbull Eyüpspor", a:"Galatasaray"},
+            {w:6, h:"Antalyaspor", a:"Redbull Eyüpspor"}, 
+            {w:6, h:"Alanyaspor", a:"Göztepe"}, 
+            {w:6, h:"Samsunspor", a:"Trabzonspor"}, 
+            {w:6, h:"Sivasspor", a:"Çaykur Rizespor"}, 
+            {w:6, h:"Galatasaray", a:"Konyaspor"}, 
+            {w:6, h:"Kayserispor", a:"Kocaelispor"}, 
+            {w:6, h:"Fenerbahçe", a:"MKE Ankaragücü"}, 
+            {w:6, h:"Erzurumspor", a:"Arca Çorum FK"}, 
+            {w:6, h:"Beşiktaş JK", a:"Kasımpaşa"},
+            {w:7, h:"Fenerbahçe", a:"Alanyaspor"}, 
+            {w:7, h:"Göztepe", a:"Kasımpaşa"}, 
+            {w:7, h:"Trabzonspor", a:"Beşiktaş JK"}, 
+            {w:7, h:"Sivasspor", a:"Kayserispor"}, 
+            {w:7, h:"Arca Çorum FK", a:"Konyaspor"}, 
+            {w:7, h:"Çaykur Rizespor", a:"Galatasaray"}, 
+            {w:7, h:"Antalyaspor", a:"Erzurumspor"}, 
+            {w:7, h:"MKE Ankaragücü", a:"Redbull Eyüpspor"}, 
+            {w:7, h:"Samsunspor", a:"Kocaelispor"},
+            {w:8, h:"Kasımpaşa", a:"Sivasspor"}, 
+            {w:8, h:"Fenerbahçe", a:"Kayserispor"}, 
+            {w:8, h:"Beşiktaş JK", a:"Kocaelispor"}, 
+            {w:8, h:"Göztepe", a:"Samsunspor"}, 
+            {w:8, h:"Çaykur Rizespor", a:"Redbull Eyüpspor"}, 
+            {w:8, h:"Trabzonspor", a:"Antalyaspor"}, 
+            {w:8, h:"Galatasaray", a:"Alanyaspor"}, 
+            {w:8, h:"Konyaspor", a:"Erzurumspor"}, 
+            {w:8, h:"Arca Çorum FK", a:"MKE Ankaragücü"},
+            {w:9, h:"Fenerbahçe", a:"Redbull Eyüpspor"}, 
+            {w:9, h:"Kocaelispor", a:"Antalyaspor"}, 
+            {w:9, h:"Konyaspor", a:"Beşiktaş JK"}, 
+            {w:9, h:"Sivasspor", a:"Arca Çorum FK"}, 
+            {w:9, h:"MKE Ankaragücü", a:"Samsunspor"}, 
+            {w:9, h:"Göztepe", a:"Erzurumspor"}, 
+            {w:9, h:"Galatasaray", a:"Trabzonspor"}, 
+            {w:9, h:"Çaykur Rizespor", a:"Kasımpaşa"}, 
+            {w:9, h:"Kayserispor", a:"Alanyaspor"},
+            {w:10, h:"Sivasspor", a:"Samsunspor"}, 
+            {w:10, h:"Redbull Eyüpspor", a:"Alanyaspor"}, 
+            {w:10, h:"Göztepe", a:"Beşiktaş JK"}, 
+            {w:10, h:"Antalyaspor", a:"Konyaspor"}, 
+            {w:10, h:"Kayserispor", a:"Galatasaray"}, 
+            {w:10, h:"Trabzonspor", a:"Kocaelispor"}, 
+            {w:10, h:"Fenerbahçe", a:"Kasımpaşa"}, 
+            {w:10, h:"Erzurumspor", a:"MKE Ankaragücü"}, 
+            {w:10, h:"Arca Çorum FK", a:"Çaykur Rizespor"},
+            {w:11, h:"Kocaelispor", a:"Galatasaray"}, 
+            {w:11, h:"Samsunspor", a:"Arca Çorum FK"}, 
+            {w:11, h:"Kayserispor", a:"Antalyaspor"}, 
+            {w:11, h:"Konyaspor", a:"Alanyaspor"}, 
+            {w:11, h:"Kasımpaşa", a:"Erzurumspor"}, 
+            {w:11, h:"Trabzonspor", a:"Sivasspor"}, 
+            {w:11, h:"Fenerbahçe", a:"Göztepe"}, 
+            {w:11, h:"Beşiktaş JK", a:"Redbull Eyüpspor"}, 
+            {w:11, h:"MKE Ankaragücü", a:"Çaykur Rizespor"},
+            {w:12, h:"Trabzonspor", a:"Göztepe"}, 
+            {w:12, h:"Arca Çorum FK", a:"Kayserispor"}, 
+            {w:12, h:"Antalyaspor", a:"Çaykur Rizespor"}, 
+            {w:12, h:"Kocaelispor", a:"Sivasspor"}, 
+            {w:12, h:"Galatasaray", a:"Samsunspor"}, 
+            {w:12, h:"Beşiktaş JK", a:"Fenerbahçe"}, 
+            {w:12, h:"Redbull Eyüpspor", a:"Kasımpaşa"}, 
+            {w:12, h:"Erzurumspor", a:"Alanyaspor"}, 
+            {w:12, h:"MKE Ankaragücü", a:"Konyaspor"},
+            {w:13, h:"Erzurumspor", a:"Trabzonspor"}, 
+            {w:13, h:"Antalyaspor", a:"Arca Çorum FK"}, 
+            {w:13, h:"Beşiktaş JK", a:"Samsunspor"}, 
+            {w:13, h:"Kayserispor", a:"Göztepe"}, 
+            {w:13, h:"Kocaelispor", a:"Kasımpaşa"}, 
+            {w:13, h:"Çaykur Rizespor", a:"Fenerbahçe"}, 
+            {w:13, h:"Konyaspor", a:"Redbull Eyüpspor"}, 
+            {w:13, h:"MKE Ankaragücü", a:"Galatasaray"}, 
+            {w:13, h:"Sivasspor", a:"Alanyaspor"},
+            {w:14, h:"Alanyaspor", a:"MKE Ankaragücü"}, 
+            {w:14, h:"Çaykur Rizespor", a:"Trabzonspor"}, 
+            {w:14, h:"Antalyaspor", a:"Kasımpaşa"}, 
+            {w:14, h:"Sivasspor", a:"Fenerbahçe"}, 
+            {w:14, h:"Erzurumspor", a:"Samsunspor"}, 
+            {w:14, h:"Kocaelispor", a:"Redbull Eyüpspor"}, 
+            {w:14, h:"Konyaspor", a:"Kayserispor"}, 
+            {w:14, h:"Galatasaray", a:"Göztepe"}, 
+            {w:14, h:"Beşiktaş JK", a:"Arca Çorum FK"},
+            {w:15, h:"Fenerbahçe", a:"Trabzonspor"}, 
+            {w:15, h:"Konyaspor", a:"Kasımpaşa"}, 
+            {w:15, h:"Antalyaspor", a:"Samsunspor"}, 
+            {w:15, h:"Erzurumspor", a:"Beşiktaş JK"}, 
+            {w:15, h:"Göztepe", a:"Redbull Eyüpspor"}, 
+            {w:15, h:"Galatasaray", a:"Sivasspor"}, 
+            {w:15, h:"Çaykur Rizespor", a:"Alanyaspor"}, 
+            {w:15, h:"Kayserispor", a:"MKE Ankaragücü"}, 
+            {w:15, h:"Kocaelispor", a:"Arca Çorum FK"},
+            {w:16, h:"Trabzonspor", a:"Arca Çorum FK"}, 
+            {w:16, h:"Kocaelispor", a:"Alanyaspor"}, 
+            {w:16, h:"Konyaspor", a:"Fenerbahçe"}, 
+            {w:16, h:"Beşiktaş JK", a:"Kayserispor"}, 
+            {w:16, h:"Kasımpaşa", a:"Samsunspor"}, 
+            {w:16, h:"Antalyaspor", a:"Galatasaray"}, 
+            {w:16, h:"Çaykur Rizespor", a:"Göztepe"}, 
+            {w:16, h:"MKE Ankaragücü", a:"Sivasspor"}, 
+            {w:16, h:"Redbull Eyüpspor", a:"Erzurumspor"},
+            {w:17, h:"Samsunspor", a:"Redbull Eyüpspor"}, 
+            {w:17, h:"Antalyaspor", a:"Alanyaspor"}, 
+            {w:17, h:"Kayserispor", a:"Erzurumspor"}, 
+            {w:17, h:"Arca Çorum FK", a:"Kasımpaşa"}, 
+            {w:17, h:"Trabzonspor", a:"MKE Ankaragücü"}, 
+            {w:17, h:"Sivasspor", a:"Göztepe"}, 
+            {w:17, h:"Kocaelispor", a:"Fenerbahçe"}, 
+            {w:17, h:"Konyaspor", a:"Çaykur Rizespor"}, 
+            {w:17, h:"Galatasaray", a:"Beşiktaş JK"},
+            {w:18, h:"Antalyaspor", a:"Fenerbahçe"}, 
+            {w:18, h:"Arca Çorum FK", a:"Redbull Eyüpspor"}, 
+            {w:18, h:"MKE Ankaragücü", a:"Göztepe"}, 
+            {w:18, h:"Sivasspor", a:"Konyaspor"}, 
+            {w:18, h:"Alanyaspor", a:"Beşiktaş JK"}, 
+            {w:18, h:"Kasımpaşa", a:"Trabzonspor"}, 
+            {w:18, h:"Galatasaray", a:"Erzurumspor"}, 
+            {w:18, h:"Çaykur Rizespor", a:"Kocaelispor"}, 
+            {w:18, h:"Samsunspor", a:"Kayserispor"},
+            {w:19, h:"Redbull Eyüpspor", a:"Kayserispor"}, 
+            {w:19, h:"Sivasspor", a:"Beşiktaş JK"}, 
+            {w:19, h:"Fenerbahçe", a:"Samsunspor"}, 
+            {w:19, h:"Kocaelispor", a:"Göztepe"}, 
+            {w:19, h:"Erzurumspor", a:"Çaykur Rizespor"}, 
+            {w:19, h:"Kasımpaşa", a:"Galatasaray"}, 
+            {w:19, h:"Arca Çorum FK", a:"Alanyaspor"}, 
+            {w:19, h:"Trabzonspor", a:"Konyaspor"}, 
+            {w:19, h:"Antalyaspor", a:"MKE Ankaragücü"},
+            {w:20, h:"Galatasaray", a:"Fenerbahçe"}, 
+            {w:20, h:"Çaykur Rizespor", a:"Kayserispor"}, 
+            {w:20, h:"Göztepe", a:"Arca Çorum FK"}, 
+            {w:20, h:"MKE Ankaragücü", a:"Kasımpaşa"}, 
+            {w:20, h:"Konyaspor", a:"Samsunspor"}, 
+            {w:20, h:"Kocaelispor", a:"Erzurumspor"}, 
+            {w:20, h:"Redbull Eyüpspor", a:"Sivasspor"}, 
+            {w:20, h:"Trabzonspor", a:"Alanyaspor"}, 
+            {w:20, h:"Beşiktaş JK", a:"Antalyaspor"},
+            {w:21, h:"Çaykur Rizespor", a:"Beşiktaş JK"}, 
+            {w:21, h:"Göztepe", a:"Konyaspor"}, 
+            {w:21, h:"Trabzonspor", a:"Redbull Eyüpspor"}, 
+            {w:21, h:"Alanyaspor", a:"Samsunspor"}, 
+            {w:21, h:"Kocaelispor", a:"MKE Ankaragücü"}, 
+            {w:21, h:"Arca Çorum FK", a:"Galatasaray"}, 
+            {w:21, h:"Erzurumspor", a:"Fenerbahçe"}, 
+            {w:21, h:"Kasımpaşa", a:"Kayserispor"}, 
+            {w:21, h:"Sivasspor", a:"Antalyaspor"},
+            {w:22, h:"Kasımpaşa", a:"Alanyaspor"}, 
+            {w:22, h:"Sivasspor", a:"Erzurumspor"}, 
+            {w:22, h:"Göztepe", a:"Antalyaspor"}, 
+            {w:22, h:"Arca Çorum FK", a:"Fenerbahçe"}, 
+            {w:22, h:"Beşiktaş JK", a:"MKE Ankaragücü"}, 
+            {w:22, h:"Çaykur Rizespor", a:"Samsunspor"}, 
+            {w:22, h:"Konyaspor", a:"Kocaelispor"}, 
+            {w:22, h:"Kayserispor", a:"Trabzonspor"}, 
+            {w:22, h:"Galatasaray", a:"Redbull Eyüpspor"},
+            {w:23, h:"Redbull Eyüpspor", a:"Antalyaspor"}, 
+            {w:23, h:"Göztepe", a:"Alanyaspor"}, 
+            {w:23, h:"Trabzonspor", a:"Samsunspor"}, 
+            {w:23, h:"Çaykur Rizespor", a:"Sivasspor"}, 
+            {w:23, h:"Konyaspor", a:"Galatasaray"}, 
+            {w:23, h:"Kocaelispor", a:"Kayserispor"}, 
+            {w:23, h:"MKE Ankaragücü", a:"Fenerbahçe"}, 
+            {w:23, h:"Arca Çorum FK", a:"Erzurumspor"}, 
+            {w:23, h:"Kasımpaşa", a:"Beşiktaş JK"},
+            {w:24, h:"Alanyaspor", a:"Fenerbahçe"}, 
+            {w:24, h:"Kasımpaşa", a:"Göztepe"}, 
+            {w:24, h:"Beşiktaş JK", a:"Trabzonspor"}, 
+            {w:24, h:"Kayserispor", a:"Sivasspor"}, 
+            {w:24, h:"Konyaspor", a:"Arca Çorum FK"}, 
+            {w:24, h:"Galatasaray", a:"Çaykur Rizespor"}, 
+            {w:24, h:"Erzurumspor", a:"Antalyaspor"}, 
+            {w:24, h:"Redbull Eyüpspor", a:"MKE Ankaragücü"}, 
+            {w:24, h:"Kocaelispor", a:"Samsunspor"},
+            {w:25, h:"Sivasspor", a:"Kasımpaşa"}, 
+            {w:25, h:"Kayserispor", a:"Fenerbahçe"}, 
+            {w:25, h:"Kocaelispor", a:"Beşiktaş JK"}, 
+            {w:25, h:"Samsunspor", a:"Göztepe"}, 
+            {w:25, h:"Redbull Eyüpspor", a:"Çaykur Rizespor"}, 
+            {w:25, h:"Antalyaspor", a:"Trabzonspor"}, 
+            {w:25, h:"Alanyaspor", a:"Galatasaray"}, 
+            {w:25, h:"Erzurumspor", a:"Konyaspor"}, 
+            {w:25, h:"MKE Ankaragücü", a:"Arca Çorum FK"},
+            {w:26, h:"Redbull Eyüpspor", a:"Fenerbahçe"}, 
+            {w:26, h:"Antalyaspor", a:"Kocaelispor"}, 
+            {w:26, h:"Beşiktaş JK", a:"Konyaspor"}, 
+            {w:26, h:"Arca Çorum FK", a:"Sivasspor"}, 
+            {w:26, h:"Samsunspor", a:"MKE Ankaragücü"}, 
+            {w:26, h:"Erzurumspor", a:"Göztepe"}, 
+            {w:26, h:"Trabzonspor", a:"Galatasaray"}, 
+            {w:26, h:"Kasımpaşa", a:"Çaykur Rizespor"}, 
+            {w:26, h:"Alanyaspor", a:"Kayserispor"},
+            {w:27, h:"Samsunspor", a:"Sivasspor"}, 
+            {w:27, h:"Alanyaspor", a:"Redbull Eyüpspor"}, 
+            {w:27, h:"Beşiktaş JK", a:"Göztepe"}, 
+            {w:27, h:"Konyaspor", a:"Antalyaspor"}, 
+            {w:27, h:"Galatasaray", a:"Kayserispor"}, 
+            {w:27, h:"Kocaelispor", a:"Trabzonspor"}, 
+            {w:27, h:"Kasımpaşa", a:"Fenerbahçe"}, 
+            {w:27, h:"MKE Ankaragücü", a:"Erzurumspor"}, 
+            {w:27, h:"Çaykur Rizespor", a:"Arca Çorum FK"},
+            {w:28, h:"Galatasaray", a:"Kocaelispor"}, 
+            {w:28, h:"Arca Çorum FK", a:"Samsunspor"}, 
+            {w:28, h:"Antalyaspor", a:"Kayserispor"}, 
+            {w:28, h:"Alanyaspor", a:"Konyaspor"}, 
+            {w:28, h:"Erzurumspor", a:"Kasımpaşa"}, 
+            {w:28, h:"Sivasspor", a:"Trabzonspor"}, 
+            {w:28, h:"Göztepe", a:"Fenerbahçe"}, 
+            {w:28, h:"Redbull Eyüpspor", a:"Beşiktaş JK"}, 
+            {w:28, h:"Çaykur Rizespor", a:"MKE Ankaragücü"},
+            {w:29, h:"Göztepe", a:"Trabzonspor"}, 
+            {w:29, h:"Kayserispor", a:"Arca Çorum FK"}, 
+            {w:29, h:"Çaykur Rizespor", a:"Antalyaspor"}, 
+            {w:29, h:"Sivasspor", a:"Kocaelispor"}, 
+            {w:29, h:"Samsunspor", a:"Galatasaray"}, 
+            {w:29, h:"Fenerbahçe", a:"Beşiktaş JK"}, 
+            {w:29, h:"Kasımpaşa", a:"Redbull Eyüpspor"}, 
+            {w:29, h:"Alanyaspor", a:"Erzurumspor"}, 
+            {w:29, h:"Konyaspor", a:"MKE Ankaragücü"},
+            {w:30, h:"Trabzonspor", a:"Erzurumspor"}, 
+            {w:30, h:"Arca Çorum FK", a:"Antalyaspor"}, 
+            {w:30, h:"Samsunspor", a:"Beşiktaş JK"}, 
+            {w:30, h:"Göztepe", a:"Kayserispor"}, 
+            {w:30, h:"Kasımpaşa", a:"Kocaelispor"}, 
+            {w:30, h:"Fenerbahçe", a:"Çaykur Rizespor"}, 
+            {w:30, h:"Redbull Eyüpspor", a:"Konyaspor"}, 
+            {w:30, h:"Galatasaray", a:"MKE Ankaragücü"}, 
+            {w:30, h:"Alanyaspor", a:"Sivasspor"},
+            {w:31, h:"MKE Ankaragücü", a:"Alanyaspor"}, 
+            {w:31, h:"Trabzonspor", a:"Çaykur Rizespor"}, 
+            {w:31, h:"Kasımpaşa", a:"Antalyaspor"}, 
+            {w:31, h:"Fenerbahçe", a:"Sivasspor"}, 
+            {w:31, h:"Samsunspor", a:"Erzurumspor"}, 
+            {w:31, h:"Redbull Eyüpspor", a:"Kocaelispor"}, 
+            {w:31, h:"Kayserispor", a:"Konyaspor"}, 
+            {w:31, h:"Göztepe", a:"Galatasaray"}, 
+            {w:31, h:"Arca Çorum FK", a:"Beşiktaş JK"},
+            {w:32, h:"Trabzonspor", a:"Fenerbahçe"}, 
+            {w:32, h:"Kasımpaşa", a:"Konyaspor"}, 
+            {w:32, h:"Samsunspor", a:"Antalyaspor"}, 
+            {w:32, h:"Beşiktaş JK", a:"Erzurumspor"}, 
+            {w:32, h:"Redbull Eyüpspor", a:"Göztepe"}, 
+            {w:32, h:"Sivasspor", a:"Galatasaray"}, 
+            {w:32, h:"Alanyaspor", a:"Çaykur Rizespor"}, 
+            {w:32, h:"MKE Ankaragücü", a:"Kayserispor"}, 
+            {w:32, h:"Arca Çorum FK", a:"Kocaelispor"},
+            {w:33, h:"Arca Çorum FK", a:"Trabzonspor"}, 
+            {w:33, h:"Alanyaspor", a:"Kocaelispor"}, 
+            {w:33, h:"Fenerbahçe", a:"Konyaspor"}, 
+            {w:33, h:"Kayserispor", a:"Beşiktaş JK"}, 
+            {w:33, h:"Samsunspor", a:"Kasımpaşa"}, 
+            {w:33, h:"Galatasaray", a:"Antalyaspor"}, 
+            {w:33, h:"Göztepe", a:"Çaykur Rizespor"}, 
+            {w:33, h:"Sivasspor", a:"MKE Ankaragücü"}, 
+            {w:33, h:"Erzurumspor", a:"Redbull Eyüpspor"},
+            {w:34, h:"Redbull Eyüpspor", a:"Samsunspor"}, 
+            {w:34, h:"Alanyaspor", a:"Antalyaspor"}, 
+            {w:34, h:"Erzurumspor", a:"Kayserispor"}, 
+            {w:34, h:"Kasımpaşa", a:"Arca Çorum FK"}, 
+            {w:34, h:"MKE Ankaragücü", a:"Trabzonspor"}, 
+            {w:34, h:"Göztepe", a:"Sivasspor"}, 
+            {w:34, h:"Fenerbahçe", a:"Kocaelispor"}, 
+            {w:34, h:"Çaykur Rizespor", a:"Konyaspor"}, 
+            {w:34, h:"Beşiktaş JK", a:"Galatasaray"}
         ];
 
-        // --- LİG YÜKLEME FONKSİYONU ---
+        // DİNAMİK LOGO MENÜSÜ GÜNCELLEYİCİ
+        function updateLogoGrid() {
+            // Fikstürdeki aktif takımları bul
+            const activeTeams = new Set();
+            fixtureData.forEach(m => { activeTeams.add(m.h); activeTeams.add(m.a); });
+
+            const gridHtml = teamDetails
+                .filter(t => activeTeams.has(t.name))
+                .sort((a,b) => a.name.localeCompare(b.name))
+                .map(t => `<div class="team-logo-btn" style="background-image:url('${t.logo}')" onclick="showTeam('${t.name}')" title="${t.name}"></div>`)
+                .join('');
+            
+            document.getElementById('logo-grid').innerHTML = gridHtml;
+        }
+
         function loadLeagueData(leagueId) {
             if (unsubscribeFixtures) unsubscribeFixtures();
             if (unsubscribePenalties) unsubscribePenalties();
 
             document.getElementById('loading').style.display = 'block';
 
-            // Lig 1 veya Lig 2'ye göre Firebase yolunu belirle
             const fixPath = leagueId === 'lig1' ? 'fixtures' : 'fixtures_lig2';
             const penPath = leagueId === 'lig1' ? 'penalties' : 'penalties_lig2';
 
-            // Cezaları dinle
             unsubscribePenalties = onValue(ref(db, penPath), (snapshot) => {
                 penaltiesData = snapshot.val() || {};
                 renderAll();
             });
 
-            // Fikstürü dinle
             unsubscribeFixtures = onValue(ref(db, fixPath), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -589,17 +625,17 @@
                     });
                 } else {
                     fixtureData = JSON.parse(JSON.stringify(defaultFixtureData));
-                    set(ref(db, fixPath), fixtureData); // Veri yoksa o lig yoluna şablonu kaydet
+                    set(ref(db, fixPath), fixtureData);
                 }
                 document.getElementById('loading').style.display = 'none';
                 if(document.getElementById('main-view').style.display === '') {
                     document.getElementById('main-view').style.display = 'block';
                 }
+                updateLogoGrid(); // Sadece aktif ligin takımlarını aşağıya diz
                 renderAll();
             });
         }
 
-        // --- GLOBAL FONKSİYONLAR ---
         window.toggleLeague = function() {
             const btn = document.getElementById('league-toggle');
             const title = document.getElementById('league-title');
@@ -648,7 +684,6 @@
             }
         }
 
-        // EKRAN RENDER İŞLEMLERİ
         function renderAll() {
             const scrollPos = window.scrollY;
             const activeId = document.activeElement ? document.activeElement.id : null;
@@ -657,7 +692,6 @@
             let currentWeek = 0;
             let weekHtml = "";
 
-            // 1. FİKSTÜR RENDER
             fixtureData.forEach((m, i) => {
                 if (m.w !== currentWeek) {
                     if (currentWeek !== 0) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
@@ -665,11 +699,11 @@
                     weekHtml = `<div class="week-card"><div class="week-header"><span class="week-number">${currentWeek}</span><span class="week-label">Hafta</span></div><div class="match-list">`;
                 }
                 let center = isAdmin ? `<div style="display:flex;justify-content:center;align-items:center"><input type="number" id="hs-${i}" class="score-input" value="${m.hs ?? ''}" oninput="setScore(${i},'hs',this.value)"> <span class="vs">-</span> <input type="number" id="as-${i}" class="score-input" value="${m.as ?? ''}" oninput="setScore(${i},'as',this.value)"></div>` : `<span class="vs">${(m.hs != null && m.as != null) ? m.hs + ' - ' + m.as : 'VS'}</span>`;
-                weekHtml += `<div class="match-row"><div class="match-info" style="justify-content:flex-start; flex:1;">${m.h}</div><div style="flex:0 0 100px; text-align:center;">${center}</div><div class="match-info" style="justify-content:flex-end; flex:1;">${m.a}</div><div class="stadium-info">${m.s}</div></div>`;
+                // STADYUM OTOMATİK OLARAK ÇEKİLİYOR: getStadium(m.h)
+                weekHtml += `<div class="match-row"><div class="match-info" style="justify-content:flex-start; flex:1;">${m.h}</div><div style="flex:0 0 100px; text-align:center;">${center}</div><div class="match-info" style="justify-content:flex-end; flex:1;">${m.a}</div><div class="stadium-info">${getStadium(m.h)}</div></div>`;
                 if (i === fixtureData.length - 1) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
             });
 
-            // 2. PUAN DURUMU RENDER
             let statsMap = {};
             teamDetails.forEach(t => { statsMap[t.name] = { name: t.name, logo: t.logo, om:0, g:0, b:0, m:0, ag:0, yg:0, av:0, p:0 }; });
             
@@ -684,12 +718,13 @@
                 }
             });
 
-            // CEZALARI DÜŞ
             Object.keys(penaltiesData).forEach(team => {
                 if(statsMap[team]) statsMap[team].p -= parseInt(penaltiesData[team]);
             });
 
-            let sortedStats = Object.values(statsMap).sort((a, b) => b.p - a.p || b.av - a.av || b.ag - a.ag);
+            // SADECE MAÇI OLAN (AKTİF) TAKIMLARI LİSTELE
+            let activeTeams = Object.values(statsMap).filter(t => t.om > 0 || fixtureData.some(m => m.h === t.name || m.a === t.name));
+            let sortedStats = activeTeams.sort((a, b) => b.p - a.p || b.av - a.av || b.ag - a.ag);
             
             document.getElementById('standings-body').innerHTML = sortedStats.map((t, i) => {
                 const rank = i + 1;
@@ -719,7 +754,8 @@
             document.getElementById('team-fixture-list').innerHTML = teamMatches.map(m => {
                 const isHome = m.h === name; const opponent = isHome ? m.a : m.h; const icon = isHome ? "🏠" : "✈️";
                 let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'#2ecc71':(m.hs==m.as?'#95a5a6':'#e74c3c')}; color:white; border-radius:8px; text-align:center; font-weight:bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:#aaa; font-weight:bold; font-size:0.9em;">VS</span>`;
-                return `<div class="week-card gs-match-card" style="padding:15px; margin-bottom:15px;"><div class="card-left"><div class="week-badge" style="background:var(--accent-main); color:white; padding:6px; margin-right:12px; border-radius:8px;">${m.w}.</div><div class="location-icon" style="margin-right:12px;">${icon}</div><div class="match-details" style="flex:1;">${opponent}</div></div><div class="stadium-info-list" style="display:flex; align-items:center;"><span class="stadium-icon">🏟️</span> <span style="font-size:0.8em; margin-right:15px; max-width:120px; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.s || ''}</span>${displayContent}</div></div>`;
+                // STADYUM OTOMATİK OLARAK ÇEKİLİYOR: getStadium(m.h)
+                return `<div class="week-card gs-match-card" style="padding:15px; margin-bottom:15px;"><div class="card-left"><div class="week-badge" style="background:var(--accent-main); color:white; padding:6px; margin-right:12px; border-radius:8px;">${m.w}.</div><div class="location-icon" style="margin-right:12px;">${icon}</div><div class="match-details" style="flex:1;">${opponent}</div></div><div class="stadium-info-list" style="display:flex; align-items:center;"><span class="stadium-icon">🏟️</span> <span style="font-size:0.8em; margin-right:15px; max-width:140px; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${getStadium(m.h)}</span>${displayContent}</div></div>`;
             }).join('');
             showView('team');
         }
@@ -743,10 +779,6 @@
             renderAll();
         }
 
-        // LOGOLARI ALT KISMA ÇİZ
-        document.getElementById('logo-grid').innerHTML = teamDetails.sort((a,b) => a.name.localeCompare(b.name)).map(t => `<div class="team-logo-btn" style="background-image:url('${t.logo}')" onclick="showTeam('${t.name}')"></div>`).join('');
-
-        // Başlangıçta 1. Ligi Yükle
         loadLeagueData(currentLeague);
 
     </script>
