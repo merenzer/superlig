@@ -6,193 +6,241 @@
     <title>DiscordToto Fikstür</title>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
 
-        /* --- CAM TEMA VE DEĞİŞKENLER (GLASSMORPHISM) --- */
+        /* --- DEĞİŞKENLER VE HAREKETLİ BULUT RENKLERİ --- */
         :root {
-            --card-bg: rgba(255, 255, 255, 0.15); /* Yarı şeffaf cam */
-            --card-border: rgba(255, 255, 255, 0.4); /* Cam kenarlığı */
-            --text-main: #ffffff; /* Cam üstünde beyaz yazı çok şık durur */
-            --text-sub: rgba(255, 255, 255, 0.75);
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            --shadow-text: 0 2px 4px rgba(0,0,0,0.3);
+            /* Lig 1 (Blush Aura) Renkleri */
+            --color-bg: #ff91cb;
+            --color-blob1: #ed1e79;
+            --color-blob2: #f34494;
+            --color-blob3: #f96bb0;
+            
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-main: #ffffff;
+            --text-sub: rgba(255, 255, 255, 0.8);
+            --shadow-glass: 0 10px 40px rgba(0, 0, 0, 0.15);
+            --shadow-text: 0 2px 10px rgba(0,0,0,0.3);
+            --accent: #fff;
         }
 
-        /* LİG 1 ARKA PLAN (BLUSH AURA - BULUTSU EFEKT) */
+        /* Lig 2 (Solar Flare) Renkleri */
+        body.lig2 {
+            --color-bg: #049cce;
+            --color-blob1: #05217a;
+            --color-blob2: #054a96;
+            --color-blob3: #0473b2;
+            --glass-bg: rgba(0, 0, 0, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #ff91cb; /* En açık pembe zemin */
-            /* Işık hüzmeleri ve bulut efekti */
-            background-image: 
-                radial-gradient(circle at 10% 20%, #ed1e79 0%, transparent 60%),
-                radial-gradient(circle at 90% 30%, #f34494 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, #f96bb0 0%, transparent 60%),
-                radial-gradient(circle at 80% 90%, #ed1e79 0%, transparent 50%);
-            background-attachment: fixed;
             margin: 0; padding: 20px 15px 200px 15px;
             color: var(--text-main);
             min-height: 100vh; display: flex; flex-direction: column;
-            transition: background 0.8s ease;
+            overflow-x: hidden;
+            background-color: var(--color-bg);
+            transition: background-color 1s ease;
         }
 
-        /* LİG 2 ARKA PLAN (SOLAR FLARE - BULUTSU EFEKT) */
-        body.lig2 {
-            background-color: #049cce; /* En açık mavi zemin */
-            background-image: 
-                radial-gradient(circle at 10% 20%, #05217a 0%, transparent 60%),
-                radial-gradient(circle at 90% 30%, #054a96 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, #0473b2 0%, transparent 60%),
-                radial-gradient(circle at 80% 90%, #05217a 0%, transparent 50%);
+        /* --- HAREKETLİ ARKA PLAN (ANIMATED MESH GRADIENT) --- */
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .blob {
+            position: absolute; border-radius: 50%; filter: blur(90px);
+            opacity: 0.8; animation: float 12s infinite ease-in-out alternate;
+            transition: background-color 1s ease;
+        }
+        .blob-1 { width: 60vw; height: 60vw; background-color: var(--color-blob1); top: -10%; left: -10%; animation-delay: 0s; }
+        .blob-2 { width: 50vw; height: 50vw; background-color: var(--color-blob2); bottom: -20%; right: -10%; animation-delay: -4s; }
+        .blob-3 { width: 40vw; height: 40vw; background-color: var(--color-blob3); top: 30%; left: 40%; animation-delay: -8s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10vw, 10vh) scale(1.1); }
         }
 
-        /* --- KONTROLLER (CAM BUTONLAR) --- */
+        /* --- SAĞ ALTTAN KAYARAK GELME EFEKTİ --- */
+        @keyframes slideInFromBottomRight {
+            0% { opacity: 0; transform: translate(100px, 100px); }
+            100% { opacity: 1; transform: translate(0, 0); }
+        }
+
+        .view-active {
+            display: block !important;
+            animation: slideInFromBottomRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        #main-view, #standings-view, #team-view { display: none; }
+
+        /* --- ÜST MENÜ VE BAŞLIK --- */
+        .header-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; }
+        .site-logo { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(var(--shadow-text)); }
+        
+        h1.main-title {
+            text-align: center; color: var(--text-main); font-weight: 900;
+            font-size: 2.5em; margin: 0; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: var(--shadow-text);
+        }
+
         .top-controls {
             display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
             margin-bottom: 30px; z-index: 3000;
         }
 
         .control-btn {
-            padding: 10px 22px; border-radius: 30px; 
-            background: var(--card-bg); border: 1px solid var(--card-border); 
-            cursor: pointer; font-weight: 700; font-size: 0.85em; color: var(--text-main); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 12px 24px; border-radius: 30px; 
+            background: var(--glass-bg); border: 1px solid var(--glass-border); 
+            cursor: pointer; font-weight: 800; font-size: 0.9em; color: var(--text-main); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);
-            transition: all 0.3s ease; box-shadow: var(--shadow-glass);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: var(--shadow-glass);
+            display: flex; align-items: center; gap: 8px;
         }
-        .control-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .control-btn.active { background: rgba(255,255,255,0.4); font-weight: 800; border-color: #fff; }
+        .control-btn span { font-size: 1.4em; } /* İkonları büyütmek için */
+        .control-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px) scale(1.05); }
+        .control-btn.active { background: rgba(255,255,255,0.4); font-weight: 900; border-color: #fff; }
 
-        #admin-toggle.on { background: rgba(46, 204, 113, 0.7); border-color: #2ecc71; }
-        #reset-db-btn { display: none; background: rgba(231, 76, 60, 0.7); border-color: #e74c3c; margin-left: 10px;}
+        #admin-toggle.on { background: rgba(46, 204, 113, 0.6); border-color: #2ecc71; }
+        #reset-db-btn { display: none; background: rgba(231, 76, 60, 0.6); border-color: #e74c3c; margin-left: 10px;}
 
-        h1.main-title {
-            text-align: center; color: var(--text-main); font-weight: 800;
-            font-size: 2.3em; margin-bottom: 35px; text-transform: uppercase;
-            letter-spacing: 2px; text-shadow: var(--shadow-text);
-        }
-
-        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #fff; padding: 20px 40px; border-radius: 20px; font-weight: 800; z-index: 9999; backdrop-filter: blur(10px); }
-
-        #main-view, #standings-view, #team-view { display: none; animation: fadeIn 0.5s ease; }
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #fff; padding: 20px 40px; border-radius: 20px; font-weight: 800; z-index: 9999; backdrop-filter: blur(15px); }
 
         /* --- FİKSTÜR KARTLARI (CAM) --- */
         .fixture-container {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px; max-width: 1300px; margin: 0 auto 100px auto;
+            gap: 25px; max-width: 1350px; margin: 0 auto 100px auto;
         }
         .week-card {
-            background: var(--card-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-radius: 20px; padding: 20px; box-shadow: var(--shadow-glass);
-            border: 1px solid var(--card-border); transition: transform 0.3s ease;
+            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px; padding: 22px; box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border); transition: transform 0.4s ease;
         }
-        .week-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.25); }
+        .week-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.2); border-color: #fff; }
         
-        .week-header { display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .week-number { font-size: 2em; font-weight: 800; color: #fff; margin-right: 10px; line-height: 1; text-shadow: var(--shadow-text);}
-        .week-label { font-size: 1em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);}
+        .week-header { display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .week-number { font-size: 2.2em; font-weight: 900; color: #fff; margin-right: 12px; line-height: 1; text-shadow: var(--shadow-text);}
+        .week-label { font-size: 1.1em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);}
         
-        .match-row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .match-row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .match-row:last-child { border-bottom: none; padding-bottom: 0;}
         
         .match-teams { display: flex; width: 100%; justify-content: space-between; align-items: center; }
         
-        /* İSİMLER TAM OLARAK YAZILIYOR */
-        .team-box { display: flex; align-items: center; gap: 10px; flex: 1; font-weight: 800; font-size: 0.9em; text-shadow: var(--shadow-text); }
+        .team-box { display: flex; align-items: center; gap: 12px; flex: 1; font-weight: 800; font-size: 0.95em; text-shadow: var(--shadow-text); }
         .team-box.home { justify-content: flex-start; text-align: left; }
         .team-box.away { justify-content: flex-end; text-align: right; }
         
-        .mini-logo { width: 28px; height: 28px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+        .mini-logo { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); }
         
-        .match-score { flex: 0 0 auto; text-align: center; margin: 0 8px; min-width: 65px;}
-        .vs { color: var(--text-sub); font-weight: 800; font-size: 1em; text-shadow: var(--shadow-text);}
-        .score-input { width: 35px; text-align: center; font-weight: 800; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; margin: 0 2px; padding: 5px; font-size: 1em; background: rgba(0,0,0,0.3); color: #fff; text-shadow: var(--shadow-text);}
-        .score-input:focus { border-color: #fff; outline: none; background: rgba(0,0,0,0.5); }
+        .match-score { flex: 0 0 auto; text-align: center; margin: 0 10px; min-width: 65px;}
+        .vs { color: var(--text-sub); font-weight: 800; font-size: 1.1em; text-shadow: var(--shadow-text);}
+        .score-input { width: 35px; text-align: center; font-weight: 900; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; margin: 0 3px; padding: 6px; font-size: 1em; background: rgba(0,0,0,0.4); color: #fff; text-shadow: var(--shadow-text);}
+        .score-input:focus { border-color: #fff; outline: none; background: rgba(0,0,0,0.6); }
 
-        .match-stadium-mini { font-size: 0.75em; color: var(--text-sub); margin-top: 8px; font-weight: 600; text-align: center; text-shadow: var(--shadow-text); }
+        .match-stadium-mini { font-size: 0.8em; color: var(--text-sub); margin-top: 10px; font-weight: 700; text-align: center; text-shadow: var(--shadow-text); background: rgba(0,0,0,0.15); padding: 4px 12px; border-radius: 12px;}
 
         /* --- TAKIM DETAY SAYFASI --- */
-        .team-header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: var(--card-bg); backdrop-filter: blur(25px); padding: 25px; border-radius: 20px; border: 1px solid var(--card-border); box-shadow: var(--shadow-glass); }
-        .team-header-logo { width: 110px; height: 110px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4)); }
-        .team-name-big { font-size: 2.2em; font-weight: 800; color: #fff; text-transform: uppercase; text-shadow: var(--shadow-text); margin: 0; text-align: center; }
-        .team-header-stadium { font-size: 0.9em; color: #fff; font-weight: 700; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px 20px; border-radius: 20px; border: 1px solid var(--card-border); text-transform: uppercase; }
+        .team-header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: var(--glass-bg); backdrop-filter: blur(25px); padding: 30px; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass); }
+        .team-header-logo { width: 130px; height: 130px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
+        .team-name-big { font-size: 2.5em; font-weight: 900; color: #fff; text-transform: uppercase; text-shadow: var(--shadow-text); margin: 0; text-align: center; }
+        .team-header-stadium { font-size: 1em; color: #fff; font-weight: 800; margin-top: 12px; background: rgba(0,0,0,0.3); padding: 10px 25px; border-radius: 20px; border: 1px solid var(--glass-border); text-transform: uppercase; }
         
         .gs-match-card {
-            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px; border: 1px solid var(--card-border); box-shadow: var(--shadow-glass);
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; margin-bottom: 12px; transition: transform 0.3s ease;
+            padding: 18px 22px; margin-bottom: 15px; transition: transform 0.3s ease;
         }
-        .gs-match-card:hover { transform: translateX(5px); background: rgba(255,255,255,0.25); }
-        .card-left { display: flex; align-items: center; flex: 2; gap: 12px;}
-        .week-badge { background-color: rgba(0,0,0,0.4); color: #fff; font-weight: 800; padding: 6px 10px; border-radius: 8px; min-width: 30px; text-align: center; font-size: 0.85em; border: 1px solid var(--card-border); }
-        .location-icon { font-size: 1.3em; filter: drop-shadow(var(--shadow-text)); }
-        .match-details { font-size: 1em; font-weight: 800; color: #fff; text-shadow: var(--shadow-text);}
-        .stadium-info-list { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 12px;}
+        .gs-match-card:hover { transform: translateX(8px); background: rgba(255,255,255,0.25); }
+        .card-left { display: flex; align-items: center; flex: 2; gap: 15px;}
+        .week-badge { background-color: rgba(0,0,0,0.5); color: #fff; font-weight: 800; padding: 8px 12px; border-radius: 10px; min-width: 35px; text-align: center; font-size: 0.9em; border: 1px solid var(--glass-border); }
+        .location-icon { font-size: 1.5em; filter: drop-shadow(var(--shadow-text)); }
+        .match-details { font-size: 1.1em; font-weight: 800; color: #fff; text-shadow: var(--shadow-text);}
+        .stadium-info-list { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 15px;}
 
         /* --- ALT LOGO SEÇİCİ --- */
         .team-selector-container {
             position: fixed; bottom: 0; left: 0; right: 0;
-            padding: 20px 10px; background: rgba(0, 0, 0, 0.4); /* Koyulaştırılmış cam */
-            border-radius: 25px 25px 0 0; border-top: 1px solid var(--card-border);
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5); text-align: center;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 2000;
+            padding: 20px 10px; background: rgba(0, 0, 0, 0.4);
+            border-radius: 30px 30px 0 0; border-top: 1px solid var(--glass-border);
+            box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.6); text-align: center;
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); z-index: 2000;
             max-height: 30vh; overflow-y: auto;
         }
         .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
         .team-logo-btn {
-            width: 55px; height: 55px; background-color: rgba(255,255,255,0.8);
-            border: 2px solid transparent; border-radius: 12px; /* Köşeli modern tarz */
+            width: 58px; height: 58px; background-color: rgba(255,255,255,0.85);
+            border: 2px solid transparent; border-radius: 16px; 
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
             background-size: 70%; background-position: center; background-repeat: no-repeat;
         }
         .team-logo-btn:hover, .team-logo-btn.active {
-            border-color: #fff; transform: translateY(-5px) scale(1.1); box-shadow: 0 8px 20px rgba(255,255,255,0.4); background-color: #fff;
+            border-color: #fff; transform: translateY(-8px) scale(1.15); box-shadow: 0 10px 25px rgba(255,255,255,0.5); background-color: #fff;
         }
 
-        /* --- PUAN DURUMU --- */
-        .standings-container { max-width: 950px; margin: 0 auto; background: var(--card-bg); backdrop-filter: blur(25px); padding: 25px; border-radius: 20px; border: 1px solid var(--card-border); overflow-x: auto; box-shadow: var(--shadow-glass); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
-        th { padding: 15px; color: #fff; border-bottom: 2px solid rgba(255,255,255,0.3); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; text-shadow: var(--shadow-text);}
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 700; vertical-align: middle; font-size: 0.95em; text-shadow: var(--shadow-text);}
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: rgba(255,255,255,0.1); }
-        td:last-child { font-weight: 900; font-size: 1.1em; } /* Puan Sütunu */
+        /* --- PUAN DURUMU (YENİ BELİRGİN TASARIM) --- */
+        .standings-container { max-width: 950px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(30px); padding: 25px; border-radius: 24px; border: 1px solid var(--glass-border); overflow-x: auto; box-shadow: var(--shadow-glass); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 5px; text-align: center; } /* Satırlar arası boşluk */
+        th { padding: 15px; color: #fff; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; text-shadow: var(--shadow-text);}
+        
+        td { padding: 14px 10px; font-weight: 800; vertical-align: middle; font-size: 1em; text-shadow: var(--shadow-text); background: rgba(0,0,0,0.1); }
+        
+        /* Satır başı ve sonu yuvarlatma */
+        td:first-child { border-radius: 10px 0 0 10px; }
+        td:last-child { border-radius: 0 10px 10px 0; font-weight: 900; font-size: 1.2em; background: rgba(0,0,0,0.25);} 
+
+        tr { transition: transform 0.2s ease; }
+        tr:hover { transform: scale(1.01); }
 
         /* Legend (Renk Açıklamaları) */
-        .legend-box { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; margin-top:20px; font-size:0.85em; font-weight:800; text-shadow:var(--shadow-text); background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);}
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .color-dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .legend-box { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:25px; font-size:0.9em; font-weight:800; text-shadow:var(--shadow-text); background: rgba(0,0,0,0.3); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);}
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .color-dot { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.5); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
         @media (max-width: 768px) {
-            h1.main-title { font-size: 1.5em; }
+            .header-container { flex-direction: column; gap: 5px; }
+            h1.main-title { font-size: 1.8em; }
+            .site-logo { width: 50px; height: 50px; }
             .fixture-container { grid-template-columns: 1fr; gap: 15px;}
-            .team-logo-btn { width: 45px; height: 45px; }
+            .team-logo-btn { width: 48px; height: 48px; }
             .gs-match-card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px;}
             .stadium-info-list { width: 100%; justify-content: space-between; flex-direction: row-reverse;}
             th, td { padding: 10px 5px; font-size: 0.85em; }
-            .legend-box { flex-direction: column; align-items: flex-start; gap: 8px;}
+            .legend-box { flex-direction: column; align-items: flex-start; gap: 10px;}
         }
     </style>
 </head>
 <body>
 
-    <div class="top-controls">
-        <button class="control-btn" id="league-toggle" onclick="toggleLeague()">🔄 2. LİG'E GEÇ</button>
-        <button class="control-btn active" onclick="showView('main', this)">📅 FİKSTÜR</button>
-        <button class="control-btn" onclick="showView('standings', this)">🏆 PUAN DURUMU</button>
-        <button id="admin-toggle" class="control-btn" onclick="toggleAdmin()">⚙️ YÖNETİCİ</button>
-        <button id="reset-db-btn" class="control-btn" onclick="resetDatabase()">⚠️ SIFIRLA</button>
+    <div class="mesh-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
-    <h1 class="main-title" id="league-title">DiscordToto 2027-2028 Sezonu</h1>
+    <div class="header-container">
+        <img src="LOGOCUK.png" alt="Logo" class="site-logo" onerror="this.style.display='none'">
+        <h1 class="main-title" id="league-title">DiscordToto 2027-2028 Sezonu</h1>
+    </div>
+
+    <div class="top-controls">
+        <button class="control-btn" id="league-toggle" onclick="toggleLeague()"><span>🔄</span> 2. LİG'E GEÇ</button>
+        <button class="control-btn active" onclick="showView('main', this)"><span>⚽</span> FİKSTÜR</button>
+        <button class="control-btn" onclick="showView('standings', this)"><span id="trophy-icon">🏆</span> PUAN DURUMU</button>
+        <button id="admin-toggle" class="control-btn" onclick="toggleAdmin()"><span>⚙️</span> YÖNETİCİ</button>
+        <button id="reset-db-btn" class="control-btn" onclick="resetDatabase()"><span>⚠️</span> SIFIRLA</button>
+    </div>
     
     <div id="loading">Veriler Yükleniyor...</div>
 
-    <div id="main-view">
+    <div id="main-view" class="view-active">
         <div class="fixture-container" id="main-fixture-grid"></div>
     </div>
 
@@ -205,11 +253,11 @@
 
     <div id="team-view">
         <div class="team-header-container">
-            <div class="control-btn" style="display:inline-block; margin-bottom:20px; font-size: 0.75em;" onclick="showMainView()">← Tüm Fikstür</div>
+            <div class="control-btn" style="display:inline-flex; margin-bottom:20px; font-size: 0.8em;" onclick="showMainView()"><span>←</span> Tüm Fikstür</div>
             <div id="team-view-header-content" style="display: flex; flex-direction: column; align-items: center;"></div>
-            <div style="font-weight: 700; font-size: 0.8em; color: rgba(255,255,255,0.8); margin-top: 18px; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);">🏠 Ev Sahibi | ✈️ Deplasman</div>
+            <div style="font-weight: 800; font-size: 0.85em; color: rgba(255,255,255,0.9); margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);">🏠 Ev Sahibi | ✈️ Deplasman</div>
         </div>
-        <div id="team-fixture-list" style="max-width: 700px; margin: 0 auto;"></div>
+        <div id="team-fixture-list" style="max-width: 750px; margin: 0 auto;"></div>
     </div>
 
     <div class="team-selector-container">
@@ -262,6 +310,7 @@
             { name: "Gençlerbirliği", shortName: "Gençler", logo: "LOGOS/genclerbirligi.png", stadium: "Eryaman Stadyumu" },
             { name: "İstanbulspor", shortName: "İstanbul", logo: "LOGOS/istanbulspor.png", stadium: "Esenyurt Necmi Kadıoğlu Stadyumu" },
             { name: "Bursaspor", shortName: "Bursa", logo: "LOGOS/bursaspor.png", stadium: "Yüzüncü Yıl Atatürk Stadyumu" },
+            
             { name: "Diyarbakırspor", shortName: "Diyarbakır", logo: "LOGOS/diyarbakirspor.png", stadium: "Diyarbakır Stadyumu" }, 
             { name: "Esenler Erokspor", shortName: "Erokspor", logo: "LOGOS/erokspor.png", stadium: "Esenler Stadyumu" },
             { name: "Bodrum FK", shortName: "Bodrum", logo: "LOGOS/bodrum.png", stadium: "Bodrum İlçe Stadyumu" },
@@ -372,7 +421,7 @@
             fixtureData.forEach(m => { activeTeams.add(m.h); activeTeams.add(m.a); });
 
             const gridHtml = teamDetails
-                .filter(t => activeTeams.has(t.name))
+                .filter(t => activeTeams.has(t.name) || activeTeams.has(t.shortName))
                 .sort((a,b) => a.name.localeCompare(b.name))
                 .map(t => `<div class="team-logo-btn" style="background-image:url('${t.logo}')" onclick="showTeam('${t.name}')" title="${t.name}"></div>`)
                 .join('');
@@ -410,9 +459,17 @@
                     set(ref(db, fixPath), fixtureData); 
                 }
                 document.getElementById('loading').style.display = 'none';
-                if(document.getElementById('main-view').style.display === '') {
-                    document.getElementById('main-view').style.display = 'block';
+                
+                // Sağ alttan kayarak gelme animasyonunu tetikleme
+                const activeView = document.querySelector('.view-active');
+                if(activeView) {
+                    activeView.classList.remove('view-active');
+                    void activeView.offsetWidth; // Reflow
+                    activeView.classList.add('view-active');
+                } else if(document.getElementById('main-view').style.display === '') {
+                    document.getElementById('main-view').classList.add('view-active');
                 }
+                
                 updateLogoGrid(); 
                 renderAll();
             });
@@ -421,23 +478,22 @@
         window.toggleLeague = function() {
             const btn = document.getElementById('league-toggle');
             const title = document.getElementById('league-title');
+            const trophy = document.getElementById('trophy-icon');
 
             if (currentLeague === 'lig1') {
                 currentLeague = 'lig2';
                 document.body.classList.add('lig2');
                 title.innerText = "DiscordToto 2. Lig 2027-2028 Sezonu";
-                btn.innerText = "🔄 1. LİG'E DÖN";
+                btn.innerHTML = "<span>🔄</span> 1. LİG'E DÖN";
+                trophy.innerText = "🥈";
             } else {
                 currentLeague = 'lig1';
                 document.body.classList.remove('lig2');
                 title.innerText = "DiscordToto 2027-2028 Sezonu";
-                btn.innerText = "🔄 2. LİG'E GEÇ";
+                btn.innerHTML = "<span>🔄</span> 2. LİG'E GEÇ";
+                trophy.innerText = "🏆";
             }
             loadLeagueData(currentLeague);
-        }
-
-        window.toggleDarkMode = function() {
-            alert("Cam tasarımı her zaman parlıyor!");
         }
 
         window.setScore = function(index, side, val) {
@@ -475,7 +531,6 @@
             let currentWeek = 0;
             let weekHtml = "";
 
-            // FİKSTÜR YAZDIRMA
             fixtureData.forEach((m, i) => {
                 if (m.w !== currentWeek) {
                     if (currentWeek !== 0) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
@@ -487,7 +542,7 @@
                 let aData = getTeamData(m.a);
                 let center = isAdmin ? `<input type="number" id="hs-${i}" class="score-input" value="${m.hs ?? ''}" oninput="setScore(${i},'hs',this.value)"> <span class="vs">-</span> <input type="number" id="as-${i}" class="score-input" value="${m.as ?? ''}" oninput="setScore(${i},'as',this.value)">` : `<span class="vs">${(m.hs != null && m.as != null) ? m.hs + ' - ' + m.as : 'VS'}</span>`;
                 
-                // Tam İsim Kullanımı: hData.name ve aData.name
+                // Tam isimler gösteriliyor
                 weekHtml += `
                 <div class="match-row">
                     <div class="match-teams">
@@ -507,13 +562,14 @@
                 if (i === fixtureData.length - 1) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
             });
 
-            // PUAN DURUMU HESAPLAMA
             let statsMap = {};
             teamDetails.forEach(t => { statsMap[t.name] = { name: t.name, logo: t.logo, om:0, g:0, b:0, m:0, ag:0, yg:0, av:0, p:0 }; });
             
             fixtureData.forEach(m => {
                 if (m.hs != null && m.as != null) {
-                    let h = statsMap[m.h]; let a = statsMap[m.a];
+                    let hData = getTeamData(m.h);
+                    let aData = getTeamData(m.a);
+                    let h = statsMap[hData.name]; let a = statsMap[aData.name];
                     if(h && a) {
                         h.om++; a.om++; h.ag += parseInt(m.hs); h.yg += parseInt(m.as); a.ag += parseInt(m.as); a.yg += parseInt(m.hs);
                         if (m.hs > m.as) { h.g++; h.p += 3; a.m++; } else if (m.as > m.hs) { a.g++; a.p += 3; h.m++; } else { h.b++; h.p++; a.b++; a.p++; }
@@ -526,33 +582,33 @@
                 if(statsMap[team]) statsMap[team].p -= parseInt(penaltiesData[team]);
             });
 
-            let activeTeams = Object.values(statsMap).filter(t => t.om > 0 || fixtureData.some(m => m.h === t.name || m.a === t.name));
+            let activeTeams = Object.values(statsMap).filter(t => t.om > 0 || fixtureData.some(m => getTeamData(m.h).name === t.name || getTeamData(m.a).name === t.name));
             let sortedStats = activeTeams.sort((a, b) => b.p - a.p || b.av - a.av || b.ag - a.ag);
             
             document.getElementById('standings-body').innerHTML = sortedStats.map((t, i) => {
                 const rank = i + 1;
                 let barColor = "transparent";
+                let rowBg = "transparent";
                 
-                // LİGE GÖRE RENK BELİRLEME
                 if (currentLeague === 'lig1') {
-                    if (rank === 1) barColor = "#f1c40f"; // Şampiyon
-                    else if (rank === 2) barColor = "#3498db"; // UCL
-                    else if (rank === 3) barColor = "#e67e22"; // UEL
-                    else if (rank === 4) barColor = "#2ecc71"; // UECL
-                    else if (rank > sortedStats.length - 3) barColor = "#e74c3c"; // Düşme (Son 3)
+                    if (rank === 1) { barColor = "#f1c40f"; rowBg = "rgba(241, 196, 15, 0.2)"; }
+                    else if (rank === 2) { barColor = "#3498db"; rowBg = "rgba(52, 152, 219, 0.2)"; }
+                    else if (rank === 3) { barColor = "#e67e22"; rowBg = "rgba(230, 126, 34, 0.2)"; }
+                    else if (rank === 4) { barColor = "#2ecc71"; rowBg = "rgba(46, 204, 113, 0.2)"; }
+                    else if (rank > sortedStats.length - 3) { barColor = "#e74c3c"; rowBg = "rgba(231, 76, 60, 0.2)"; }
                 } else {
-                    if (rank === 1) barColor = "#2ecc71"; // Doğrudan Çıkış
-                    else if (rank === 2 || rank === 3) barColor = "#27ae60"; // Playoff Final
-                    else if (rank >= 4 && rank <= 7) barColor = "#1abc9c"; // Playoff
-                    else if (rank > sortedStats.length - 4) barColor = "#e74c3c"; // Düşme (Son 4)
+                    if (rank === 1) { barColor = "#2ecc71"; rowBg = "rgba(46, 204, 113, 0.2)"; }
+                    else if (rank === 2 || rank === 3) { barColor = "#27ae60"; rowBg = "rgba(39, 174, 96, 0.2)"; }
+                    else if (rank >= 4 && rank <= 7) { barColor = "#1abc9c"; rowBg = "rgba(26, 188, 156, 0.2)"; }
+                    else if (rank > sortedStats.length - 4) { barColor = "#e74c3c"; rowBg = "rgba(231, 76, 60, 0.2)"; }
                 }
 
-                const penaltyBtn = isAdmin ? `<br><span onclick="setPenalty('${t.name}')" style="cursor:pointer; color:#e74c3c; font-size:0.7em; background:rgba(0,0,0,0.5); padding:2px 5px; border-radius:4px; margin-top:5px; display:inline-block;">[SİL: ${penaltiesData[t.name] || 0}]</span>` : "";
+                const penaltyBtn = isAdmin ? `<br><span onclick="setPenalty('${t.name}')" style="cursor:pointer; color:#ffb8b8; font-size:0.75em; background:rgba(231, 76, 60, 0.6); padding:2px 6px; border-radius:6px; margin-top:6px; display:inline-block;">[SİL: ${penaltiesData[t.name] || 0}]</span>` : "";
 
-                return `<tr style="box-shadow: inset 4px 0 0 0 ${barColor};">
+                return `<tr style="background-color: ${rowBg}; box-shadow: inset 6px 0 0 0 ${barColor};">
                     <td>${rank}</td>
                     <td style="text-align:left; display:flex; align-items:center; gap: 15px;">
-                        <img src="${t.logo}" style="width:32px; height:32px; object-fit:contain; cursor:pointer; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));" onclick="showTeam('${t.name}')">
+                        <img src="${t.logo}" style="width:36px; height:36px; object-fit:contain; cursor:pointer; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));" onclick="showTeam('${t.name}')">
                         <div>${t.name}${penaltyBtn}</div>
                     </td>
                     <td>${t.om}</td><td>${t.g}</td><td>${t.b}</td><td>${t.m}</td><td>${t.av}</td>
@@ -560,7 +616,7 @@
                 </tr>`;
             }).join('');
 
-            // EFSANE TABLO RENK İNDİKATÖRLERİ (LEGEND)
+            // EFSANE TABLO RENK İNDİKATÖRLERİ
             let legendHtml = '';
             if (currentLeague === 'lig1') {
                 legendHtml = `
@@ -595,20 +651,20 @@
                 <div class="team-header-stadium">🏟️ ${tData.stadium}</div>
             `;
 
-            const teamMatches = fixtureData.filter(m => m.h === name || m.a === name);
+            const teamMatches = fixtureData.filter(m => getTeamData(m.h).name === name || getTeamData(m.a).name === name);
             document.getElementById('team-fixture-list').innerHTML = teamMatches.map(m => {
-                const isHome = m.h === name; 
+                const isHome = getTeamData(m.h).name === name; 
                 const opponent = isHome ? m.a : m.h; 
                 const oppData = getTeamData(opponent);
                 const icon = isHome ? "🏠" : "✈️";
-                let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'rgba(46, 204, 113, 0.8)':(m.hs==m.as?'rgba(149, 165, 166, 0.8)':'rgba(231, 76, 60, 0.8)')}; color:#fff; border-radius:8px; text-align:center; font-weight:800; font-size: 1em; box-shadow: var(--shadow-glass);">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:var(--text-sub); font-weight:800; font-size:1em;">VS</span>`;
+                let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'rgba(46, 204, 113, 0.9)':(m.hs==m.as?'rgba(149, 165, 166, 0.9)':'rgba(231, 76, 60, 0.9)')}; color:#fff; border-radius:8px; text-align:center; font-weight:800; font-size: 1.1em; box-shadow: var(--shadow-glass);">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:var(--text-sub); font-weight:800; font-size:1.1em;">VS</span>`;
                 
                 return `
                 <div class="gs-match-card">
                     <div class="card-left">
                         <div class="week-badge">${m.w}.H</div>
                         <div class="location-icon">${icon}</div>
-                        <img src="${oppData.logo}" style="width:30px; height:30px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));" onerror="this.style.opacity='0'">
+                        <img src="${oppData.logo}" style="width:36px; height:36px; object-fit:contain; filter:drop-shadow(0 3px 6px rgba(0,0,0,0.5));" onerror="this.style.opacity='0'">
                         <div class="match-details">${oppData.name}</div>
                     </div>
                     <div class="stadium-info-list">
@@ -620,9 +676,23 @@
         }
 
         window.showView = function(view, el) {
-            ['main-view', 'standings-view', 'team-view'].forEach(id => document.getElementById(id).style.display = 'none');
-            if(el) { document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active')); el.classList.add('active'); }
-            document.getElementById(view + '-view').style.display = 'block';
+            ['main-view', 'standings-view', 'team-view'].forEach(id => {
+                document.getElementById(id).classList.remove('view-active');
+                document.getElementById(id).style.display = 'none';
+            });
+            
+            if(el) { 
+                document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active')); 
+                el.classList.add('active'); 
+            }
+            
+            const targetView = document.getElementById(view + '-view');
+            targetView.style.display = 'block';
+            
+            // Animasyonu tetiklemek için ufak bir reflow
+            void targetView.offsetWidth; 
+            targetView.classList.add('view-active');
+            
             document.querySelector('.team-selector-container').style.display = (view === 'standings') ? 'none' : 'block';
         }
 
@@ -632,9 +702,9 @@
             if (isAdmin) { isAdmin = false; } 
             else { let input = prompt("Yönetici Şifresi:"); if (input === ADMIN_PASSWORD) isAdmin = true; else { alert("Yanlış Şifre!"); return; } }
             const btn = document.getElementById('admin-toggle');
-            btn.innerText = isAdmin ? "⚙️ DÜZENLEME AÇIK" : "⚙️ YÖNETİCİ";
+            btn.innerHTML = isAdmin ? "<span>⚙️</span> DÜZENLEME AÇIK" : "<span>⚙️</span> YÖNETİCİ";
             btn.classList.toggle('on', isAdmin);
-            document.getElementById('reset-db-btn').style.display = isAdmin ? 'inline-block' : 'none';
+            document.getElementById('reset-db-btn').style.display = isAdmin ? 'flex' : 'none';
             renderAll();
         }
 
