@@ -101,7 +101,7 @@
             transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: var(--shadow-glass);
             display: flex; align-items: center; gap: 8px;
         }
-        .control-btn span { font-size: 1.4em; } /* İkonları büyütmek için */
+        .control-btn span { font-size: 1.4em; } 
         .control-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px) scale(1.05); }
         .control-btn.active { background: rgba(255,255,255,0.4); font-weight: 900; border-color: #fff; }
 
@@ -185,21 +185,18 @@
             border-color: #fff; transform: translateY(-8px) scale(1.15); box-shadow: 0 10px 25px rgba(255,255,255,0.5); background-color: #fff;
         }
 
-        /* --- PUAN DURUMU (YENİ BELİRGİN TASARIM) --- */
+        /* --- PUAN DURUMU --- */
         .standings-container { max-width: 950px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(30px); padding: 25px; border-radius: 24px; border: 1px solid var(--glass-border); overflow-x: auto; box-shadow: var(--shadow-glass); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 5px; text-align: center; } /* Satırlar arası boşluk */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 5px; text-align: center; } 
         th { padding: 15px; color: #fff; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; text-shadow: var(--shadow-text);}
         
         td { padding: 14px 10px; font-weight: 800; vertical-align: middle; font-size: 1em; text-shadow: var(--shadow-text); background: rgba(0,0,0,0.1); }
-        
-        /* Satır başı ve sonu yuvarlatma */
         td:first-child { border-radius: 10px 0 0 10px; }
         td:last-child { border-radius: 0 10px 10px 0; font-weight: 900; font-size: 1.2em; background: rgba(0,0,0,0.25);} 
 
         tr { transition: transform 0.2s ease; }
         tr:hover { transform: scale(1.01); }
 
-        /* Legend (Renk Açıklamaları) */
         .legend-box { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:25px; font-size:0.9em; font-weight:800; text-shadow:var(--shadow-text); background: rgba(0,0,0,0.3); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);}
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .color-dot { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.5); }
@@ -449,8 +446,8 @@
                 if (data) {
                     fixtureData = activeDefaultFixture.map((correctMatch, i) => {
                         const dbMatch = data[i];
-                        if (dbMatch && (dbMatch.hs !== undefined || dbMatch.as !== undefined)) {
-                            return { ...correctMatch, hs: dbMatch.hs, as: dbMatch.as };
+                        if (dbMatch && (dbMatch.hs !== undefined || dbMatch.as !== undefined || dbMatch.dt !== undefined)) {
+                            return { ...correctMatch, hs: dbMatch.hs, as: dbMatch.as, dt: dbMatch.dt };
                         }
                         return correctMatch;
                     });
@@ -460,11 +457,10 @@
                 }
                 document.getElementById('loading').style.display = 'none';
                 
-                // Sağ alttan kayarak gelme animasyonunu tetikleme
                 const activeView = document.querySelector('.view-active');
                 if(activeView) {
                     activeView.classList.remove('view-active');
-                    void activeView.offsetWidth; // Reflow
+                    void activeView.offsetWidth; 
                     activeView.classList.add('view-active');
                 } else if(document.getElementById('main-view').style.display === '') {
                     document.getElementById('main-view').classList.add('view-active');
@@ -502,10 +498,34 @@
             const newValue = val === "" ? null : parseInt(val);
             set(ref(db, `${fixPath}/${index}/${side}`), newValue);
         }
+        
+        // YENİ: TEKİL MAÇ TARİHİ DEĞİŞTİRME
+        window.setMatchDate = function(index, currentDate) {
+            if(!isAdmin) return;
+            let val = prompt("Maç tarihini/saatini girin (Örn: 12 Mayıs 19:00):", currentDate === 'Tarih Bekleniyor' ? '' : currentDate);
+            if(val !== null) {
+                const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
+                set(ref(db, `${fixPath}/${index}/dt`), val);
+            }
+        }
+        
+        // YENİ: HAFTALIK TOPLU TARİH DEĞİŞTİRME
+        window.setWeekDate = function(weekNum) {
+            if(!isAdmin) return;
+            let val = prompt(`${weekNum}. Hafta için toplu tarih/saat girin:\n(Bu haftadaki tüm maçlara uygulanacak)`);
+            if(val !== null) {
+                const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
+                fixtureData.forEach((match, i) => {
+                    if(match.w === weekNum) {
+                        set(ref(db, `${fixPath}/${i}/dt`), val);
+                    }
+                });
+            }
+        }
 
         window.resetDatabase = function() {
             if(!isAdmin) return;
-            if(confirm(`DİKKAT: ${currentLeague === 'lig1' ? '1. Lig' : '2. Lig'} tüm skorlar sıfırlanacak. Emin misin?`)) {
+            if(confirm(`DİKKAT: ${currentLeague === 'lig1' ? '1. Lig' : '2. Lig'} tüm skorlar ve tarihler sıfırlanacak. Emin misin?`)) {
                 const fixPath = currentLeague === 'lig1' ? 'fixtures' : 'fixtures_lig2';
                 const activeDefaultFixture = currentLeague === 'lig1' ? defaultFixtureData : defaultFixtureDataLig2;
                 set(ref(db, fixPath), activeDefaultFixture);
@@ -535,14 +555,19 @@
                 if (m.w !== currentWeek) {
                     if (currentWeek !== 0) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
                     currentWeek = m.w;
-                    weekHtml = `<div class="week-card"><div class="week-header"><span class="week-number">${currentWeek}</span><span class="week-label">Hafta</span></div><div class="match-list">`;
+                    
+                    let adminWeekBtn = isAdmin ? `<button onclick="setWeekDate(${currentWeek})" style="margin-left:auto; background:var(--glass-bg); border:1px solid var(--glass-border); color:#fff; border-radius:8px; cursor:pointer; padding:6px 12px; font-size:0.5em; font-weight:800; text-transform:uppercase; transition:all 0.3s; backdrop-filter:blur(5px);">📅 Haftayı Düzenle</button>` : '';
+                    
+                    weekHtml = `<div class="week-card"><div class="week-header"><span class="week-number">${currentWeek}</span><span class="week-label">Hafta</span>${adminWeekBtn}</div><div class="match-list">`;
                 }
                 
                 let hData = getTeamData(m.h);
                 let aData = getTeamData(m.a);
                 let center = isAdmin ? `<input type="number" id="hs-${i}" class="score-input" value="${m.hs ?? ''}" oninput="setScore(${i},'hs',this.value)"> <span class="vs">-</span> <input type="number" id="as-${i}" class="score-input" value="${m.as ?? ''}" oninput="setScore(${i},'as',this.value)">` : `<span class="vs">${(m.hs != null && m.as != null) ? m.hs + ' - ' + m.as : 'VS'}</span>`;
                 
-                // Tam isimler gösteriliyor
+                let matchDate = m.dt ? m.dt : 'Tarih Bekleniyor';
+                let adminMatchDateBtn = isAdmin ? `<span onclick="setMatchDate(${i}, '${matchDate}')" style="cursor:pointer; margin-left:5px; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; font-size:0.9em;" title="Tarihi Düzenle">✏️</span>` : '';
+                
                 weekHtml += `
                 <div class="match-row">
                     <div class="match-teams">
@@ -556,7 +581,9 @@
                             <img src="${aData.logo}" class="mini-logo" onerror="this.style.opacity='0'">
                         </div>
                     </div>
-                    <div class="match-stadium-mini">🏟️ ${hData.stadium}</div>
+                    <div class="match-stadium-mini">
+                        📅 ${matchDate} ${adminMatchDateBtn} <span style="margin:0 10px; opacity:0.5;">|</span> 🏟️ ${hData.stadium}
+                    </div>
                 </div>`;
                 
                 if (i === fixtureData.length - 1) { weekHtml += `</div></div>`; grid.innerHTML += weekHtml; }
@@ -616,7 +643,6 @@
                 </tr>`;
             }).join('');
 
-            // EFSANE TABLO RENK İNDİKATÖRLERİ
             let legendHtml = '';
             if (currentLeague === 'lig1') {
                 legendHtml = `
@@ -657,6 +683,7 @@
                 const opponent = isHome ? m.a : m.h; 
                 const oppData = getTeamData(opponent);
                 const icon = isHome ? "🏠" : "✈️";
+                let matchDate = m.dt ? m.dt : 'Tarih Bekleniyor';
                 let displayContent = (m.hs != null && m.as != null) ? `<span style="display:inline-block; width:35px; height:35px; line-height:35px; background:${((isHome && m.hs>m.as)||(!isHome && m.as>m.hs))?'rgba(46, 204, 113, 0.9)':(m.hs==m.as?'rgba(149, 165, 166, 0.9)':'rgba(231, 76, 60, 0.9)')}; color:#fff; border-radius:8px; text-align:center; font-weight:800; font-size: 1.1em; box-shadow: var(--shadow-glass);">${(m.hs==m.as?'B':((isHome && m.hs>m.as)||(!isHome && m.as>m.hs)?'G':'M'))}</span>` : `<span style="color:var(--text-sub); font-weight:800; font-size:1.1em;">VS</span>`;
                 
                 return `
@@ -665,7 +692,10 @@
                         <div class="week-badge">${m.w}.H</div>
                         <div class="location-icon">${icon}</div>
                         <img src="${oppData.logo}" style="width:36px; height:36px; object-fit:contain; filter:drop-shadow(0 3px 6px rgba(0,0,0,0.5));" onerror="this.style.opacity='0'">
-                        <div class="match-details">${oppData.name}</div>
+                        <div style="display:flex; flex-direction:column;">
+                            <div class="match-details">${oppData.name}</div>
+                            <div style="font-size:0.75em; color:var(--text-sub); margin-top:4px;">📅 ${matchDate}</div>
+                        </div>
                     </div>
                     <div class="stadium-info-list">
                         ${displayContent}
@@ -689,7 +719,6 @@
             const targetView = document.getElementById(view + '-view');
             targetView.style.display = 'block';
             
-            // Animasyonu tetiklemek için ufak bir reflow
             void targetView.offsetWidth; 
             targetView.classList.add('view-active');
             
@@ -708,7 +737,6 @@
             renderAll();
         }
 
-        // Başlangıç
         loadLeagueData(currentLeague);
 
     </script>
