@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiscordToto Manager</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
+
+        /* --- DEĞİŞKENLER VE HAREKETLİ BULUT RENKLERİ --- */
+        :root {
+            /* Lig 1 (Blush Aura) Renkleri */
+            --color-bg: #ff91cb;
+            --color-blob1: #ed1e79;
+            --color-blob2: #f34494;
+            --color-blob3: #f96bb0;
+            
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-main: #ffffff;
+            --text-sub: rgba(255, 255, 255, 0.8);
+            --shadow-glass: 0 10px 40px rgba(0, 0, 0, 0.15);
+            --shadow-text: 0 2px 10px rgba(0,0,0,0.3);
+            --accent: #fff;
+        }
+
+        /* Lig 2 (Solar Flare) Renkleri */
+        body.lig2 {
+            --color-bg: #049cce;
+            --color-blob1: #05217a;
+            --color-blob2: #054a96;
+            --color-blob3: #0473b2;
+            --glass-bg: rgba(0, 0, 0, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0; padding: 20px 15px 200px 15px;
+            color: var(--text-main);
+            min-height: 100vh; display: flex; flex-direction: column;
+            overflow-x: hidden;
+            background-color: var(--color-bg);
+            transition: background-color 1s ease;
+        }
+
+        /* --- HAREKETLİ ARKA PLAN (ANIMATED MESH GRADIENT) --- */
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .blob {
+            position: absolute; border-radius: 50%; filter: blur(90px);
+            opacity: 0.8; animation: float 12s infinite ease-in-out alternate;
+            transition: background-color 1s ease;
+        }
+        .blob-1 { width: 60vw; height: 60vw; background-color: var(--color-blob1); top: -10%; left: -10%; animation-delay: 0s; }
+        .blob-2 { width: 50vw; height: 50vw; background-color: var(--color-blob2); bottom: -20%; right: -10%; animation-delay: -4s; }
+        .blob-3 { width: 40vw; height: 40vw; background-color: var(--color-blob3); top: 30%; left: 40%; animation-delay: -8s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(10vw, 10vh) scale(1.1); }
+        }
+
+        /* --- SAĞ ALTTAN KAYARAK GELME EFEKTİ --- */
+        @keyframes slideInFromBottomRight {
+            0% { opacity: 0; transform: translate(100px, 100px); }
+            100% { opacity: 1; transform: translate(0, 0); }
+        }
+
+        .view-active {
+            display: block !important;
+            animation: slideInFromBottomRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        #main-view, #standings-view, #team-view { display: none; }
+
+        /* --- ÜST MENÜ VE BAŞLIK --- */
+        .header-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; }
+        .site-logo { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(var(--shadow-text)); }
+        
+        h1.main-title {
+            text-align: center; color: var(--text-main); font-weight: 900;
+            font-size: 2.5em; margin: 0; text-transform: uppercase;
+            letter-spacing: 2px; text-shadow: var(--shadow-text);
+        }
+
+        .top-controls {
+            display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
+            margin-bottom: 30px; z-index: 3000;
+        }
+
+        .control-btn {
+            padding: 12px 24px; border-radius: 30px; 
+            background: var(--glass-bg); border: 1px solid var(--glass-border); 
+            cursor: pointer; font-weight: 800; font-size: 0.9em; color: var(--text-main); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow: var(--shadow-glass);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .control-btn span { font-size: 1.4em; } 
+        .control-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-3px) scale(1.05); }
+        .control-btn.active { background: rgba(255,255,255,0.4); font-weight: 900; border-color: #fff; }
+
+        #admin-toggle.on { background: rgba(46, 204, 113, 0.6); border-color: #2ecc71; }
+        #reset-db-btn { display: none; background: rgba(231, 76, 60, 0.6); border-color: #e74c3c; margin-left: 10px;}
+
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: #fff; padding: 20px 40px; border-radius: 20px; font-weight: 800; z-index: 9999; backdrop-filter: blur(15px); }
+
+        /* --- FİKSTÜR KARTLARI (CAM) --- */
+        .fixture-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px; max-width: 1350px; margin: 0 auto 100px auto;
+        }
+        .week-card {
+            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px; padding: 22px; box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border); transition: transform 0.4s ease;
+        }
+        .week-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.2); border-color: #fff; }
+        
+        .week-header { display: flex; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .week-number { font-size: 2.2em; font-weight: 900; color: #fff; margin-right: 12px; line-height: 1; text-shadow: var(--shadow-text);}
+        .week-label { font-size: 1.1em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);}
+        
+        .match-row { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .match-row:last-child { border-bottom: none; padding-bottom: 0;}
+        
+        .match-teams { display: flex; width: 100%; justify-content: space-between; align-items: center; }
+        
+        .team-box { display: flex; align-items: center; gap: 12px; flex: 1; font-weight: 800; font-size: 0.95em; text-shadow: var(--shadow-text); }
+        .team-box.home { justify-content: flex-start; text-align: left; }
+        .team-box.away { justify-content: flex-end; text-align: right; }
+        
+        .mini-logo { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); }
+        
+        .match-score { flex: 0 0 auto; text-align: center; margin: 0 10px; min-width: 65px;}
+        .vs { color: var(--text-sub); font-weight: 800; font-size: 1.1em; text-shadow: var(--shadow-text);}
+        .score-input { width: 35px; text-align: center; font-weight: 900; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; margin: 0 3px; padding: 6px; font-size: 1em; background: rgba(0,0,0,0.4); color: #fff; text-shadow: var(--shadow-text);}
+        .score-input:focus { border-color: #fff; outline: none; background: rgba(0,0,0,0.6); }
+
+        .match-stadium-mini { font-size: 0.8em; color: var(--text-sub); margin-top: 10px; font-weight: 700; text-align: center; text-shadow: var(--shadow-text); background: rgba(0,0,0,0.15); padding: 4px 12px; border-radius: 12px;}
+
+        /* --- TAKIM DETAY SAYFASI --- */
+        .team-header-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; background: var(--glass-bg); backdrop-filter: blur(25px); padding: 30px; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass); }
+        .team-header-logo { width: 130px; height: 130px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
+        .team-name-big { font-size: 2.5em; font-weight: 900; color: #fff; text-transform: uppercase; text-shadow: var(--shadow-text); margin: 0; text-align: center; }
+        .team-header-stadium { font-size: 1em; color: #fff; font-weight: 800; margin-top: 12px; background: rgba(0,0,0,0.3); padding: 10px 25px; border-radius: 20px; border: 1px solid var(--glass-border); text-transform: uppercase; }
+        
+        .gs-match-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 22px; margin-bottom: 15px; transition: transform 0.3s ease;
+        }
+        .gs-match-card:hover { transform: translateX(8px); background: rgba(255,255,255,0.25); }
+        .card-left { display: flex; align-items: center; flex: 2; gap: 15px;}
+        .week-badge { background-color: rgba(0,0,0,0.5); color: #fff; font-weight: 800; padding: 8px 12px; border-radius: 10px; min-width: 35px; text-align: center; font-size: 0.9em; border: 1px solid var(--glass-border); }
+        .location-icon { font-size: 1.5em; filter: drop-shadow(var(--shadow-text)); }
+        .match-details { font-size: 1.1em; font-weight: 800; color: #fff; text-shadow: var(--shadow-text);}
+        .stadium-info-list { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 15px;}
+
+        /* --- ALT LOGO SEÇİCİ --- */
+        .team-selector-container {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 20px 10px; background: rgba(0, 0, 0, 0.4);
+            border-radius: 30px 30px 0 0; border-top: 1px solid var(--glass-border);
+            box-shadow: 0 -15px 50px rgba(0, 0, 0, 0.6); text-align: center;
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); z-index: 2000;
+            max-height: 30vh; overflow-y: auto;
+        }
+        .logo-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+        .team-logo-btn {
+            width: 58px; height: 58px; background-color: rgba(255,255,255,0.85);
+            border: 2px solid transparent; border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            background-size: 70%; background-position: center; background-repeat: no-repeat;
+        }
+        .team-logo-btn:hover, .team-logo-btn.active {
+            border-color: #fff; transform: translateY(-8px) scale(1.15); box-shadow: 0 10px 25px rgba(255,255,255,0.5); background-color: #fff;
+        }
+
+        /* --- PUAN DURUMU --- */
+        .standings-container { max-width: 950px; margin: 0 auto; background: var(--glass-bg); backdrop-filter: blur(30px); padding: 25px; border-radius: 24px; border: 1px solid var(--glass-border); overflow-x: auto; box-shadow: var(--shadow-glass); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 5px; text-align: center; } 
+        th { padding: 15px; color: #fff; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; text-shadow: var(--shadow-text);}
+        
+        td { padding: 14px 10px; font-weight: 800; vertical-align: middle; font-size: 1em; text-shadow: var(--shadow-text); background: rgba(0,0,0,0.1); }
+        td:first-child { border-radius: 10px 0 0 10px; }
+        td:last-child { border-radius: 0 10px 10px 0; font-weight: 900; font-size: 1.2em; background: rgba(0,0,0,0.25);} 
+
+        tr { transition: transform 0.2s ease; }
+        tr:hover { transform: scale(1.01); }
+
+        .legend-box { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:25px; font-size:0.9em; font-weight:800; text-shadow:var(--shadow-text); background: rgba(0,0,0,0.3); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);}
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .color-dot { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.5); }
+
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; gap: 5px; }
+            h1.main-title { font-size: 1.8em; }
+            .site-logo { width: 50px; height: 50px; }
+            .fixture-container { grid-template-columns: 1fr; gap: 15px;}
+            .team-logo-btn { width: 48px; height: 48px; }
+            .gs-match-card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 15px;}
+            .stadium-info-list { width: 100%; justify-content: space-between; flex-direction: row-reverse;}
+            th, td { padding: 10px 5px; font-size: 0.85em; }
+            .legend-box { flex-direction: column; align-items: flex-start; gap: 10px;}
+        }
+    
+
+        /* =========================================================
+           DISCORDTOTO MANAGER V3 - GÖRSEL YENİLEME + HESAP KATMANI
+           Bunu mevcut CSS'in en altına ekledim. Eski kodları bozmaz.
+        ========================================================= */
+        body.theme-pro {
+            --color-bg: #111827;
+            --color-blob1: #7c3aed;
+            --color-blob2: #06b6d4;
+            --color-blob3: #f97316;
+            --glass-bg: rgba(17, 24, 39, 0.48);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-main: #f8fafc;
+            --text-sub: rgba(226, 232, 240, 0.78);
+            --accent: #38bdf8;
+            --shadow-glass: 0 20px 70px rgba(0, 0, 0, 0.32);
+            --shadow-text: 0 4px 18px rgba(0,0,0,0.45);
+        }
+
+        body.theme-pro.lig2 {
+            --color-bg: #07111f;
+            --color-blob1: #0047ff;
+            --color-blob2: #00d4ff;
+            --color-blob3: #00ffb3;
+            --accent: #22d3ee;
+        }
+
+        body.theme-neon {
+            --color-bg: #16051f;
+            --color-blob1: #ff2d95;
+            --color-blob2: #7c3aed;
+            --color-blob3: #00e5ff;
+            --glass-bg: rgba(23, 10, 38, 0.52);
+            --glass-border: rgba(255, 255, 255, 0.20);
+            --accent: #f0abfc;
+        }
+
+        body.theme-noir {
+            --color-bg: #070a12;
+            --color-blob1: #475569;
+            --color-blob2: #0f766e;
+            --color-blob3: #ca8a04;
+            --glass-bg: rgba(2, 6, 23, 0.62);
+            --glass-border: rgba(255, 255, 255, 0.14);
+            --accent: #facc15;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 20%), rgba(255,255,255,0.16), transparent 28vw),
+                linear-gradient(135deg, rgba(255,255,255,0.06), transparent 45%),
+                var(--color-bg);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background:
+                linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+            background-size: 72px 72px;
+            mask-image: linear-gradient(to bottom, transparent, black 18%, black 78%, transparent);
+            animation: gridDrift 22s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridDrift {
+            from { transform: translate3d(0,0,0); }
+            to { transform: translate3d(-72px, 72px, 0); }
+        }
+
+        .mesh-bg::after {
+            content: "";
+            position: absolute;
+            inset: -20%;
+            background: conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.10), transparent 18%, rgba(255,255,255,0.08), transparent 45%, rgba(255,255,255,0.05), transparent 70%);
+            opacity: .75;
+            animation: auroraSpin 28s linear infinite;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes auroraSpin {
+            from { transform: rotate(0deg) scale(1.05); }
+            to { transform: rotate(360deg) scale(1.05); }
+        }
+
+        .stadium-lights {
+            position: fixed;
+            top: -12vh;
+            left: 50%;
+            width: 90vw;
+            height: 35vh;
+            transform: translateX(-50%);
+            background: radial-gradient(ellipse at top, rgba(255,255,255,0.34), rgba(255,255,255,0.08) 35%, transparent 70%);
+            filter: blur(12px);
+            opacity: .55;
+            animation: lightPulse 5.5s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes lightPulse {
+            from { opacity: .35; transform: translateX(-50%) scale(.98); }
+            to { opacity: .72; transform: translateX(-50%) scale(1.04); }
+        }
+
+        .noise-layer {
+            position: fixed;
+            inset: 0;
+            opacity: .08;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .header-container {
+            position: relative;
+            z-index: 5;
+            padding: 14px 0 6px;
+        }
+
+        h1.main-title {
+            background: linear-gradient(90deg, #fff, rgba(255,255,255,.68), #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: titleShimmer 6s ease-in-out infinite;
+        }
+
+        @keyframes titleShimmer {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255,255,255,.12)); }
+            50% { filter: drop-shadow(0 0 18px rgba(255,255,255,.32)); }
+        }
+
+        .top-controls {
+            position: sticky;
+            top: 14px;
+            z-index: 3500;
+            padding: 10px;
+            width: fit-content;
+            max-width: calc(100vw - 24px);
+            margin-left: auto;
+            margin-right: auto;
+            background: rgba(2, 6, 23, 0.20);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 22px 60px rgba(0,0,0,.26);
+        }
+
+        .control-btn {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.16);
+        }
+
+        .control-btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,.26), transparent);
+            transform: translateX(-120%);
+            transition: transform .55s ease;
+        }
+        .control-btn:hover::after { transform: translateX(120%); }
+
+        .week-card, .standings-container, .team-header-container, .gs-match-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .week-card::before, .standings-container::before, .team-header-container::before, .gs-match-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,.38), transparent 38%, rgba(255,255,255,.12));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .week-card:hover, .gs-match-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 28px 90px rgba(0,0,0,.32);
+        }
+
+        .match-row {
+            border-radius: 18px;
+            transition: background .25s ease, transform .25s ease;
+        }
+        .match-row:hover {
+            background: rgba(255,255,255,.09);
+            transform: translateX(4px);
+        }
+
+        .mini-logo, .team-header-logo, .site-logo {
+            transition: transform .35s ease, filter .35s ease;
+        }
+        .match-row:hover .mini-logo, .team-header-logo:hover, .site-logo:hover {
+            transform: rotate(-3deg) scale(1.08);
+            filter: drop-shadow(0 10px 24px rgba(255,255,255,.22));
+        }
+
+        .team-selector-container {
+            background: linear-gradient(180deg, rgba(2,6,23,.18), rgba(2,6,23,.58));
+            border-top: 1px solid rgba(255,255,255,.18);
+        }
+
+        .team-logo-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .team-logo-btn::after {
+            content: "";
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(circle, rgba(255,255,255,.45), transparent 55%);
+            opacity: 0;
+            transform: scale(.4);
+            transition: .3s ease;
+        }
+        .team-logo-btn:hover::after { opacity: 1; transform: scale(1); }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.54);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 4990;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .28s ease;
+        }
+        .drawer-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .game-drawer {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            bottom: 18px;
+            width: min(460px, calc(100vw - 28px));
+            z-index: 5000;
+            transform: translateX(calc(100% + 34px));
+            transition: transform .42s cubic-bezier(.2,.9,.2,1);
+            background: rgba(10, 15, 30, .72);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 30px;
+            box-shadow: 0 35px 110px rgba(0,0,0,.58);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            overflow: hidden;
+        }
+        .game-drawer.open { transform: translateX(0); }
+
+        .drawer-inner {
+            height: 100%;
+            overflow-y: auto;
+            padding: 22px;
+        }
+
+        .drawer-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .drawer-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .drawer-title strong {
+            font-size: 1.15em;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+        .drawer-title small { color: var(--text-sub); font-weight: 700; }
+        .drawer-close {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: .25s ease;
+        }
+        .drawer-close:hover { transform: rotate(8deg) scale(1.06); background: rgba(255,255,255,.22); }
+
+        .manager-card {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 22px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 16px 48px rgba(0,0,0,.18);
+        }
+        .manager-card h3 {
+            margin: 0 0 10px;
+            font-size: .95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .stat-pill {
+            background: rgba(0,0,0,.22);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 16px;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 900;
+        }
+        .stat-pill span { display:block; color: var(--text-sub); font-size: .7em; margin-top: 4px; font-weight: 800; }
+
+        .accordion-btn {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 0;
+            background: rgba(255,255,255,.11);
+            color: #fff;
+            border-radius: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+        }
+        .accordion-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .38s ease, opacity .38s ease, transform .38s ease;
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        .accordion-panel.open {
+            max-height: 700px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .accordion-content { padding: 14px 2px 0; color: var(--text-sub); font-weight: 700; line-height: 1.55; }
+
+        .mini-pitch {
+            position: relative;
+            height: 220px;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.22);
+            background:
+                linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px),
+                repeating-linear-gradient(90deg, rgba(22,163,74,.65) 0 12.5%, rgba(21,128,61,.65) 12.5% 25%);
+            background-size: 100% 100%;
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,.18), 0 18px 60px rgba(0,0,0,.25);
+        }
+        .mini-pitch::before {
+            content:"";
+            position:absolute;
+            left:50%; top:0; bottom:0;
+            width:2px;
+            background:rgba(255,255,255,.42);
+        }
+        .mini-pitch::after {
+            content:"";
+            position:absolute;
+            left:50%; top:50%;
+            width:70px; height:70px;
+            transform:translate(-50%,-50%);
+            border:2px solid rgba(255,255,255,.42);
+            border-radius:50%;
+        }
+        .pitch-dot {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255,255,255,.16), 0 5px 12px rgba(0,0,0,.35);
+        }
+        .pitch-dot.away { background: #ef4444; }
+        .pitch-ball {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f8fafc;
+            left: 48%;
+            top: 48%;
+            box-shadow: 0 0 0 4px rgba(255,255,255,.20), 0 0 24px rgba(255,255,255,.55);
+            transition: left .8s cubic-bezier(.2,.8,.2,1), top .8s cubic-bezier(.2,.8,.2,1), transform .8s ease;
+            z-index: 4;
+        }
+        .pitch-ball.shoot { transform: scale(1.35); }
+
+        .match-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            max-height: 180px;
+            overflow: auto;
+        }
+        .feed-line {
+            background: rgba(0,0,0,.23);
+            border-left: 3px solid var(--accent);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: .86em;
+            color: #fff;
+            animation: feedIn .35s ease both;
+        }
+        @keyframes feedIn {
+            from { opacity: 0; transform: translateX(12px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .action-btn {
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            border-radius: 16px;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 900;
+            transition: .25s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,.20);
+            box-shadow: 0 12px 28px rgba(0,0,0,.24);
+        }
+
+        .floating-match-btn {
+            position: fixed;
+            right: 22px;
+            bottom: 118px;
+            z-index: 4100;
+            border: 1px solid rgba(255,255,255,.22);
+            background: linear-gradient(135deg, rgba(56,189,248,.82), rgba(124,58,237,.72));
+            color: #fff;
+            padding: 16px 18px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 900;
+            box-shadow: 0 24px 70px rgba(0,0,0,.36);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: .25s ease;
+        }
+        .floating-match-btn:hover { transform: translateY(-5px) scale(1.04); }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 112px;
+            z-index: 7000;
+            transform: translate(-50%, 18px);
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(2,6,23,.72);
+            border: 1px solid rgba(255,255,255,.16);
+            color: #fff;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-weight: 900;
+            box-shadow: 0 20px 60px rgba(0,0,0,.38);
+            backdrop-filter: blur(18px);
+            transition: .28s ease;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 768px) {
+            .top-controls { border-radius: 28px; width: auto; }
+            .game-drawer { top: 8px; right: 8px; bottom: 8px; width: calc(100vw - 16px); border-radius: 24px; }
+            .quick-stats { grid-template-columns: 1fr; }
+            .floating-match-btn { bottom: 96px; right: 14px; padding: 13px 14px; }
+            .action-grid { grid-template-columns: 1fr; }
+        }
+
+    
+
+
+
+        /* === V4: Kadro Merkezi / Sürükle-bırak saha === */
+        #squad-view { display: none; }
+        .squad-shell {
+            width: min(1320px, calc(100vw - 28px));
+            margin: 0 auto 120px;
+            display: grid;
+            grid-template-columns: minmax(260px, 330px) minmax(420px, 1fr) minmax(260px, 330px);
+            gap: 18px;
+            align-items: stretch;
+        }
+        .squad-top-card {
+            width: min(1320px, calc(100vw - 28px));
+            margin: 0 auto 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 28px;
+            padding: 18px;
+            box-shadow: var(--shadow-glass);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+        }
+        .squad-team-id { display: flex; align-items: center; gap: 14px; }
+        .squad-team-id img { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,.45)); }
+        .squad-team-id strong { display:block; font-size: 1.25em; text-transform: uppercase; letter-spacing: .7px; }
+        .squad-team-id span { color: var(--text-sub); font-weight: 800; font-size: .85em; }
+        .squad-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .squad-select {
+            min-height: 44px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(5,10,25,.50);
+            color: #fff;
+            font-weight: 900;
+            padding: 0 14px;
+            outline: none;
+        }
+        .squad-select option { background:#0f172a; color:#fff; }
+        .squad-panel {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 28px;
+            padding: 16px;
+            box-shadow: var(--shadow-glass);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+            min-height: 610px;
+        }
+        .squad-panel h2, .squad-panel h3 {
+            margin: 0 0 12px;
+            font-size: .98em;
+            letter-spacing: .9px;
+            text-transform: uppercase;
+            text-shadow: var(--shadow-text);
+        }
+        .squad-hint {
+            color: var(--text-sub);
+            font-weight: 700;
+            font-size: .82em;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+        .player-list, .bench-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            max-height: 520px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+        .player-card {
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(0,0,0,.22);
+            border-radius: 18px;
+            padding: 10px;
+            cursor: grab;
+            transition: .22s ease;
+            user-select: none;
+        }
+        .player-card:hover { transform: translateY(-2px); background: rgba(255,255,255,.15); box-shadow: 0 16px 35px rgba(0,0,0,.22); }
+        .player-card:active { cursor: grabbing; }
+        .player-pos {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            display:flex; align-items:center; justify-content:center;
+            background: linear-gradient(135deg, rgba(56,189,248,.58), rgba(124,58,237,.50));
+            border: 1px solid rgba(255,255,255,.20);
+            font-weight: 900;
+            font-size: .75em;
+        }
+        .player-name { font-weight: 900; font-size: .88em; line-height: 1.2; }
+        .player-meta { color: var(--text-sub); font-weight: 800; font-size: .72em; margin-top: 3px; }
+        .player-rating {
+            min-width: 38px; height: 38px;
+            border-radius: 13px;
+            display:flex; align-items:center; justify-content:center;
+            background: rgba(34,197,94,.28);
+            border: 1px solid rgba(74,222,128,.35);
+            font-weight: 900;
+        }
+        .squad-pitch {
+            position: relative;
+            min-height: 610px;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.22);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,.10), transparent 18%),
+                linear-gradient(90deg, rgba(255,255,255,.10) 1px, transparent 1px),
+                repeating-linear-gradient(90deg, rgba(22,163,74,.76) 0 10%, rgba(21,128,61,.76) 10% 20%);
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,.14), 0 22px 80px rgba(0,0,0,.32);
+        }
+        .squad-pitch::before {
+            content:""; position:absolute; left:50%; top:0; bottom:0; width:2px; background:rgba(255,255,255,.38);
+        }
+        .squad-pitch::after {
+            content:""; position:absolute; left:50%; top:50%; width:120px; height:120px; transform:translate(-50%,-50%);
+            border:2px solid rgba(255,255,255,.36); border-radius:50%;
+        }
+        .penalty-box-left, .penalty-box-right {
+            position:absolute; top:27%; width:14%; height:46%; border:2px solid rgba(255,255,255,.33); z-index:1;
+        }
+        .penalty-box-left { left:0; border-left:0; border-radius:0 18px 18px 0; }
+        .penalty-box-right { right:0; border-right:0; border-radius:18px 0 0 18px; }
+        .formation-slot {
+            position: absolute;
+            width: 118px;
+            min-height: 72px;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            border-radius: 20px;
+            border: 1px dashed rgba(255,255,255,.42);
+            background: rgba(2,6,23,.20);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding: 7px;
+            transition: .22s ease;
+        }
+        .formation-slot.drag-over { background: rgba(56,189,248,.28); transform: translate(-50%, -50%) scale(1.06); border-color: rgba(255,255,255,.9); }
+        .slot-empty { text-align:center; color: rgba(255,255,255,.80); font-weight: 900; font-size:.82em; }
+        .slot-empty span { display:block; color: rgba(255,255,255,.55); font-size:.72em; margin-top:3px; }
+        .slot-player {
+            width: 100%;
+            border-radius: 17px;
+            background: rgba(255,255,255,.92);
+            color: #0f172a;
+            box-shadow: 0 12px 28px rgba(0,0,0,.30);
+            padding: 8px;
+            display:grid;
+            grid-template-columns: 34px 1fr;
+            gap: 8px;
+            align-items:center;
+            cursor: grab;
+        }
+        .slot-player .player-pos { width:34px; height:34px; border-radius:12px; color:#fff; }
+        .slot-player .player-name { font-size:.78em; text-shadow:none; }
+        .slot-player .player-meta { color:#475569; text-shadow:none; }
+        .slot-clear {
+            position:absolute; top:-8px; right:-8px;
+            width:26px; height:26px; border:0; border-radius:50%;
+            background:#ef4444; color:#fff; font-weight:900; cursor:pointer;
+            box-shadow: 0 8px 18px rgba(0,0,0,.35);
+        }
+        .drop-zone {
+            min-height: 90px;
+            border-radius: 22px;
+            border: 2px dashed rgba(255,255,255,.26);
+            background: rgba(0,0,0,.15);
+            padding: 12px;
+            transition:.22s ease;
+        }
+        .drop-zone.drag-over { background: rgba(56,189,248,.24); border-color: rgba(255,255,255,.85); }
+        .bench-counter { color: var(--text-sub); font-weight:900; font-size:.8em; margin-bottom: 10px; }
+        .squad-empty-state {
+            text-align:center;
+            padding: 42px 18px;
+            color: var(--text-sub);
+            font-weight: 800;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 24px;
+            width: min(720px, calc(100vw - 28px));
+            margin: 0 auto 120px;
+        }
+
+        .player-card.status-bad {
+            border-color: rgba(255, 95, 109, .55);
+            background: rgba(255, 95, 109, .14);
+        }
+        .db-roster-badge {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:7px 10px; margin-top:8px; border-radius:999px;
+            background:rgba(46,204,113,.18); border:1px solid rgba(46,204,113,.35);
+            color:#d7ffe7; font-weight:900; font-size:.75em; letter-spacing:.4px;
+        }
+
+        @media (max-width: 1100px) {
+            .squad-shell { grid-template-columns: 1fr; }
+            .squad-panel { min-height: auto; }
+            .squad-pitch { min-height: 560px; }
+            .player-list, .bench-list { max-height: 360px; }
+        }
+        @media (max-width: 620px) {
+            .formation-slot { width: 94px; min-height: 62px; }
+            .slot-player { grid-template-columns: 1fr; text-align:center; }
+            .slot-player .player-pos { margin:0 auto; }
+            .squad-pitch { min-height: 520px; }
+        }
+
+        /* === V3: Hesap sistemi, giriş modalı ve admin atama paneli === */
+        .account-top-btn { max-width: 210px; }
+        .account-card-body {
+            color: var(--text-sub); font-weight: 700; line-height: 1.55;
+            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+            border-radius: 18px; padding: 14px;
+        }
+        .account-line { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .account-avatar {
+            width:42px; height:42px; border-radius:14px; display:grid; place-items:center;
+            background: linear-gradient(135deg, var(--accent), rgba(255,255,255,.22));
+            color:#07111f; font-weight:900; box-shadow:0 12px 30px rgba(0,0,0,.28);
+        }
+        .account-team-badge {
+            display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:16px;
+            background: rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.12); margin-top:10px;
+        }
+        .account-team-badge img { width:32px; height:32px; object-fit:contain; filter:drop-shadow(0 6px 12px rgba(0,0,0,.45)); }
+        .account-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+        .action-btn.ghost { background: rgba(255,255,255,.08); }
+        .action-btn.full { width:100%; margin-top:12px; }
+        .mini-label { display:block; font-size:.78em; font-weight:900; text-transform:uppercase; letter-spacing:.9px; color:var(--text-sub); margin:10px 0 6px; }
+        .manager-select {
+            width:100%; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.2);
+            background: rgba(0,0,0,.28); color:#fff; font-weight:800; outline:none;
+        }
+        .manager-select option { background:#0f172a; color:#fff; }
+        .tiny-note { color:var(--text-sub); font-size:.78em; line-height:1.45; margin:10px 0 0; }
+        .login-backdrop {
+            position:fixed; inset:0; background:rgba(2,6,23,.62); z-index:5000;
+            opacity:0; pointer-events:none; transition:.25s ease; backdrop-filter: blur(8px);
+        }
+        .login-backdrop.open { opacity:1; pointer-events:auto; }
+        .login-modal {
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-46%) scale(.96);
+            width:min(420px, calc(100vw - 32px)); z-index:5001; opacity:0; pointer-events:none;
+            background:linear-gradient(145deg, rgba(15,23,42,.92), rgba(30,41,59,.78));
+            border:1px solid rgba(255,255,255,.18); border-radius:26px; box-shadow:0 32px 100px rgba(0,0,0,.55);
+            padding:18px; backdrop-filter: blur(26px); transition:.25s cubic-bezier(.2,.8,.2,1);
+        }
+        .login-modal.open { opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1); }
+        .login-modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .login-modal-head strong { font-size:1.1em; }
+        .login-modal-head button {
+            width:34px; height:34px; border-radius:12px; border:1px solid rgba(255,255,255,.18);
+            background:rgba(255,255,255,.1); color:#fff; cursor:pointer; font-weight:900;
+        }
+        .login-modal form { display:grid; gap:10px; }
+        .login-modal label { font-size:.78em; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:var(--text-sub); }
+        .login-modal input {
+            padding:14px 15px; border-radius:15px; border:1px solid rgba(255,255,255,.18);
+            background:rgba(0,0,0,.28); color:#fff; font-weight:800; outline:none;
+        }
+        .login-modal input:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(56,189,248,.12); }
+        .login-submit {
+            margin-top:6px; padding:14px 16px; border:none; border-radius:16px; cursor:pointer;
+            background:linear-gradient(135deg, var(--accent), rgba(255,255,255,.78)); color:#06111f; font-weight:950;
+        }
+        .mini-squad-preview { display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin:12px 0; }
+        .mini-position {
+            min-height:44px; border:1px dashed rgba(255,255,255,.25); border-radius:14px; display:grid; place-items:center;
+            background:rgba(255,255,255,.06); font-weight:900; color:var(--text-main);
+        }
+
+    </style>
+</head>
+<body class="theme-pro">
+
+    <div class="mesh-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="stadium-lights"></div>
+        <div class="noise-layer"></div>
+    </div>
+
+    <div class="header-container">
+        <img src="LOGOCUK.png" alt="Logo" class="site-logo" onerror="this.style.display='none'">
+        <h1 class="main-title" id="league-title">DiscordToto Manager 2027-2028</h1>
+    </div>
+
+    <div class="top-controls">
+        <button class="control-btn" id="league-toggle" onclick="toggleLeague()"><span>🔄</span> 2. LİG'E GEÇ</button>
+        <button class="control-btn active" onclick="showView('main', this)"><span>⚽</span> FİKSTÜR</button>
+        <button class="control-btn" onclick="showView('standings', this)"><span id="trophy-icon">🏆</span> PUAN DURUMU</button>
+
+        <button class="control-btn" onclick="toggleGameDrawer()"><span>🎮</span> OYUN PANELİ</button>
+        <button class="control-btn" id="squad-nav-btn" onclick="openSquadCenter()"><span>📋</span> KADRO</button>
+        <button class="control-btn" onclick="cycleVisualTheme()"><span>🌗</span> TEMA</button>
+        <button class="control-btn account-top-btn" id="login-button" onclick="openLoginModal()"><span>👤</span> GİRİŞ</button>
+        <button id="admin-toggle" class="control-btn" onclick="toggleAdmin()"><span>⚙️</span> YÖNETİCİ</button>
+        <button id="reset-db-btn" class="control-btn" onclick="resetDatabase()"><span>⚠️</span> SIFIRLA</button>
+    </div>
+    
+    <div id="loading">Veriler Yükleniyor...</div>
+
+    <div id="main-view" class="view-active">
+        <div class="fixture-container" id="main-fixture-grid"></div>
+    </div>
+
+    <div id="standings-view">
+        <div class="standings-container">
+            <table><thead><tr><th>#</th><th style="text-align:left">Takım</th><th>OM</th><th>G</th><th>B</th><th>M</th><th>AV</th><th>P</th></tr></thead><tbody id="standings-body"></tbody></table>
+            <div id="table-legend"></div>
+        </div>
+    </div>
+
+
+
+    <div id="squad-view">
+        <div id="squad-empty-state" class="squad-empty-state" style="display:none;">
+            <h2>📋 Kadro Merkezi</h2>
+            <p>Takım kadrosunu düzenlemek için önce menajer hesabıyla giriş yapmalısın.</p>
+            <button class="action-btn" onclick="openLoginModal()">Giriş Yap</button>
+        </div>
+
+        <div id="squad-loaded-area" style="display:none;">
+            <div class="squad-top-card">
+                <div class="squad-team-id" id="squad-team-id"></div>
+                <div class="squad-toolbar">
+                    <select class="squad-select" id="formation-select" onchange="changeSquadFormation(this.value)">
+                        <option value="4-2-3-1">4-2-3-1</option>
+                        <option value="4-3-3">4-3-3</option>
+                        <option value="4-4-2">4-4-2</option>
+                        <option value="3-4-3">3-4-3</option>
+                    </select>
+                    <button class="action-btn" onclick="autoPickLineup()">Otomatik Diz</button>
+                    <button class="action-btn" onclick="saveCurrentSquad()">Kaydet</button>
+                    <button class="action-btn ghost" onclick="resetCurrentSquad()">Sıfırla</button>
+                </div>
+            </div>
+
+            <div class="squad-shell">
+                <section class="squad-panel">
+                    <h2>📦 Oyuncu Havuzu</h2>
+                    <div class="squad-hint">Oyuncuyu tutup sahadaki bölgeye veya yedek kulübesine bırak. Kadrolar Futbol2026.db dosyasından alındı; artık sahaya gerçek oyuncular çıkıyor.</div>
+                    <div class="player-list" id="available-player-list"></div>
+                </section>
+
+                <section class="squad-pitch" id="lineup-pitch">
+                    <div class="penalty-box-left"></div>
+                    <div class="penalty-box-right"></div>
+                </section>
+
+                <section class="squad-panel">
+                    <h2>🪑 Yedek Kulübesi</h2>
+                    <div class="bench-counter" id="bench-counter">0 / 12 yedek</div>
+                    <div class="drop-zone" id="bench-drop-zone" ondragover="allowSquadDrop(event)" ondragleave="leaveSquadDrop(event)" ondrop="dropPlayerToBench(event)">
+                        <div class="bench-list" id="bench-player-list"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="team-view">
+        <div class="team-header-container">
+            <div class="control-btn" style="display:inline-flex; margin-bottom:20px; font-size: 0.8em;" onclick="showMainView()"><span>←</span> Tüm Fikstür</div>
+            <div id="team-view-header-content" style="display: flex; flex-direction: column; align-items: center;"></div>
+            <div style="font-weight: 800; font-size: 0.85em; color: rgba(255,255,255,0.9); margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; text-shadow: var(--shadow-text);">🏠 Ev Sahibi | ✈️ Deplasman</div>
+        </div>
+        <div id="team-fixture-list" style="max-width: 750px; margin: 0 auto;"></div>
+    </div>
+
+
+
+    <!-- DISCORDTOTO MANAGER V3: Açılır oyun paneli -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeGameDrawer()"></div>
+
+    <aside class="game-drawer" id="game-drawer" aria-label="Oyun Paneli">
+        <div class="drawer-inner">
+            <div class="drawer-head">
+                <div class="drawer-title">
+                    <strong>🎮 DiscordToto Manager</strong>
+                    <small>Kullanıcı hesabı, aktif takım ve oyun merkezi</small>
+                </div>
+                <button class="drawer-close" onclick="closeGameDrawer()">✕</button>
+            </div>
+
+            <div class="manager-card account-card">
+                <h3>👤 Menajer Hesabı</h3>
+                <div id="account-card-body" class="account-card-body">
+                    Giriş yapılmadı. Kadro ve taktik ekranları için menajer hesabına gir.
+                </div>
+                <div class="account-actions">
+                    <button class="action-btn" onclick="openLoginModal()">Giriş Yap</button>
+                    <button class="action-btn ghost" onclick="logoutManager()">Çıkış</button>
+                </div>
+            </div>
+
+            <div class="manager-card admin-assign-card" id="manager-assign-card" style="display:none;">
+                <button class="accordion-btn" onclick="toggleHubSection('hub-admin-assign')">🛠️ Admin: Menajer Takımı Değiştir <span>⌄</span></button>
+                <div class="accordion-panel open" id="hub-admin-assign">
+                    <div class="accordion-content">
+                        <label class="mini-label">Menajer</label>
+                        <select class="manager-select" id="assign-user-select"></select>
+                        <label class="mini-label">Yeni Takım</label>
+                        <select class="manager-select" id="assign-team-select"></select>
+                        <button class="action-btn full" onclick="adminAssignTeam()">Takımı Ata</button>
+                        <p class="tiny-note">Bu değişiklik Firebase'e yazılır. Kullanıcı aynı hesabıyla giriş yaptığında yeni takımını yönetir.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="manager-card">
+                <h3>Sezon Kontrolü</h3>
+                <div class="quick-stats">
+                    <div class="stat-pill" id="hub-team-count">0<span>Takım</span></div>
+                    <div class="stat-pill" id="hub-match-count">0<span>Maç</span></div>
+                    <div class="stat-pill" id="hub-played-count">0<span>Oynandı</span></div>
+                </div>
+            </div>
+
+            <div class="manager-card">
+                <button class="accordion-btn" onclick="toggleHubSection('hub-squad')">📋 Kadro Ekranı <span>⌄</span></button>
+                <div class="accordion-panel open" id="hub-squad">
+                    <div class="accordion-content">
+                        <div id="squad-access-summary">Giriş yapınca burada yönettiğin takımın kadro ekranı açılacak.</div>
+                        <div class="mini-squad-preview">
+                            <div class="mini-position">GK</div><div class="mini-position">DC</div><div class="mini-position">MC</div><div class="mini-position">AMR</div><div class="mini-position">ST</div>
+                        </div>
+                        <button class="action-btn full" onclick="openSquadCenter()">Kadro Merkezini Aç</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="manager-card">
+                <button class="accordion-btn" onclick="toggleHubSection('hub-tactics')">🧠 Taktik Paneli <span>⌄</span></button>
+                <div class="accordion-panel" id="hub-tactics">
+                    <div class="accordion-content">
+                        Tempo, pres, savunma çizgisi, pas tarzı ve mantalite burada slider/seçim olarak duracak. Eski Discord komutları yerine buradan ayar yapılacak.
+                    </div>
+                </div>
+            </div>
+
+            <div class="manager-card">
+                <button class="accordion-btn" onclick="toggleHubSection('hub-match')">⚽ 2D Maç Merkezi <span>⌄</span></button>
+                <div class="accordion-panel open" id="hub-match">
+                    <div class="accordion-content">
+                        <div class="mini-pitch" id="mini-pitch">
+                            <div class="pitch-dot" style="left:15%; top:28%;"></div>
+                            <div class="pitch-dot" style="left:24%; top:62%;"></div>
+                            <div class="pitch-dot" style="left:39%; top:40%;"></div>
+                            <div class="pitch-dot away" style="left:61%; top:33%;"></div>
+                            <div class="pitch-dot away" style="left:75%; top:58%;"></div>
+                            <div class="pitch-dot away" style="left:84%; top:28%;"></div>
+                            <div class="pitch-ball" id="pitch-ball"></div>
+                        </div>
+                        <div class="action-grid">
+                            <button class="action-btn" onclick="playDemoHighlight('attack')">Atak Animasyonu</button>
+                            <button class="action-btn" onclick="playDemoHighlight('goal')">Gol Efekti</button>
+                            <button class="action-btn" onclick="playDemoHighlight('card')">Kart Bildirimi</button>
+                            <button class="action-btn" onclick="playDemoHighlight('sub')">Değişiklik</button>
+                        </div>
+                        <div class="match-feed" id="match-feed">
+                            <div class="feed-line">🎙️ Maç merkezi hazır. Bir aksiyon seç, saha canlansın.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="manager-card">
+                <button class="accordion-btn" onclick="toggleHubSection('hub-roadmap')">🚧 Sıradaki Geliştirmeler <span>⌄</span></button>
+                <div class="accordion-panel" id="hub-roadmap">
+                    <div class="accordion-content">
+                        1) Sürükle-bırak kadro ekranı<br>
+                        2) Gerçek oyuncu verileri<br>
+                        3) 2D maç motoru<br>
+                        4) Discord sonuç duyuruları<br>
+                        5) Transfer ve scout paneli
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="login-backdrop" id="login-backdrop" onclick="closeLoginModal()"></div>
+    <div class="login-modal" id="login-modal" role="dialog" aria-label="Menajer Girişi">
+        <div class="login-modal-head">
+            <strong>👤 Menajer Girişi</strong>
+            <button onclick="closeLoginModal()">✕</button>
+        </div>
+        <form onsubmit="loginManager(event)">
+            <label>Kullanıcı adı</label>
+            <input id="login-username" autocomplete="username" placeholder="eren_ozer">
+            <label>Şifre</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••••">
+            <button class="login-submit" type="submit">Giriş Yap</button>
+        </form>
+        <p class="tiny-note">Bu prototipte hesaplar Firebase üzerinde tutulur. Gerçek yayın öncesi Firebase Auth'a geçmek daha güvenli olur.</p>
+    </div>
+
+    <button class="floating-match-btn" onclick="toggleGameDrawer()">🎮 Oyun Paneli</button>
+    <div class="toast" id="toast">Hazır</div>
+
+    <div class="team-selector-container">
+        <div class="logo-grid" id="logo-grid"></div>
+    </div>
+
+    <script type="module">
+const firebaseConfig = {
+    apiKey: "AIzaSyAknclwFdilfFnzbPjtSXyjCPepZm5dM6k",
+    authDomain: "discordtoto-5b23b.firebaseapp.com",
+    databaseURL: "https://discordtoto-5b23b-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "discordtoto-5b23b",
+    storageBucket: "discordtoto-5b23b.firebasestorage.app",
+    messagingSenderId: "122231157782",
+    appId: "1:122231157782:web:eb60fc62aeefd3aa7af137"
+};
+
+const ROOT = "discordtoto_manager_github_v2";
+const ADMIN_PASSWORD = "toto2027";
+
+let firebaseDb = null;
+let firebaseOnline = false;
+let currentLeague = localStorage.getItem(`${ROOT}:league`) || "lig1";
+let isAdmin = localStorage.getItem(`${ROOT}:admin`) === "1";
+let currentManagerUsername = localStorage.getItem(`${ROOT}:manager`) || "";
+let activeThemeIndex = Number(localStorage.getItem(`${ROOT}:theme`) || "0");
+let selectedTeamName = "";
+let draggedSquadPlayerId = "";
+
+let teams = [];
+let playersByTeam = {};
+let fixturesByLeague = { lig1: [], lig2: [] };
+let defaultUsers = [];
+let scores = loadLocal("scores", {});
+let assignments = loadLocal("assignments", {});
+let squads = loadLocal("squads", {});
+
+function $(id) { return document.getElementById(id); }
+function esc(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[ch]));
+}
+function attr(value) { return esc(value); }
+function slug(value) {
+    return String(value || "").toLocaleLowerCase("tr-TR")
+        .replace(/ı/g, "i").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+}
+function loadLocal(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(`${ROOT}:${key}`) || "null") ?? fallback; }
+    catch { return fallback; }
+}
+function saveLocal(key, value) {
+    localStorage.setItem(`${ROOT}:${key}`, JSON.stringify(value));
+}
+function remotePath(key) { return `${ROOT}/${key}`; }
+function setStore(key, value) {
+    saveLocal(key, value);
+    if (firebaseOnline && firebaseDb) {
+        window.__dtFirebaseSet(window.__dtFirebaseRef(firebaseDb, remotePath(key)), value).catch(() => showToast("Firebase yazamadı, veri bu cihazda kaydedildi."));
+    }
+}
+function watchStore(key, cb) {
+    if (!firebaseOnline || !firebaseDb) return;
+    window.__dtFirebaseOnValue(window.__dtFirebaseRef(firebaseDb, remotePath(key)), snap => {
+        const value = snap.val();
+        if (value !== null && value !== undefined) {
+            saveLocal(key, value);
+            cb(value);
+        }
+    }, () => {});
+}
+function teamData(name) {
+    const exact = teams.find(t => t.name === name);
+    if (exact) return exact;
+    const wanted = slug(name);
+    return teams.find(t => slug(t.name) === wanted || slug(t.shortName) === wanted) || {
+        name,
+        shortName: String(name || "?").split(/\s+/).map(x => x[0]).join("").slice(0, 3).toUpperCase(),
+        logo: "",
+        stadium: "",
+        dbKey: name,
+        league: currentLeague,
+        playerCount: 0
+    };
+}
+function leagueTeams() {
+    return teams.filter(t => t.league === currentLeague);
+}
+function scoreKey(matchIndex, league = currentLeague) {
+    return `${league}:${matchIndex}`;
+}
+function isPlayed(score) {
+    return score && score.home !== "" && score.away !== "" && score.home !== undefined && score.away !== undefined;
+}
+function getCurrentManager() {
+    if (!currentManagerUsername) return null;
+    const base = defaultUsers.find(u => u.username === currentManagerUsername);
+    if (!base) return null;
+    return { ...base, team: assignments[currentManagerUsername] || base.team };
+}
+function isCurrentAdmin() {
+    const user = getCurrentManager();
+    return isAdmin || user?.role === "admin";
+}
+function getTeamPlayers(teamName) {
+    const t = teamData(teamName);
+    return playersByTeam[t.dbKey] || playersByTeam[t.name] || [];
+}
+function imgTag(team, cls = "mini-logo") {
+    if (!team.logo) return `<span class="${cls}" style="display:grid;place-items:center;font-weight:900;">${esc(team.shortName || "?")}</span>`;
+    return `<img src="${attr(team.logo)}" class="${cls}" alt="${attr(team.name)}" onerror="this.style.display='none'">`;
+}
+
+async function initFirebase() {
+    try {
+        const [{ initializeApp }, { getDatabase, ref: firebaseRef, onValue: firebaseOnValue, set: firebaseSet }] = await Promise.all([
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"),
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js")
+        ]);
+        window.__dtFirebaseRef = firebaseRef;
+        window.__dtFirebaseOnValue = firebaseOnValue;
+        window.__dtFirebaseSet = firebaseSet;
+        const app = initializeApp(firebaseConfig);
+        firebaseDb = getDatabase(app);
+        firebaseOnline = true;
+        watchStore("scores", value => { scores = value || {}; renderAll(false); });
+        watchStore("assignments", value => { assignments = value || {}; renderAccountUI(); renderAssignControls(); renderSquadCenter(); });
+        watchStore("squads", value => { squads = value || {}; renderSquadCenter(); });
+    } catch (err) {
+        firebaseOnline = false;
+    }
+}
+
+async function init() {
+    applyVisualTheme(false);
+    document.addEventListener("mousemove", event => {
+        document.body.style.setProperty("--mouse-x", `${(event.clientX / window.innerWidth) * 100}%`);
+        document.body.style.setProperty("--mouse-y", `${(event.clientY / window.innerHeight) * 100}%`);
+    });
+
+    await initFirebase();
+
+    try {
+        const [teamsRes, playersRes, fixturesRes, usersRes] = await Promise.all([
+            fetch("data/teams.json", { cache: "no-store" }),
+            fetch("data/players_by_team.json", { cache: "no-store" }),
+            fetch("data/fixtures.json", { cache: "no-store" }),
+            fetch("data/users_demo.json", { cache: "no-store" })
+        ]);
+        teams = await teamsRes.json();
+        playersByTeam = await playersRes.json();
+        fixturesByLeague = await fixturesRes.json();
+        defaultUsers = await usersRes.json();
+        selectedTeamName = leagueTeams()[0]?.name || "";
+        $("loading").style.display = "none";
+        renderAll();
+    } catch (err) {
+        $("loading").textContent = "Veriler yüklenemedi. data klasörü index.html ile aynı yerde olmalı.";
+        console.error(err);
+    }
+}
+
+function updateHeader() {
+    const isLig2 = currentLeague === "lig2";
+    document.body.classList.toggle("lig2", isLig2);
+    const leagueBtn = $("league-toggle");
+    if (leagueBtn) leagueBtn.innerHTML = isLig2 ? "<span>🔄</span> 1. LİG'E GEÇ" : "<span>🔄</span> 2. LİG'E GEÇ";
+    const title = $("league-title");
+    if (title) title.textContent = isLig2 ? "DiscordToto 2. Lig Manager 2027-2028" : "DiscordToto Manager 2027-2028";
+    const trophy = $("trophy-icon");
+    if (trophy) trophy.textContent = isLig2 ? "🥈" : "🏆";
+    const adminToggle = $("admin-toggle");
+    if (adminToggle) {
+        adminToggle.classList.toggle("on", isAdmin);
+        adminToggle.innerHTML = isAdmin ? "<span>⚙️</span> DÜZENLEME AÇIK" : "<span>⚙️</span> YÖNETİCİ";
+    }
+    const reset = $("reset-db-btn");
+    if (reset) reset.style.display = isAdmin ? "flex" : "none";
+}
+
+function renderAll(keepView = true) {
+    updateHeader();
+    updateLogoGrid();
+    renderFixtures();
+    renderStandings();
+    updateManagerHubStats();
+    renderAccountUI();
+    renderAssignControls();
+    if (!keepView) return;
+    const active = document.querySelector(".view-active");
+    if (!active) showView("main");
+}
+
+function updateLogoGrid() {
+    const grid = $("logo-grid");
+    if (!grid) return;
+    grid.innerHTML = leagueTeams().map(team => `
+        <button class="team-logo-btn ${team.name === selectedTeamName ? "active" : ""}" title="${attr(team.name)}" style="background-image:url('${attr(team.logo)}')" onclick='showTeamFixture(${JSON.stringify(team.name)})'>
+            <span style="display:none">${esc(team.shortName || team.name)}</span>
+        </button>
+    `).join("");
+}
+
+function renderFixtures() {
+    const grid = $("main-fixture-grid");
+    if (!grid) return;
+    const fixtureData = (fixturesByLeague[currentLeague] || []).map((m, index) => ({ ...m, index }));
+    const weeks = {};
+    fixtureData.forEach(match => { (weeks[match.week] ||= []).push(match); });
+    grid.innerHTML = Object.keys(weeks).sort((a,b) => Number(a)-Number(b)).map(week => `
+        <div class="week-card">
+            <div class="week-header"><div class="week-number">${week}</div><div class="week-label">Hafta</div></div>
+            ${weeks[week].map(renderMatchRow).join("")}
+        </div>
+    `).join("");
+}
+
+function renderMatchRow(match) {
+    const home = teamData(match.home);
+    const away = teamData(match.away);
+    const saved = scores[scoreKey(match.index)] || {};
+    const played = isPlayed(saved);
+    const admin = isCurrentAdmin();
+    let center = played ? `<span class="vs">${esc(saved.home)} - ${esc(saved.away)}</span>` : `<span class="vs">VS</span>`;
+    if (admin) {
+        center = `
+            <input class="score-input" id="score-h-${match.index}" value="${attr(saved.home ?? "")}" placeholder="0">
+            <span class="vs">-</span>
+            <input class="score-input" id="score-a-${match.index}" value="${attr(saved.away ?? "")}" placeholder="0">
+            <button class="score-input" style="width:34px; cursor:pointer;" onclick="saveMatchScore(${match.index})">✓</button>
+        `;
+    }
+    const dateLine = admin ? `
+        <div class="match-stadium-mini">
+            🏟️ ${esc(home.stadium || "Stadyum")}
+            <input id="score-d-${match.index}" value="${attr(saved.date || "")}" placeholder="Tarih / not" style="margin-left:8px; max-width:135px; border:1px solid rgba(255,255,255,.32); border-radius:10px; padding:5px 8px; background:rgba(0,0,0,.24); color:#fff; font-weight:800;">
+        </div>
+    ` : `<div class="match-stadium-mini">🏟️ ${esc(home.stadium || "Stadyum")}${saved.date ? ` • ${esc(saved.date)}` : ""}</div>`;
+    return `
+        <div class="match-row">
+            <div class="match-teams">
+                <div class="team-box home" onclick='showTeamFixture(${JSON.stringify(home.name)})' style="cursor:pointer;">${imgTag(home)}<span>${esc(home.name)}</span></div>
+                <div class="match-score">${center}</div>
+                <div class="team-box away" onclick='showTeamFixture(${JSON.stringify(away.name)})' style="cursor:pointer;"><span>${esc(away.name)}</span>${imgTag(away)}</div>
+            </div>
+            ${dateLine}
+        </div>
+    `;
+}
+
+function saveMatchScore(index) {
+    const h = $(`score-h-${index}`)?.value.trim() ?? "";
+    const a = $(`score-a-${index}`)?.value.trim() ?? "";
+    const d = $(`score-d-${index}`)?.value.trim() ?? "";
+    const key = scoreKey(index);
+    if (h === "" || a === "") {
+        delete scores[key];
+    } else {
+        scores[key] = { home: Number(h), away: Number(a), date: d };
+    }
+    setStore("scores", scores);
+    renderAll();
+    showToast("Skor kaydedildi.");
+}
+
+function renderStandings() {
+    const body = $("standings-body");
+    if (!body) return;
+    const stats = {};
+    leagueTeams().forEach(t => stats[t.name] = { team: t.name, OM: 0, G: 0, B: 0, M: 0, AG: 0, YG: 0, AV: 0, P: 0 });
+    (fixturesByLeague[currentLeague] || []).forEach((m, index) => {
+        const s = scores[scoreKey(index)];
+        if (!isPlayed(s)) return;
+        const h = stats[m.home];
+        const a = stats[m.away];
+        if (!h || !a) return;
+        const hs = Number(s.home), as = Number(s.away);
+        h.OM++; a.OM++; h.AG += hs; h.YG += as; a.AG += as; a.YG += hs;
+        if (hs > as) { h.G++; a.M++; h.P += 3; }
+        else if (hs < as) { a.G++; h.M++; a.P += 3; }
+        else { h.B++; a.B++; h.P++; a.P++; }
+    });
+    Object.values(stats).forEach(r => r.AV = r.AG - r.YG);
+    const rows = Object.values(stats).sort((x,y) => y.P-x.P || y.AV-x.AV || y.AG-x.AG || x.team.localeCompare(y.team, "tr"));
+    body.innerHTML = rows.map((r, i) => {
+        const t = teamData(r.team);
+        let rowBg = "rgba(0,0,0,0.08)";
+        if (i < 3) rowBg = "rgba(46, 204, 113, 0.18)";
+        else if (i >= rows.length - 3) rowBg = "rgba(231, 76, 60, 0.18)";
+        return `
+            <tr style="background:${rowBg}">
+                <td>${i + 1}</td>
+                <td style="text-align:left"><div style="display:flex;align-items:center;gap:10px;">${imgTag(t)}<span>${esc(r.team)}</span></div></td>
+                <td>${r.OM}</td><td>${r.G}</td><td>${r.B}</td><td>${r.M}</td><td>${r.AV}</td><td>${r.P}</td>
+            </tr>
+        `;
+    }).join("");
+    const legend = $("table-legend");
+    if (legend) legend.innerHTML = `
+        <div class="legend-box">
+            <div class="legend-item"><span class="color-dot" style="background:#2ecc71"></span> Üst sıra</div>
+            <div class="legend-item"><span class="color-dot" style="background:#e74c3c"></span> Alt sıra</div>
+            <div class="legend-item">OM: Oynanan Maç • AV: Averaj • P: Puan</div>
+        </div>
+    `;
+}
+
+function showTeamFixture(teamName) {
+    selectedTeamName = teamName;
+    updateLogoGrid();
+    const team = teamData(teamName);
+    const header = $("team-view-header-content");
+    if (header) header.innerHTML = `
+        ${team.logo ? `<img src="${attr(team.logo)}" class="team-header-logo" alt="${attr(team.name)}" onerror="this.style.display='none'">` : ""}
+        <h2 class="team-name-big">${esc(team.name)}</h2>
+        <div class="team-header-stadium">🏟️ ${esc(team.stadium || "Stadyum")}</div>
+        <div class="db-roster-badge">📦 ${getTeamPlayers(team.name).length} gerçek oyuncu</div>
+    `;
+    const list = $("team-fixture-list");
+    if (list) {
+        const matches = (fixturesByLeague[currentLeague] || []).map((m, index) => ({...m, index})).filter(m => m.home === team.name || m.away === team.name);
+        list.innerHTML = matches.map(match => {
+            const isHome = match.home === team.name;
+            const opponent = teamData(isHome ? match.away : match.home);
+            const s = scores[scoreKey(match.index)] || {};
+            const played = isPlayed(s);
+            const display = played ? `${s.home} - ${s.away}` : "VS";
+            return `
+                <div class="gs-match-card">
+                    <div class="card-left">
+                        <div class="week-badge">${match.week}</div>
+                        <div class="location-icon">${isHome ? "🏠" : "✈️"}</div>
+                        ${imgTag(opponent)}
+                        <div class="match-details">${esc(opponent.name)}</div>
+                    </div>
+                    <div class="stadium-info-list">
+                        <strong>${esc(display)}</strong>
+                        <span>${esc(s.date || (isHome ? team.stadium : opponent.stadium) || "")}</span>
+                    </div>
+                </div>
+            `;
+        }).join("") || `<div class="squad-empty-state">Bu takım için fikstür bulunamadı.</div>`;
+    }
+    showView("team");
+}
+function showMainView() { showView("main"); }
+
+function showView(view, btn = null) {
+    ["main", "standings", "team", "squad"].forEach(name => {
+        const el = $(`${name}-view`);
+        if (!el) return;
+        el.classList.remove("view-active");
+        el.style.display = "none";
+    });
+    const target = $(`${view}-view`);
+    if (target) {
+        target.style.display = "block";
+        target.classList.add("view-active");
+    }
+    document.querySelectorAll(".top-controls .control-btn").forEach(b => b.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+    if (view === "main") document.querySelector('.top-controls .control-btn[onclick*="main"]')?.classList.add("active");
+    if (view === "standings") document.querySelector('.top-controls .control-btn[onclick*="standings"]')?.classList.add("active");
+    if (view === "squad") $("squad-nav-btn")?.classList.add("active");
+    if (view === "squad") renderSquadCenter();
+}
+
+function toggleLeague() {
+    currentLeague = currentLeague === "lig1" ? "lig2" : "lig1";
+    localStorage.setItem(`${ROOT}:league`, currentLeague);
+    selectedTeamName = leagueTeams()[0]?.name || "";
+    renderAll();
+    showView("main");
+}
+
+const visualThemes = ["theme-pro", "theme-neon", "theme-noir"];
+function applyVisualTheme(save = true) {
+    document.body.classList.remove("theme-pro", "theme-neon", "theme-noir");
+    document.body.classList.add(visualThemes[activeThemeIndex % visualThemes.length]);
+    if (currentLeague === "lig2") document.body.classList.add("lig2");
+    if (save) localStorage.setItem(`${ROOT}:theme`, String(activeThemeIndex));
+}
+function cycleVisualTheme() {
+    activeThemeIndex = (activeThemeIndex + 1) % visualThemes.length;
+    applyVisualTheme();
+    updateHeader();
+    showToast("Tema değişti.");
+}
+
+function openLoginModal() { $("login-backdrop")?.classList.add("open"); $("login-modal")?.classList.add("open"); }
+function closeLoginModal() { $("login-backdrop")?.classList.remove("open"); $("login-modal")?.classList.remove("open"); }
+function loginManager(event) {
+    event?.preventDefault();
+    const username = $("login-username")?.value.trim();
+    const password = $("login-password")?.value || "";
+    const user = defaultUsers.find(u => u.username === username && u.password === password);
+    if (!user) { showToast("Kullanıcı adı veya şifre yanlış."); return; }
+    currentManagerUsername = username;
+    localStorage.setItem(`${ROOT}:manager`, username);
+    if (user.role === "admin") {
+        isAdmin = true;
+        localStorage.setItem(`${ROOT}:admin`, "1");
+    }
+    closeLoginModal();
+    renderAll();
+    showToast("Giriş başarılı.");
+}
+function logoutManager() {
+    currentManagerUsername = "";
+    localStorage.removeItem(`${ROOT}:manager`);
+    renderAll();
+    showToast("Çıkış yapıldı.");
+}
+function renderAccountUI() {
+    const user = getCurrentManager();
+    const btn = $("login-button");
+    if (btn) btn.innerHTML = user ? `<span>👤</span> ${esc(user.username)}` : `<span>👤</span> GİRİŞ`;
+    const body = $("account-card-body");
+    if (body) {
+        if (!user) {
+            body.innerHTML = "Giriş yapılmadı. Kadro ve taktik ekranları için menajer hesabına gir.";
+        } else {
+            const team = teamData(user.team);
+            body.innerHTML = `
+                <div class="account-line"><div class="account-avatar">${esc(user.username[0]?.toUpperCase() || "M")}</div><div><strong>${esc(user.username)}</strong><br><small>${esc(user.role === "admin" ? "Admin" : "Menajer")}</small></div></div>
+                <div class="account-team-badge">${imgTag(team)}<span>${esc(team.name)}</span></div>
+            `;
+        }
+    }
+    const squadSummary = $("squad-access-summary");
+    if (squadSummary) squadSummary.textContent = user ? `${user.team} kadro ekranına erişimin var.` : "Giriş yapınca burada yönettiğin takımın kadro ekranı açılacak.";
+    const adminCard = $("manager-assign-card");
+    if (adminCard) adminCard.style.display = isCurrentAdmin() ? "block" : "none";
+}
+
+function renderAssignControls() {
+    const userSelect = $("assign-user-select");
+    const teamSelect = $("assign-team-select");
+    if (!userSelect || !teamSelect) return;
+    const managers = defaultUsers.filter(u => u.role !== "admin");
+    userSelect.innerHTML = managers.map(u => `<option value="${attr(u.username)}">${esc(u.username)} → ${esc(assignments[u.username] || u.team)}</option>`).join("");
+    teamSelect.innerHTML = teams.map(t => `<option value="${attr(t.name)}">${esc(t.name)}</option>`).join("");
+}
+function adminAssignTeam() {
+    if (!isCurrentAdmin()) { showToast("Admin yetkisi gerekli."); return; }
+    const username = $("assign-user-select")?.value;
+    const team = $("assign-team-select")?.value;
+    if (!username || !team) return;
+    assignments[username] = team;
+    setStore("assignments", assignments);
+    renderAccountUI();
+    renderAssignControls();
+    showToast(`${username} artık ${team} yönetiyor.`);
+}
+
+function toggleAdmin() {
+    if (!isAdmin) {
+        const pass = prompt("Yönetici şifresi:");
+        if (pass !== ADMIN_PASSWORD) { showToast("Yanlış şifre."); return; }
+        isAdmin = true;
+        localStorage.setItem(`${ROOT}:admin`, "1");
+    } else {
+        isAdmin = false;
+        localStorage.removeItem(`${ROOT}:admin`);
+    }
+    renderAll();
+}
+function resetDatabase() {
+    if (!confirm("Skorları, atamaları ve kaydedilmiş kadroları sıfırlamak istiyor musun?")) return;
+    scores = {}; assignments = {}; squads = {};
+    setStore("scores", scores);
+    setStore("assignments", assignments);
+    setStore("squads", squads);
+    renderAll();
+    showToast("Veriler sıfırlandı.");
+}
+
+function toggleGameDrawer() { $("drawer-backdrop")?.classList.toggle("open"); $("game-drawer")?.classList.toggle("open"); }
+function closeGameDrawer() { $("drawer-backdrop")?.classList.remove("open"); $("game-drawer")?.classList.remove("open"); }
+function toggleHubSection(id) { $(id)?.classList.toggle("open"); }
+function updateManagerHubStats() {
+    const teamCount = leagueTeams().length;
+    const matchCount = (fixturesByLeague[currentLeague] || []).length;
+    const played = (fixturesByLeague[currentLeague] || []).filter((_, i) => isPlayed(scores[scoreKey(i)])).length;
+    if ($("hub-team-count")) $("hub-team-count").innerHTML = `${teamCount}<span>Takım</span>`;
+    if ($("hub-match-count")) $("hub-match-count").innerHTML = `${matchCount}<span>Maç</span>`;
+    if ($("hub-played-count")) $("hub-played-count").innerHTML = `${played}<span>Oynandı</span>`;
+}
+function addFeedLine(text) {
+    const feed = $("match-feed");
+    if (!feed) return;
+    const line = document.createElement("div");
+    line.className = "feed-line";
+    line.textContent = text;
+    feed.prepend(line);
+}
+function playDemoHighlight(type) {
+    const ball = $("pitch-ball");
+    if (ball) {
+        const x = 20 + Math.random() * 60;
+        const y = 20 + Math.random() * 60;
+        ball.style.left = `${x}%`;
+        ball.style.top = `${y}%`;
+        ball.classList.add("shoot");
+        setTimeout(() => ball.classList.remove("shoot"), 700);
+    }
+    const lines = {
+        attack: "⚡ Hızlı atak başladı, top kanada açıldı.",
+        goal: "⚽ GOOOL! Tribünler ayağa kalktı.",
+        card: "🟨 Sert müdahale sonrası kart çıktı.",
+        sub: "🔄 Oyuncu değişikliği tabelası kalktı."
+    };
+    addFeedLine(lines[type] || "🎙️ Maç merkezi hareketlendi.");
+}
+function showToast(text) {
+    const toast = $("toast");
+    if (!toast) return;
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove("show"), 2300);
+}
+
+function managerTeamForSquad() {
+    const user = getCurrentManager();
+    if (!user) return "";
+    if (user.role === "admin") return selectedTeamName || leagueTeams()[0]?.name || "";
+    return user.team;
+}
+function openSquadCenter() { showView("squad", $("squad-nav-btn")); closeGameDrawer(); }
+function squadFor(teamName) {
+    const existing = squads[teamName] || {};
+    return { formation: existing.formation || "4-2-3-1", lineup: existing.lineup || {}, bench: existing.bench || [] };
+}
+function setSquad(teamName, squad) { squads[teamName] = squad; }
+const squadFormations = {
+    "4-2-3-1": [
+        {id:"GK", x:8, y:50, need:"GK"}, {id:"LB", x:23, y:20, need:"DEF"}, {id:"LCB", x:23, y:40, need:"DEF"}, {id:"RCB", x:23, y:60, need:"DEF"}, {id:"RB", x:23, y:80, need:"DEF"},
+        {id:"DM1", x:43, y:38, need:"MID"}, {id:"DM2", x:43, y:62, need:"MID"}, {id:"LW", x:62, y:22, need:"WING"}, {id:"AM", x:64, y:50, need:"MID"}, {id:"RW", x:62, y:78, need:"WING"}, {id:"ST", x:82, y:50, need:"ST"}
+    ],
+    "4-3-3": [
+        {id:"GK", x:8, y:50, need:"GK"}, {id:"LB", x:23, y:20, need:"DEF"}, {id:"LCB", x:23, y:40, need:"DEF"}, {id:"RCB", x:23, y:60, need:"DEF"}, {id:"RB", x:23, y:80, need:"DEF"},
+        {id:"CM1", x:47, y:30, need:"MID"}, {id:"CM2", x:44, y:50, need:"MID"}, {id:"CM3", x:47, y:70, need:"MID"}, {id:"LW", x:70, y:25, need:"WING"}, {id:"ST", x:84, y:50, need:"ST"}, {id:"RW", x:70, y:75, need:"WING"}
+    ],
+    "4-4-2": [
+        {id:"GK", x:8, y:50, need:"GK"}, {id:"LB", x:23, y:20, need:"DEF"}, {id:"LCB", x:23, y:40, need:"DEF"}, {id:"RCB", x:23, y:60, need:"DEF"}, {id:"RB", x:23, y:80, need:"DEF"},
+        {id:"LM", x:50, y:22, need:"WING"}, {id:"CM1", x:46, y:42, need:"MID"}, {id:"CM2", x:46, y:58, need:"MID"}, {id:"RM", x:50, y:78, need:"WING"}, {id:"ST1", x:80, y:42, need:"ST"}, {id:"ST2", x:80, y:58, need:"ST"}
+    ],
+    "3-4-3": [
+        {id:"GK", x:8, y:50, need:"GK"}, {id:"LCB", x:24, y:32, need:"DEF"}, {id:"CB", x:24, y:50, need:"DEF"}, {id:"RCB", x:24, y:68, need:"DEF"},
+        {id:"LM", x:48, y:20, need:"WING"}, {id:"CM1", x:45, y:42, need:"MID"}, {id:"CM2", x:45, y:58, need:"MID"}, {id:"RM", x:48, y:80, need:"WING"}, {id:"LW", x:72, y:25, need:"WING"}, {id:"ST", x:84, y:50, need:"ST"}, {id:"RW", x:72, y:75, need:"WING"}
+    ]
+};
+function playerGroup(player) {
+    const pos = String(player?.position || "").toLocaleLowerCase("tr-TR");
+    if (pos.includes("kaleci")) return "GK";
+    if (pos.includes("stoper") || pos.includes("bek") || pos.includes("savun")) return "DEF";
+    if (pos.includes("kanat")) return "WING";
+    if (pos.includes("forvet") || pos.includes("santr")) return "ST";
+    return "MID";
+}
+function shortPos(player) {
+    const pos = String(player?.position || "OY").toLocaleLowerCase("tr-TR");
+    if (pos.includes("kaleci")) return "KL";
+    if (pos.includes("stoper")) return "STP";
+    if (pos.includes("bek")) return "BEK";
+    if (pos.includes("kanat")) return "KNT";
+    if (pos.includes("forvet") || pos.includes("santr")) return "FV";
+    if (pos.includes("orta")) return "OS";
+    return "OY";
+}
+function usedPlayerIds(squad) {
+    return new Set([...Object.values(squad.lineup || {}), ...(squad.bench || [])].filter(Boolean));
+}
+function getPlayer(teamName, id) { return getTeamPlayers(teamName).find(p => p.id === id); }
+function renderSquadCenter() {
+    const teamName = managerTeamForSquad();
+    const empty = $("squad-empty-state");
+    const loaded = $("squad-loaded-area");
+    if (!empty || !loaded) return;
+    if (!teamName) { empty.style.display = "block"; loaded.style.display = "none"; return; }
+    empty.style.display = "none";
+    loaded.style.display = "block";
+    const team = teamData(teamName);
+    const players = getTeamPlayers(teamName);
+    const squad = squadFor(teamName);
+    const formationSelect = $("formation-select");
+    if (formationSelect) formationSelect.value = squad.formation;
+    $("squad-team-id").innerHTML = `
+        ${team.logo ? `<img src="${attr(team.logo)}" alt="${attr(team.name)}" onerror="this.style.display='none'">` : ""}
+        <div><strong>${esc(team.name)}</strong><span>${players.length} oyuncu • ${esc(team.stadium || "")}</span></div>
+    `;
+    renderLineupPitch(teamName, squad);
+    renderAvailablePlayers(teamName, squad);
+    renderBench(teamName, squad);
+}
+function renderPlayerCard(player) {
+    if (!player) return "";
+    return `
+        <div class="player-card" draggable="true" ondragstart="dragSquadPlayer(event, '${attr(player.id)}')">
+            <div class="player-pos">${esc(shortPos(player))}</div>
+            <div><div class="player-name">${esc(player.name)}</div><div class="player-meta">${esc(player.position)} • ${esc(player.age)} yaş • ${esc(player.value)}</div></div>
+            <div class="player-rating">${esc(player.overall || 50)}</div>
+        </div>
+    `;
+}
+function renderAvailablePlayers(teamName, squad) {
+    const list = $("available-player-list");
+    if (!list) return;
+    const used = usedPlayerIds(squad);
+    const available = getTeamPlayers(teamName).filter(p => !used.has(p.id));
+    list.innerHTML = available.map(renderPlayerCard).join("") || `<div class="squad-empty-state" style="width:auto;margin:0;padding:18px;">Boşta oyuncu yok.</div>`;
+}
+function renderBench(teamName, squad) {
+    const list = $("bench-player-list");
+    if (!list) return;
+    const bench = (squad.bench || []).map(id => getPlayer(teamName, id)).filter(Boolean);
+    $("bench-counter").textContent = `${bench.length} / 12 yedek`;
+    list.innerHTML = bench.map(renderPlayerCard).join("") || `<div class="squad-hint">Yedek kulübesi boş.</div>`;
+}
+function renderLineupPitch(teamName, squad) {
+    const pitch = $("lineup-pitch");
+    if (!pitch) return;
+    const slots = squadFormations[squad.formation] || squadFormations["4-2-3-1"];
+    pitch.innerHTML = `<div class="penalty-box-left"></div><div class="penalty-box-right"></div>` + slots.map(slot => {
+        const player = getPlayer(teamName, squad.lineup?.[slot.id]);
+        return `
+            <div class="formation-slot" style="left:${slot.x}%;top:${slot.y}%" ondragover="allowSquadDrop(event)" ondragleave="leaveSquadDrop(event)" ondrop="dropPlayerToSlot(event, '${attr(slot.id)}')">
+                ${player ? `
+                    <button class="slot-clear" onclick="clearSquadSlot('${attr(slot.id)}')">×</button>
+                    <div class="slot-player" draggable="true" ondragstart="dragSquadPlayer(event, '${attr(player.id)}')">
+                        <div class="player-pos">${esc(shortPos(player))}</div>
+                        <div><div class="player-name">${esc(player.name)}</div><div class="player-meta">${esc(player.overall || 50)} rating</div></div>
+                    </div>
+                ` : `<div class="slot-empty">${esc(slot.id)}<span>${esc(slot.need)}</span></div>`}
+            </div>
+        `;
+    }).join("");
+}
+function removePlayerEverywhere(squad, playerId) {
+    Object.keys(squad.lineup || {}).forEach(slot => { if (squad.lineup[slot] === playerId) delete squad.lineup[slot]; });
+    squad.bench = (squad.bench || []).filter(id => id !== playerId);
+}
+function dragSquadPlayer(event, playerId) {
+    draggedSquadPlayerId = playerId;
+    event.dataTransfer?.setData("text/plain", playerId);
+}
+function allowSquadDrop(event) { event.preventDefault(); event.currentTarget.classList.add("drag-over"); }
+function leaveSquadDrop(event) { event.currentTarget.classList.remove("drag-over"); }
+function dropPlayerToSlot(event, slotId) {
+    event.preventDefault(); event.currentTarget.classList.remove("drag-over");
+    const teamName = managerTeamForSquad();
+    const playerId = event.dataTransfer?.getData("text/plain") || draggedSquadPlayerId;
+    if (!teamName || !playerId) return;
+    const squad = squadFor(teamName);
+    removePlayerEverywhere(squad, playerId);
+    squad.lineup[slotId] = playerId;
+    setSquad(teamName, squad);
+    renderSquadCenter();
+}
+function dropPlayerToBench(event) {
+    event.preventDefault(); event.currentTarget.classList.remove("drag-over");
+    const teamName = managerTeamForSquad();
+    const playerId = event.dataTransfer?.getData("text/plain") || draggedSquadPlayerId;
+    if (!teamName || !playerId) return;
+    const squad = squadFor(teamName);
+    removePlayerEverywhere(squad, playerId);
+    if ((squad.bench || []).length >= 12) { showToast("Yedek sınırı 12."); return; }
+    squad.bench.push(playerId);
+    setSquad(teamName, squad);
+    renderSquadCenter();
+}
+function clearSquadSlot(slotId) {
+    const teamName = managerTeamForSquad();
+    if (!teamName) return;
+    const squad = squadFor(teamName);
+    delete squad.lineup[slotId];
+    setSquad(teamName, squad);
+    renderSquadCenter();
+}
+function changeSquadFormation(value) {
+    const teamName = managerTeamForSquad();
+    if (!teamName) return;
+    const squad = squadFor(teamName);
+    squad.formation = value;
+    squad.lineup = {};
+    setSquad(teamName, squad);
+    renderSquadCenter();
+}
+function autoPickLineup() {
+    const teamName = managerTeamForSquad();
+    if (!teamName) return;
+    const formation = $("formation-select")?.value || "4-2-3-1";
+    const slots = squadFormations[formation] || squadFormations["4-2-3-1"];
+    const all = [...getTeamPlayers(teamName)].sort((a,b) => Number(b.overall || 0) - Number(a.overall || 0));
+    const picked = new Set();
+    const squad = { formation, lineup: {}, bench: [] };
+    slots.forEach(slot => {
+        let pick = all.find(p => !picked.has(p.id) && playerGroup(p) === slot.need) || all.find(p => !picked.has(p.id));
+        if (pick) { squad.lineup[slot.id] = pick.id; picked.add(pick.id); }
+    });
+    squad.bench = all.filter(p => !picked.has(p.id)).slice(0, 12).map(p => p.id);
+    setSquad(teamName, squad);
+    renderSquadCenter();
+    showToast("Kadro otomatik dizildi.");
+}
+function saveCurrentSquad() {
+    const teamName = managerTeamForSquad();
+    if (!teamName) return;
+    setStore("squads", squads);
+    showToast(`${teamName} kadrosu kaydedildi.`);
+}
+function resetCurrentSquad() {
+    const teamName = managerTeamForSquad();
+    if (!teamName) return;
+    delete squads[teamName];
+    setStore("squads", squads);
+    renderSquadCenter();
+    showToast("Kadro sıfırlandı.");
+}
+
+Object.assign(window, {
+    toggleLeague, showView, showMainView, showTeamFixture, toggleGameDrawer, closeGameDrawer,
+    openSquadCenter, cycleVisualTheme, openLoginModal, closeLoginModal, loginManager, logoutManager,
+    toggleAdmin, resetDatabase, toggleHubSection, adminAssignTeam, playDemoHighlight, saveMatchScore,
+    changeSquadFormation, autoPickLineup, saveCurrentSquad, resetCurrentSquad,
+    dragSquadPlayer, allowSquadDrop, leaveSquadDrop, dropPlayerToBench, dropPlayerToSlot, clearSquadSlot
+});
+
+init();
+</script>
+
+</body>
+</html>
