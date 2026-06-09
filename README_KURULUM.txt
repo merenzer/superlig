@@ -1,21 +1,26 @@
-DISCORDTOTO MANAGER - GITHUB PAGES SURUMU
+DiscordToto Manager V6 + Taktik Merkezi Kurulum
 
-Bu paket backend gerektirmez. GitHub Pages'e direkt atılabilir.
+1) Eski index.html dosyanı yedekle: index-v6-eski.html gibi.
+2) Bu zip içindeki discordtoto_manager_v6.html dosyasının adını index.html yap.
+3) index.html ile discordtoto_rosters_from_db_v6.js aynı klasörde olsun.
+4) LOGOCUK.png ve LOGOS klasörün aynı yerde kalmalı.
 
-KURULUM:
-1) Bu zip'i çıkar.
-2) index.html, data klasörü ve manager_credentials.csv dosyasını GitHub repo köküne koy.
-3) GitHub -> Settings -> Pages -> Deploy from branch -> main/root seç.
-4) Site açılınca index.html data/*.json dosyalarını fetch ile okur.
+Klasör örneği:
+site-klasörü/
+  index.html
+  discordtoto_rosters_from_db_v6.js
+  LOGOCUK.png
+  LOGOS/
 
-ONEMLI:
-- SQLite .db dosyası tarayıcıda doğrudan çalışmaz. Bu yüzden DB oyuncuları JSON'a çevrildi.
-- Skor/kadro/admin atamaları için önce Firebase denenir. Firebase izin vermezse localStorage'a düşer.
-- localStorage modu sadece o bilgisayarda görünür. Herkesin aynı veriyi görmesi için Firebase Realtime Database kuralları yazmaya izin vermeli veya gerçek backend kullanılmalı.
-- users_demo.json ve manager_credentials.csv sadece prototip içindir. Public GitHub repo'da gerçek şifre tutulmaz. Gerçek yayın için Firebase Auth / Supabase Auth / backend gerekir.
+Bu sürümde eklenenler:
+- Üst menüye TAKTİK sekmesi eklendi.
+- Menajer hesabına göre takım bazlı Taktik Merkezi açılır.
+- Tempo, pres, savunma çizgisi, hücum genişliği, dikeylik, risk ve pas tarzı ayarlanabilir.
+- Dengeli / Önde Bas / Kontra presetleri Firebase'e kaydedilir.
+- Taktik verisi Firebase'de teamTactics/<takim_key> yoluna yazılır.
+- DB verisi hâlâ HTML içine gömülü değildir; roster ayrı JS dosyasından okunur.
 
-ADMIN DEMO:
-username: admin
-password: admin2027
-
-Takım menajer kullanıcıları manager_credentials.csv içinde.
+Not:
+- .js dosyasını tek başına indirmekte sorun çıkarsa bu zip'i indirip klasöre çıkar.
+- Sonraki DB değişimlerinde sadece discordtoto_rosters_from_db_v6.js dosyasını yenilemek yeterli olur.
+- Sıradaki aşamada 2D Maç Merkezi bu taktik değerlerini okuyacak şekilde bağlanabilir.
