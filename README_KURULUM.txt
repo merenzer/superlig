@@ -1,26 +1,23 @@
-DiscordToto Manager V6 + Taktik Merkezi Kurulum
+DiscordToto Manager V23 - Maçkolik Timeline Sadeleştirme
 
-1) Eski index.html dosyanı yedekle: index-v6-eski.html gibi.
-2) Bu zip içindeki discordtoto_manager_v6.html dosyasının adını index.html yap.
-3) index.html ile discordtoto_rosters_from_db_v6.js aynı klasörde olsun.
-4) LOGOCUK.png ve LOGOS klasörün aynı yerde kalmalı.
+Dosyalar:
+- discordtoto_manager_v6.html
+- discordtoto_rosters_from_db_v6.js
+- discordtoto_roster_summary_v6.csv
+- MUSIC/README_MUSIC.txt
 
-Klasör örneği:
-site-klasörü/
-  index.html
-  discordtoto_rosters_from_db_v6.js
-  LOGOCUK.png
-  LOGOS/
+Kurulum:
+1) Bu klasördeki dosyaları aynı yerde tut.
+2) discordtoto_manager_v6.html dosyasını tarayıcıda aç.
+3) Roster verisi HTML içine gömülü değildir; discordtoto_rosters_from_db_v6.js ayrı kalır.
 
-Bu sürümde eklenenler:
-- Üst menüye TAKTİK sekmesi eklendi.
-- Menajer hesabına göre takım bazlı Taktik Merkezi açılır.
-- Tempo, pres, savunma çizgisi, hücum genişliği, dikeylik, risk ve pas tarzı ayarlanabilir.
-- Dengeli / Önde Bas / Kontra presetleri Firebase'e kaydedilir.
-- Taktik verisi Firebase'de teamTactics/<takim_key> yoluna yazılır.
-- DB verisi hâlâ HTML içine gömülü değildir; roster ayrı JS dosyasından okunur.
+V23 değişiklikleri:
+- Penaltı noktasında top/düdük animasyonu kaldırıldı; penaltı artık sade timeline + üst olay kartı olarak gösterilir.
+- Timeline satırları sadeleştirildi: altta olay özeti, üstte olayın nasıl geliştiği anlatılır.
+- Gol satırı artık "Gol · oyuncu (Asist: oyuncu)" mantığıyla akar.
+- Kart, değişiklik, kritik kurtarış ve penaltı satırları daha kısa ve uygulama hissine yakın gösterilir.
+- Gol sonrası VAR kontrolü test akışında 55. dakikaya fırlamıyor; aynı gol dakikasına bağlandı.
+- Olay dakikası artık olayın kendi dakikasından gösterilir, canlı saat ise geriye düşmeden senkron kalır.
 
 Not:
-- .js dosyasını tek başına indirmekte sorun çıkarsa bu zip'i indirip klasöre çıkar.
-- Sonraki DB değişimlerinde sadece discordtoto_rosters_from_db_v6.js dosyasını yenilemek yeterli olur.
-- Sıradaki aşamada 2D Maç Merkezi bu taktik değerlerini okuyacak şekilde bağlanabilir.
+Bu sürüm maç motoru değildir; maç motorunun üreteceği olayları gösterecek Maçkolik/SofaScore tarzı UI altyapısıdır.
