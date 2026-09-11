@@ -64,7 +64,12 @@ function loadDatabase() {
         allClubs = JSON.parse(clubsData).filter(c => c.club_id !== 'FREE_AGENT');
         
         // 2. FBref istatistiklerini oku
-        const fbrefDataRaw = fs.readFileSync(path.join(__dirname, 'fbref_master_data.json'), 'utf8');
+// 2. FBref istatistiklerini oku ve JSON hatasını (NaN) anında düzelt
+        let fbrefDataRaw = fs.readFileSync(path.join(__dirname, 'fbref_master_data.json'), 'utf8');
+        
+        // Geçersiz "NaN" değerlerini JSON'un desteklediği "null" değerine çeviriyoruz
+        fbrefDataRaw = fbrefDataRaw.replace(/:\s*NaN/g, ': null');
+        
         const fbrefData = JSON.parse(fbrefDataRaw);
 
         // 3. Oyuncuları ve istatistikleri ID'ler üzerinden eşleştir
