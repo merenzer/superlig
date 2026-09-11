@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname)); 
 
 let allPlayers = [];
 let allClubs = [];
@@ -42,11 +42,7 @@ function generateRandomFixture(teams) {
     }
 
     rounds = rounds.sort(() => 0.5 - Math.random());
-
-    let secondHalf = rounds.map(round => 
-        round.map(match => ({ home: match.away, away: match.home }))
-    );
-
+    let secondHalf = rounds.map(round => round.map(match => ({ home: match.away, away: match.home })));
     return [...rounds, ...secondHalf];
 }
 
@@ -58,35 +54,48 @@ function initStandings(teams) {
     return standings;
 }
 
-try {
-    // KLASÖR YOLLARI İPTAL EDİLDİ - DİREKT ANA DİZİNDEN OKUYOR
-    const playersData = fs.readFileSync(path.join(__dirname, 'players.json'), 'utf8');
-    allPlayers = JSON.parse(playersData);
-    
-    const clubsData = fs.readFileSync(path.join(__dirname, 'clubs.json'), 'utf8');
-    const rawClubs = JSON.parse(clubsData).filter(c => c.club_id !== 'FREE_AGENT');
-    
-    gameState.leagues[1] = rawClubs.slice(0, 18);
-    gameState.leagues[2] = rawClubs.slice(18, 36);
+function loadDatabase() {
+    try {
+        const playersData = fs.readFileSync(path.join(__dirname, 'players.json'), 'utf8');
+        allPlayers = JSON.parse(playersData);
+        
+        const clubsData = fs.readFileSync(path.join(__dirname, 'clubs.json'), 'utf8');
+        allClubs = JSON.parse(clubsData).filter(c => c.club_id !== 'FREE_AGENT');
+        
+        gameState.leagues[1] = allClubs.slice(0, 18);
+        gameState.leagues[2] = allClubs.slice(18, 36);
 
-    gameState.fixtures[1] = generateRandomFixture(gameState.leagues[1]);
-    gameState.fixtures[2] = generateRandomFixture(gameState.leagues[2]);
-    gameState.standings[1] = initStandings(gameState.leagues[1]);
-    gameState.standings[2] = initStandings(gameState.leagues[2]);
+        gameState.fixtures[1] = generateRandomFixture(gameState.leagues[1]);
+        gameState.fixtures[2] = generateRandomFixture(gameState.leagues[2]);
+        gameState.standings[1] = initStandings(gameState.leagues[1]);
+        gameState.standings[2] = initStandings(gameState.leagues[2]);
 
-    allClubs = rawClubs;
-    console.log(`✅ DTSL Motoru Aktif: ${allClubs.length} Takım, Fikstürler hazır.`);
-} catch (err) {
-    console.log("❌ Veritabanı Hatası: " + err.message);
+        console.log(`✅ Veritabanı yüklendi. ${allClubs.length} takım hazır.`);
+    } catch (err) {
+        console.log("❌ Veritabanı Hatası: " + err.message);
+    }
 }
+
+// Sunucu başlarken veritabanını yükle
+loadDatabase();
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 io.on('connection', (socket) => {
-    socket.emit('init_data', {
-        clubs: allClubs,
-        players: allPlayers,
-        state: gameState
+    // Bağlanan kişiye mevcut kura ve puan durumunu gönder
+    socket.emit('init_data', { clubs: allClubs, players: allPlayers, state: gameState });
+
+    // Admin panelinden kura çekme emri gelirse
+    socket.on('regenerate_fixtures', () => {
+        console.log("🔄 Fikstürler yeniden oluşturuluyor...");
+        gameState.fixtures[1] = generateRandomFixture(gameState.leagues[1]);
+        gameState.fixtures[2] = generateRandomFixture(gameState.leagues[2]);
+        gameState.standings[1] = initStandings(gameState.leagues[1]);
+        gameState.standings[2] = initStandings(gameState.leagues[2]);
+        gameState.currentWeek = 1;
+        
+        // Yeni fikstürü anında o an sitede olan herkese canlı olarak yansıt
+        io.emit('init_data', { clubs: allClubs, players: allPlayers, state: gameState });
     });
 });
 
