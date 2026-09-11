@@ -454,6 +454,13 @@
                         <div class="panel-header">Yedekler <span style="font-size: 0.8em; color: var(--text-muted); font-weight: normal;">Saha ile değiştirmek için sürükleyin</span></div>
                         <div class="t-roster-list" id="t-roster-list"></div>
                     </div>
+
+                    <div style="margin-top: 10px;">
+                        <button class="action-btn primary-btn btn-full" style="font-size: 1.1em; padding: 16px;" onclick="sendTacticsAndPlay()">
+                            ⚔️ Taktikleri Onayla ve Maça Başla
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -810,6 +817,36 @@
             document.getElementById('t-grid-' + group).style.display = 'grid';
             document.querySelectorAll('.fm-tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelector(`.fm-tab-btn[data-target="${group}"]`).classList.add('active');
+        }
+
+        // Taktikleri Sunucuya Gönderme Fonksiyonu
+        function sendTacticsAndPlay() {
+            // 1. Sahadaki oyuncuları filtrele
+            const startingEleven = activeTacticsPlayers.filter(p => p.status === 'pitch');
+            
+            if (startingEleven.length !== 11) {
+                alert("Sahada tam 11 oyuncu olmalı! Lütfen kadroyu tamamlayın.");
+                return;
+            }
+
+            // 2. Taktik kartlarındaki ayarları topla
+            const tacticCards = document.querySelectorAll('.fm-tactic-card');
+            let teamTactics = {};
+            tacticCards.forEach(card => {
+                const title = card.querySelector('.fm-tactic-title').innerText;
+                const value = card.querySelector('.fm-tactic-value').innerText;
+                teamTactics[title] = value;
+            });
+
+            // 3. Veriyi paketle ve sunucuya fırlat
+            const matchData = {
+                formation: currentFormation,
+                lineup: startingEleven,
+                tactics: teamTactics
+            };
+
+            socket.emit('play_match', matchData);
+            alert("Taktikler sunucuya gönderildi! Motor hesaplaması bekleniyor...");
         }
 
         // --- PROFİLLER VE ADMİN ---
