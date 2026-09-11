@@ -8,12 +8,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Public klasöründeki dosyaları dışarı aç
-app.use(express.static(path.join(__dirname, 'public')));
+// Ana dizindeki tüm dosyaları (index.html, resimler vb.) erişime aç
+app.use(express.static(__dirname));
 
 // JSON Veritabanlarını Yükle
 let tumOyuncular = [];
 let tumTakimlar = [];
+
 try {
     const playersData = fs.readFileSync(path.join(__dirname, 'data', 'players.json'), 'utf8');
     tumOyuncular = JSON.parse(playersData);
@@ -23,25 +24,27 @@ try {
     
     console.log(`✅ Veritabanı Yüklendi: ${tumTakimlar.length} Takım, ${tumOyuncular.length} Oyuncu hazır.`);
 } catch (err) {
-    console.log("❌ Veritabanı Hatası: Lütfen 'data' klasöründe players.json ve clubs.json olduğundan emin ol. Detay: " + err.message);
+    console.log("❌ Veritabanı Hatası: " + err.message);
 }
 
+// Ana sayfaya girildiğinde index.html'i gönder
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Kullanıcı siteye girdiğinde çalışacak Socket.io bağlantısı
 io.on('connection', (socket) => {
     console.log('🔗 Bir menajer bağlandı:', socket.id);
     
-    // Bağlanan kullanıcıya tüm gerçek verileri (Takımlar ve Oyuncular) gönder
+    // Bağlanan kullanıcıya gerçek verileri gönder
     socket.emit('init_data', {
         clubs: tumTakimlar,
         players: tumOyuncular
     });
 });
 
-const PORT = 3000;
+// Render.com'un atadığı dinamik portu kullan, lokaldeysen 3000 kullan
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 AFYS Sunucusu Başladı! Tarayıcıdan git: http://localhost:${PORT}`);
+    console.log(`🚀 AFYS Sunucusu Başladı! Port: ${PORT}`);
 });
