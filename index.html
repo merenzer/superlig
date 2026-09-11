@@ -98,7 +98,7 @@
         .nav-link:hover { color: var(--text-main); }
         .nav-link.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); }
 
-        /* --- ORTAK PANEL STİLLERİ --- */
+        /* --- ORTAK PANEL STİLLER --- */
         .dashboard-container { max-width: 1400px; margin: 24px auto; padding: 0 24px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease forwards; }
@@ -183,7 +183,7 @@
         .hero-team.home { justify-content: flex-end; }
         .hero-team.away { justify-content: flex-start; }
         .hero-team-name { font-size: 1.2em; font-weight: 700; margin: 0; }
-        .hero-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 900; }
+        .hero-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 900; overflow:hidden;}
         .hero-score-board { display: flex; flex-direction: column; align-items: center; padding: 0 40px; text-align: center; }
         .hero-score { font-size: 2.5em; font-weight: 900; letter-spacing: 2px; line-height: 1; }
         .hero-status { color: var(--text-muted); font-size: 0.85em; font-weight: 600; margin: 8px 0; text-transform: uppercase; }
@@ -370,7 +370,7 @@
     <header class="main-header">
         <div class="header-top">
             <div class="brand-logo">
-                <img id="header-logo" src="logo%201.png" alt="Logo">
+                <img id="header-logo" src="logo1.png" alt="Logo">
                 <span id="league-title-header">DTSL 1. Lig</span>
             </div>
             <div class="header-actions">
@@ -833,14 +833,15 @@
                     else if (rank >= 17) rankClass = 'rank-red';
                 }
 
-                const logoUrl = `https://tmssl.akamaized.net/images/wappen/head/${team.club_id}.png`;
+                // Transfermarkt Hotlink Korumasını Aşmak İçin Wsrv Proxy Kullanıyoruz
+                const logoUrl = `https://wsrv.nl/?url=tmssl.akamaized.net/images/wappen/tiny/${team.club_id}.png`;
                 const mockForm = ['W','D','L','W','W']; 
 
                 tbody.innerHTML += `
                     <tr class="${rankClass}">
                         <td>${rank}</td>
                         <td class="team-cell" style="display:flex; align-items:center; gap:10px;" onclick="openTeamDetail('${team.name}')">
-                            <img src="${logoUrl}" width="22" height="22" style="object-fit:contain;" onerror="this.style.display='none'">
+                            <img src="${logoUrl}" width="22" height="22" style="object-fit:contain;" alt="${team.name}">
                             ${team.name}
                         </td>
                         <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
@@ -876,7 +877,7 @@
                 logo.src = 'logo2.png';
                 currentLeague = 2;
             } else {
-                logo.src = 'logo%201.png';
+                logo.src = 'logo1.png';
                 currentLeague = 1;
             }
             renderStandings();
@@ -932,7 +933,8 @@
                     name: p.name.split(' ').pop(), 
                     pos: p.position,
                     value: p.market_value,
-                    photoUrl: `https://img.a.transfermarkt.technology/portrait/header/${p.player_id}.jpg`,
+                    // Transfermarkt Hotlink Korumasını Aşmak İçin Wsrv Proxy Kullanıyoruz
+                    photoUrl: `https://wsrv.nl/?url=img.a.transfermarkt.technology/portrait/header/${p.player_id}.jpg`,
                     status: i < 11 ? 'pitch' : 'bench',
                     x: i < 11 ? formations[currentFormation][i].x : 0,
                     y: i < 11 ? formations[currentFormation][i].y : 0
