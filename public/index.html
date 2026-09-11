@@ -221,7 +221,12 @@
         .tl-divider { text-align: center; padding: 8px; background: var(--border-color); width: 100px; margin: 20px auto; border-radius: 20px; font-weight: 800; font-size: 0.8em; color: var(--text-muted); position: relative; z-index: 2; }
 
         .formations-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; font-weight: 700; font-size: 0.9em; }
-        
+        .team-color { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+        .team-color.home { background: #10B981; }
+        .team-color.away { background: #8B5CF6; }
+        .rating-badge { background: #10B981; color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 6px;}
+
+        /* Saha Konteyneri (İki Sekme İçin Ortak) */
         .pitch-container, .t-pitch { 
             width: 100%; height: 640px; background: linear-gradient(180deg, #1e2024 0%, #111215 100%); 
             border: 2px solid rgba(255,255,255,0.05); border-radius: 16px; position: relative; overflow: hidden; 
@@ -233,6 +238,7 @@
         .t-penalty-box-top { position: absolute; top: 0; left: 20%; right: 20%; height: 15%; border: 2px solid rgba(255,255,255,0.08); border-top: none; }
         .t-penalty-box-bottom { position: absolute; bottom: 0; left: 20%; right: 20%; height: 15%; border: 2px solid rgba(255,255,255,0.08); border-bottom: none; }
 
+        /* YUVARLAK OYUNCU FORMASI (SOFASCORE STİLİ) */
         .player-dot, .t-player { 
             position: absolute; display: flex; flex-direction: column; align-items: center; 
             transform: translate(-50%, -50%); transition: filter 0.2s; z-index: 10; 
@@ -270,23 +276,36 @@
         .stat-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 24px; background: var(--bg-base); border: 1px solid var(--border-color);}
         .stat-bar-container .s-bar.home { background: #10B981; }
         .stat-bar-container .s-bar.away { background: #8B5CF6; }
+
         .stat-bar-split { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .s-bar-half { flex: 1; background: var(--bg-base); height: 6px; border-radius: 3px; overflow: hidden; }
         .s-bar-half.right { display: flex; justify-content: flex-end; }
         .s-fill.home { background: #10B981; height: 100%; }
         .s-fill.away { background: #8B5CF6; height: 100%; }
 
-        /* --- SEKME 4: KADRO & TAKTİK --- */
+        /* --- SEKME 4: KADRO & TAKTİK EKRANI --- */
         .tactics-layout { display: grid; grid-template-columns: 460px 1fr; gap: 24px; align-items: start; }
+
         .tactics-right-col { display: flex; flex-direction: column; gap: 24px; }
+
         .fm-tactics-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
         .fm-tab-btn { flex: 1; padding: 18px 14px; background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.95em; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-family: inherit; }
         .fm-tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
         .fm-tab-btn.active { color: var(--text-main); border-bottom-color: var(--theme-primary); background: rgba(255,255,255,0.04); }
 
         .fm-tactics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px; }
-        .fm-tactic-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; transition: all 0.25s ease; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .fm-tactic-card:hover { border-color: var(--theme-primary); background: rgba(255,255,255,0.06); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        
+        .fm-tactic-card {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 20px 12px; text-align: center;
+            cursor: pointer; transition: all 0.25s ease; user-select: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            height: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .fm-tactic-card:hover { 
+            border-color: var(--theme-primary); background: rgba(255,255,255,0.06); 
+            transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
         .fm-tactic-title { font-size: 0.8em; color: var(--theme-primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;}
         .fm-tactic-icon { font-size: 2.2em; margin-bottom: 8px; filter: grayscale(1); opacity: 0.9;}
         .fm-tactic-value { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; font-size: 0.8em; font-weight: 800; color: #fff; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
@@ -295,7 +314,11 @@
         .t-roster-list::-webkit-scrollbar { width: 6px; }
         .t-roster-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         
-        .t-roster-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; cursor: grab; transition: 0.2s; }
+        .t-roster-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px; cursor: grab; transition: 0.2s;
+        }
         .t-roster-item:hover { border-color: var(--theme-primary); background: rgba(255,255,255,0.05);}
         .t-roster-info { display: flex; align-items: center; gap: 12px; font-size: 0.85em; font-weight: 600; }
         .t-roster-pos { color: var(--theme-primary); font-weight: 800; width: 30px; }
@@ -311,41 +334,19 @@
         .pm-body { padding: 20px; }
         .pm-name { font-size: 1.3em; font-weight: 800; margin: 0 0 4px 0; }
         .pm-pos { color: var(--theme-primary); font-weight: 700; font-size: 0.9em; margin-bottom: 20px; }
+        
         .pm-stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.85em; font-weight: 600; }
         .pm-stat-bar { flex: 1; height: 6px; background: var(--bg-base); border-radius: 3px; margin: 0 15px; overflow: hidden;}
         .pm-stat-fill { height: 100%; background: #10B981; }
 
-        /* =========================================
-           YENİ: ADMIN PANELİ (KONTROL MERKEZİ)
-           ========================================= */
-        .admin-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-            align-items: start;
-        }
-
-        .admin-form-group {
-            display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
-        }
-        .admin-form-group label {
-            font-size: 0.85em; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
-        }
-        .admin-input {
-            background: var(--bg-base); border: 1px solid var(--border-color);
-            color: var(--text-main); padding: 12px 16px; border-radius: 8px;
-            font-family: inherit; font-weight: 600; outline: none; transition: 0.2s;
-        }
+        /* --- ADMIN PANELİ --- */
+        .admin-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; align-items: start; }
+        .admin-form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .admin-form-group label { font-size: 0.85em; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .admin-input { background: var(--bg-base); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; outline: none; transition: 0.2s; }
         .admin-input:focus { border-color: var(--theme-primary); }
-        
-        .admin-alert {
-            background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--rank-red);
-            padding: 12px 16px; font-size: 0.85em; font-weight: 600; margin-bottom: 20px; border-radius: 0 8px 8px 0;
-        }
-
+        .admin-alert { background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--rank-red); padding: 12px 16px; font-size: 0.85em; font-weight: 600; margin-bottom: 20px; border-radius: 0 8px 8px 0; }
         .btn-full { width: 100%; padding: 12px; font-size: 1em; margin-top: 10px; }
-
-        /* Admin Login Modal */
         #admin-login-modal .player-modal { width: 400px; }
 
         @media (max-width: 1200px) {
@@ -568,7 +569,7 @@
             </div>
         </section>
 
-        <!-- SEKME 4: KADRO & TAKTİK -->
+        <!-- SEKME 4: KADRO & TAKTİK (FM26 Arayüzü) -->
         <section id="view-tactics" class="tab-content">
             <div class="tactics-layout">
                 <div class="panel">
@@ -627,8 +628,6 @@
         <!-- YENİ SEKME: ADMIN PANELİ (KONTROL MERKEZİ) -->
         <section id="view-admin" class="tab-content">
             <div class="admin-layout">
-                
-                <!-- 1. Yeni Üye Kaydı ve Takım Atama -->
                 <div class="panel">
                     <div class="panel-header" style="color: var(--theme-primary);">👥 Yeni Menajer Kaydı</div>
                     <div style="padding: 20px;">
@@ -641,8 +640,6 @@
                             <label>Yaş</label>
                             <input type="number" class="admin-input" placeholder="Örn: 50">
                         </div>
-                        
-                        <!-- YENİ EKLENEN BOT / KULLANICI AYRIMI -->
                         <div class="admin-form-group">
                             <label>Menajer Tipi</label>
                             <select class="admin-input" id="manager-type" onchange="toggleManagerFields()">
@@ -662,7 +659,6 @@
                                 <option>Dengeli / Taktiksel</option>
                             </select>
                         </div>
-                        
                         <div class="admin-form-group" style="margin-top: 16px;">
                             <label>Yöneteceği Takım (Opsiyonel)</label>
                             <select class="admin-input">
@@ -676,7 +672,6 @@
                     </div>
                 </div>
 
-                <!-- 2. Takım ve Transfer Kontrolü -->
                 <div class="panel">
                     <div class="panel-header" style="color: var(--theme-primary);">🛡️ Takım & Transfer Kontrolü</div>
                     <div style="padding: 20px;">
@@ -690,9 +685,7 @@
                             </select>
                         </div>
                         <button class="action-btn btn-full" style="border-color: var(--rank-red); color: var(--rank-red); margin-bottom: 15px;" onclick="alert('Teknik direktör kovuldu. Takım şu an BOT tarafından yönetiliyor.')">Mevcut Hocayı Kov (Bot'a Çevir)</button>
-                        
                         <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
-                        
                         <div class="admin-form-group">
                             <label>Bug Düzeltme: Manuel Oyuncu Transferi</label>
                             <input type="text" class="admin-input" placeholder="Oyuncu Adı (Örn: Icardi)">
@@ -709,7 +702,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Fikstür ve Saat Atama (Müdahale) -->
                 <div class="panel">
                     <div class="panel-header" style="color: var(--theme-primary);">📅 Fikstür & Maç Müdahalesi</div>
                     <div style="padding: 20px;">
@@ -728,8 +720,6 @@
                                 <option>Göztepe - Alanyaspor (Şu an: 21:45)</option>
                             </select>
                         </div>
-                        
-                        <!-- YENİ EKLENEN TEK MAÇ / TÜM HAFTA AYRIMI -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="admin-form-group">
                                 <label>Tarih/Saat</label>
@@ -740,18 +730,10 @@
                                 <button class="action-btn primary-btn btn-full" style="margin:0;" onclick="alert('Bu saat TÜM HAFTA maçlarına uygulandı.')">Tüm Haftaya Uygula</button>
                             </div>
                         </div>
-
                         <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
-
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="admin-form-group">
-                                <label>Ev Sahibi Skor</label>
-                                <input type="number" class="admin-input" placeholder="0" min="0">
-                            </div>
-                            <div class="admin-form-group">
-                                <label>Deplasman Skor</label>
-                                <input type="number" class="admin-input" placeholder="0" min="0">
-                            </div>
+                            <div class="admin-form-group"><label>Ev Sahibi Skor</label><input type="number" class="admin-input" placeholder="0" min="0"></div>
+                            <div class="admin-form-group"><label>Deplasman Skor</label><input type="number" class="admin-input" placeholder="0" min="0"></div>
                         </div>
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
                             <button class="action-btn primary-btn btn-full" onclick="alert('Skor başarıyla güncellendi.')">Skoru Zorla Kaydet</button>
@@ -797,23 +779,29 @@
         </div>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        // --- SEKME GEÇİŞLERİ VE TEMEL FONKSİYONLAR ---
+        // --- SEKME GEÇİŞLERİ ---
         function switchNavTab(tabId, el) {
             document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
             el.classList.add('active');
-
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('view-' + tabId).classList.add('active');
         }
 
-        const lig1Teams = [
-            { name: "Galatasaray", pts: 54, form: ['W','W','W','D','W'] }, { name: "Fenerbahçe", pts: 52, form: ['W','W','D','W','L'] }, 
-            { name: "Beşiktaş JK", pts: 50, form: ['W','D','W','W','W'] }, { name: "Trabzonspor", pts: 42, form: ['L','W','W','D','L'] }, 
-            { name: "Kasımpaşa SK", pts: 35, form: ['W','L','L','W','D'] }, { name: "Göztepe", pts: 33, form: ['D','D','L','W','W'] }
-        ];
-
+        // --- SUNUCU BAĞLANTISI VE GERÇEK VERİLER ---
+        const socket = io();
         let currentLeague = 1;
+        let allClubs = [];
+        let allPlayers = [];
+
+        socket.on('init_data', (data) => {
+            allClubs = data.clubs.filter(c => c.club_id !== 'FREE_AGENT'); 
+            allPlayers = data.players;
+            console.log("Veriler başarıyla alındı:", allClubs.length, "Takım");
+            renderStandings();
+            initRealTactics(); 
+        });
 
         function buildFormBadges(formArray) {
             return `<div class="form-container">${formArray.map(item => `<div class="form-pill form-${item.toLowerCase()}">${item}</div>`).join('')}</div>`;
@@ -821,18 +809,62 @@
 
         function renderStandings() {
             const tbody = document.getElementById('standings-body');
-            document.getElementById('league-title-header').innerText = currentLeague === 1 ? 'Trendyol 1. Lig' : 'Trendyol 2. Lig';
+            const legend = document.getElementById('table-legend');
+            const headerTitle = document.getElementById('league-title-header');
+            
+            headerTitle.innerText = currentLeague === 1 ? 'Trendyol 1. Lig' : 'Trendyol 2. Lig';
             tbody.innerHTML = '';
             
-            lig1Teams.forEach((team, index) => {
-                let rankClass = index === 0 ? 'rank-gold' : index === 1 ? 'rank-blue' : index === 5 ? 'rank-red' : '';
+            const teams = currentLeague === 1 ? allClubs.slice(0, 18) : allClubs.slice(18, 38);
+
+            teams.forEach((team, index) => {
+                let rankClass = '';
+                let rank = index + 1;
+
+                if (currentLeague === 1) {
+                    if (rank === 1) rankClass = 'rank-gold';
+                    else if (rank === 2) rankClass = 'rank-blue';
+                    else if (rank === 3) rankClass = 'rank-orange';
+                    else if (rank === 4) rankClass = 'rank-green';
+                    else if (rank >= 16) rankClass = 'rank-red';
+                } else {
+                    if (rank === 1 || rank === 2) rankClass = 'rank-green';
+                    else if (rank === 3) rankClass = 'rank-yellow';
+                    else if (rank >= 4 && rank <= 7) rankClass = 'rank-blue';
+                    else if (rank >= 17) rankClass = 'rank-red';
+                }
+
+                const logoUrl = `https://tmssl.akamaized.net/images/wappen/head/${team.club_id}.png`;
+                const mockForm = ['W','D','L','W','W']; 
+
                 tbody.innerHTML += `
                     <tr class="${rankClass}">
-                        <td>${index+1}</td><td class="team-cell">${team.name}</td>
-                        <td>22</td><td>10</td><td>5</td><td>7</td><td>+5</td><td class="points">${team.pts}</td>
-                        <td>${buildFormBadges(team.form)}</td>
-                    </tr>`;
+                        <td>${rank}</td>
+                        <td class="team-cell" style="display:flex; align-items:center; gap:10px;" onclick="openTeamDetail('${team.name}')">
+                            <img src="${logoUrl}" width="22" height="22" style="object-fit:contain;" onerror="this.style.display='none'">
+                            ${team.name}
+                        </td>
+                        <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+                        <td class="points">0</td>
+                        <td>${buildFormBadges(mockForm)}</td>
+                    </tr>
+                `;
             });
+
+            if (currentLeague === 1) {
+                legend.innerHTML = `
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-gold)"></div> Şampiyon</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-blue)"></div> Şampiyonlar Ligi Elemesi</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-orange)"></div> Avrupa Ligi Elemesi</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-red)"></div> Küme Düşme</div>
+                `;
+            } else {
+                legend.innerHTML = `
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-green)"></div> Doğrudan Yükselme</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-blue)"></div> Play-off Çeyrek Final</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--rank-red)"></div> Küme Düşme</div>
+                `;
+            }
         }
 
         function toggleLeagueTheme() {
@@ -845,11 +877,9 @@
             document.getElementById('md-home-name').innerText = home;
             document.getElementById('md-away-name').innerText = away;
             document.getElementById('md-score').innerText = `${hScore} - ${aScore}`;
-            
             const statusEl = document.getElementById('md-status');
             statusEl.innerText = isLive ? `Canlı ${time}'` : time;
             statusEl.style.color = isLive ? 'var(--theme-primary)' : 'var(--text-muted)';
-
             const matchTab = document.getElementById('match-nav-link');
             matchTab.style.display = 'block';
             switchNavTab('match-detail', matchTab);
@@ -863,49 +893,43 @@
             document.getElementById('m-tab-' + tabId).classList.add('active');
         }
 
-        renderStandings();
-
         // ==========================================
-        // KADRO & TAKTİK DÜZENLEME SİSTEMİ (FM26)
+        // KADRO & TAKTİK DÜZENLEME SİSTEMİ (GERÇEK VERİLERLE)
         // ==========================================
-
-        let players = [
-            { id: "p1", no: 40, name: "Livaković", pos: "GK", rating: 8.2, att: 15, def: 84, phy: 75, form: "İyi" },
-            { id: "p2", no: 7, name: "Kadıoğlu", pos: "LB", rating: 8.0, att: 78, def: 74, phy: 88, form: "Mükemmel" },
-            { id: "p3", no: 6, name: "Djiku", pos: "CB", rating: 7.9, att: 40, def: 81, phy: 80, form: "Normal" },
-            { id: "p4", no: 50, name: "Becão", pos: "CB", rating: 7.8, att: 35, def: 80, phy: 84, form: "Kötü" },
-            { id: "p5", no: 21, name: "Osayi", pos: "RB", rating: 7.7, att: 70, def: 73, phy: 89, form: "İyi" },
-            { id: "p6", no: 5, name: "Yüksek", pos: "CDM", rating: 7.8, att: 65, def: 80, phy: 85, form: "Mükemmel" },
-            { id: "p7", no: 35, name: "Fred", pos: "CDM", rating: 8.4, att: 76, def: 78, phy: 82, form: "İyi" },
-            { id: "p8", no: 10, name: "Tadić", pos: "CAM", rating: 8.3, att: 84, def: 45, phy: 74, form: "Normal" },
-            { id: "p9", no: 53, name: "Szymański", pos: "LW", rating: 8.1, att: 83, def: 50, phy: 76, form: "Mükemmel" },
-            { id: "p10", no: 17, name: "Kahveci", pos: "RW", rating: 8.0, att: 82, def: 55, phy: 75, form: "İyi" },
-            { id: "p11", no: 9, name: "Džeko", pos: "ST", rating: 8.2, att: 86, def: 30, phy: 70, form: "Kötü" },
-            { id: "p12", no: 70, name: "Eğribayat", pos: "GK", rating: 7.2, att: 10, def: 73, phy: 70, form: "Normal" },
-            { id: "p13", no: 4, name: "S. Aziz", pos: "CB", rating: 7.4, att: 30, def: 76, phy: 78, form: "Kötü" },
-            { id: "p14", no: 26, name: "M. Zajc", pos: "CM", rating: 7.5, att: 72, def: 65, phy: 74, form: "Normal" },
-            { id: "p15", no: 23, name: "Batshuayi", pos: "ST", rating: 7.9, att: 82, def: 35, phy: 76, form: "İyi" }
-        ];
-
+        let activeTacticsPlayers = [];
+        
         const formations = {
             "4-2-3-1": [ {x: 50, y: 90}, {x: 15, y: 70}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 70}, {x: 35, y: 55}, {x: 65, y: 55}, {x: 15, y: 35}, {x: 50, y: 40}, {x: 85, y: 35}, {x: 50, y: 15} ],
             "4-3-3": [ {x: 50, y: 90}, {x: 15, y: 75}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 75}, {x: 30, y: 55}, {x: 50, y: 60}, {x: 70, y: 55}, {x: 25, y: 25}, {x: 50, y: 15}, {x: 75, y: 25} ],
             "3-5-2": [ {x: 50, y: 90}, {x: 30, y: 75}, {x: 50, y: 80}, {x: 70, y: 75}, {x: 15, y: 50}, {x: 35, y: 55}, {x: 65, y: 55}, {x: 85, y: 50}, {x: 50, y: 40}, {x: 35, y: 15}, {x: 65, y: 15} ],
-            "4-4-2": [ {x: 50, y: 90}, {x: 15, y: 75}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 75}, {x: 15, y: 45}, {x: 35, y: 50}, {x: 65, y: 50}, {x: 85, y: 45}, {x: 35, y: 15}, {x: 65, y: 15} ],
-            "5-3-2": [ {x: 50, y: 90}, {x: 15, y: 65}, {x: 30, y: 75}, {x: 50, y: 80}, {x: 70, y: 75}, {x: 85, y: 65}, {x: 30, y: 45}, {x: 50, y: 50}, {x: 70, y: 45}, {x: 35, y: 15}, {x: 65, y: 15} ]
+            "custom": []
         };
 
         let currentFormation = "4-2-3-1";
-        players.forEach((p, i) => {
-            if (i < 11) { p.status = 'pitch'; p.x = formations[currentFormation][i].x; p.y = formations[currentFormation][i].y; }
-            else { p.status = 'bench'; }
-        });
 
-        function getRatingColor(rating) {
-            if(rating >= 8.0) return '#3B82F6'; 
-            if(rating >= 7.5) return '#10B981'; 
-            if(rating >= 7.0) return '#F59E0B'; 
+        function getRatingColor(valueStr) {
+            const val = parseFloat(valueStr) || 0;
+            if(val >= 10) return '#3B82F6'; 
+            if(val >= 5) return '#10B981'; 
+            if(val >= 1) return '#F59E0B'; 
             return '#EF4444'; 
+        }
+
+        function initRealTactics() {
+            const teamPlayers = allPlayers.filter(p => p.club_id === "141"); 
+            activeTacticsPlayers = teamPlayers.map((p, i) => {
+                return {
+                    id: p.player_id,
+                    name: p.name.split(' ').pop(), 
+                    pos: p.position,
+                    value: p.market_value,
+                    photoUrl: `https://img.a.transfermarkt.technology/portrait/header/${p.player_id}.jpg`,
+                    status: i < 11 ? 'pitch' : 'bench',
+                    x: i < 11 ? formations[currentFormation][i].x : 0,
+                    y: i < 11 ? formations[currentFormation][i].y : 0
+                };
+            });
+            renderTactics();
         }
 
         function renderTactics() {
@@ -915,14 +939,14 @@
             pitchContainer.innerHTML = '';
             benchContainer.innerHTML = '';
 
-            players.forEach(p => {
-                const ratingColor = getRatingColor(p.rating);
+            activeTacticsPlayers.forEach(p => {
+                const ratingColor = getRatingColor(p.value);
+                const avatarHtml = `<img src="${p.photoUrl}" class="p-avatar" style="object-fit:cover; border-color:${ratingColor};" onerror="this.outerHTML='<div class=\\'p-avatar\\' style=\\'background:${ratingColor};\\'>${p.name.charAt(0)}</div>'">`;
 
                 if (p.status === 'pitch') {
                     pitchContainer.innerHTML += `
-                        <div class="t-player" data-id="${p.id}" style="left: ${p.x}%; top: ${p.y}%;" draggable="true" ondragstart="handleDragStart(event)" onclick="openPlayerModal('${p.name}', '${p.pos}', ${p.rating}, ${p.att}, ${p.def}, ${p.phy}, '${p.form}')">
-                            <div class="p-avatar">${p.no}</div>
-                            <div class="p-rating-badge" style="background: ${ratingColor};">${p.rating.toFixed(1)}</div>
+                        <div class="t-player" data-id="${p.id}" style="left: ${p.x}%; top: ${p.y}%;" draggable="true" ondragstart="handleDragStart(event)" onclick="openPlayerModal('${p.name}', '${p.pos}', '${p.value}')">
+                            ${avatarHtml}
                             <div class="p-name">${p.name}</div>
                         </div>`;
                 } else {
@@ -930,73 +954,37 @@
                         <div class="t-roster-item" data-id="${p.id}" draggable="true" ondragstart="handleDragStart(event)">
                             <div class="t-roster-info">
                                 <span class="t-roster-pos">${p.pos}</span>
-                                <span style="font-size: 1.1em;">${p.name} <span style="color:var(--text-muted); font-size:0.8em;">#${p.no}</span></span>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    ${avatarHtml}
+                                    <span style="font-size: 1em;">${p.name}</span>
+                                </div>
                             </div>
-                            <div class="t-roster-rating" style="background: ${ratingColor}; color: #000;">${p.rating.toFixed(1)}</div>
+                            <div class="t-roster-rating" style="background: ${ratingColor}; color: #fff;">${p.value}</div>
                         </div>`;
                 }
             });
         }
 
-        function cycleTactic(el, options) {
-            const valueDiv = el.querySelector('.fm-tactic-value');
-            let current = valueDiv.innerText;
-            let idx = options.indexOf(current);
-            valueDiv.innerText = options[(idx + 1) % options.length];
-        }
-
-        function switchTacticTab(group) {
-            document.querySelectorAll('.fm-tactics-grid').forEach(g => g.style.display = 'none');
-            document.getElementById('t-grid-' + group).style.display = 'grid';
-            
-            document.querySelectorAll('.fm-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector(`.fm-tab-btn[data-target="${group}"]`).classList.add('active');
-        }
-
-        function changeFormation(val) {
-            if (val === 'custom') return; 
-            const pitchPlayers = players.filter(p => p.status === 'pitch');
-            const preset = formations[val];
-            
-            if (preset && pitchPlayers.length <= preset.length) {
-                pitchPlayers.forEach((p, i) => { p.x = preset[i].x; p.y = preset[i].y; });
-                renderTactics();
-            }
-        }
-
         let draggedId = null;
-
-        function handleDragStart(e) {
-            draggedId = e.target.closest('[data-id]').getAttribute('data-id');
-            e.dataTransfer.effectAllowed = "move";
-        }
-
+        function handleDragStart(e) { draggedId = e.target.closest('[data-id]').getAttribute('data-id'); e.dataTransfer.effectAllowed = "move"; }
         function allowDrop(e) { e.preventDefault(); }
 
         function handlePitchDrop(e) {
             e.preventDefault();
             const targetPlayerEl = e.target.closest('.t-player');
-
             if (targetPlayerEl && targetPlayerEl.getAttribute('data-id') !== draggedId) {
                 swapPlayers(draggedId, targetPlayerEl.getAttribute('data-id'));
             } else {
                 const pitchRect = document.getElementById('t-pitch').getBoundingClientRect();
-                let newX = ((e.clientX - pitchRect.left) / pitchRect.width) * 100;
-                let newY = ((e.clientY - pitchRect.top) / pitchRect.height) * 100;
+                let newX = Math.max(5, Math.min(95, ((e.clientX - pitchRect.left) / pitchRect.width) * 100));
+                let newY = Math.max(5, Math.min(95, ((e.clientY - pitchRect.top) / pitchRect.height) * 100));
                 
-                newX = Math.max(5, Math.min(95, newX));
-                newY = Math.max(5, Math.min(95, newY));
-
-                const p1 = players.find(p => p.id === draggedId);
-                
+                const p1 = activeTacticsPlayers.find(p => p.id === draggedId);
                 if (p1.status === 'bench') {
-                    const firstPitchPlayer = players.find(p => p.status === 'pitch');
-                    if (firstPitchPlayer) firstPitchPlayer.status = 'bench';
+                    const firstPitch = activeTacticsPlayers.find(p => p.status === 'pitch');
+                    if (firstPitch) firstPitch.status = 'bench';
                 }
-
-                p1.status = 'pitch';
-                p1.x = newX; p1.y = newY;
-                
+                p1.status = 'pitch'; p1.x = newX; p1.y = newY;
                 document.getElementById('formation-select').value = 'custom';
                 renderTactics();
             }
@@ -1004,84 +992,67 @@
 
         function handleBenchDrop(e) {
             e.preventDefault();
-            const p1 = players.find(p => p.id === draggedId);
-            
+            const p1 = activeTacticsPlayers.find(p => p.id === draggedId);
             if (p1.status === 'pitch') {
-                const firstBenchPlayer = players.find(p => p.status === 'bench');
-                if (firstBenchPlayer) {
-                    firstBenchPlayer.status = 'pitch';
-                    firstBenchPlayer.x = p1.x; firstBenchPlayer.y = p1.y;
-                }
+                const firstBench = activeTacticsPlayers.find(p => p.status === 'bench');
+                if (firstBench) { firstBench.status = 'pitch'; firstBench.x = p1.x; firstBench.y = p1.y; }
             }
             p1.status = 'bench';
             renderTactics();
         }
 
         function swapPlayers(id1, id2) {
-            const p1 = players.find(p => p.id === id1);
-            const p2 = players.find(p => p.id === id2);
-
-            if (p1.status === 'bench' && p2.status === 'pitch') {
-                p1.status = 'pitch'; p1.x = p2.x; p1.y = p2.y; p2.status = 'bench';
-            } else if (p1.status === 'pitch' && p2.status === 'bench') {
-                p2.status = 'pitch'; p2.x = p1.x; p2.y = p1.y; p1.status = 'bench';
-            } else if (p1.status === 'pitch' && p2.status === 'pitch') {
-                const tempX = p1.x; const tempY = p1.y;
-                p1.x = p2.x; p1.y = p2.y;
-                p2.x = tempX; p2.y = tempY;
-            }
+            const p1 = activeTacticsPlayers.find(p => p.id === id1);
+            const p2 = activeTacticsPlayers.find(p => p.id === id2);
+            if (p1.status === 'bench' && p2.status === 'pitch') { p1.status = 'pitch'; p1.x = p2.x; p1.y = p2.y; p2.status = 'bench'; } 
+            else if (p1.status === 'pitch' && p2.status === 'bench') { p2.status = 'pitch'; p2.x = p1.x; p2.y = p1.y; p1.status = 'bench'; } 
+            else if (p1.status === 'pitch' && p2.status === 'pitch') { const tx = p1.x; const ty = p1.y; p1.x = p2.x; p1.y = p2.y; p2.x = tx; p2.y = ty; }
             renderTactics();
         }
 
-        function openPlayerModal(name, pos, rating, att, def, phy, form) {
-            document.getElementById('pm-name').innerText = name;
-            document.getElementById('pm-pos').innerText = pos;
-            document.getElementById('pm-rating').innerText = rating.toFixed(1);
-            document.getElementById('pm-att').style.width = att + '%'; document.getElementById('pm-att-val').innerText = att;
-            document.getElementById('pm-def').style.width = def + '%'; document.getElementById('pm-def-val').innerText = def;
-            document.getElementById('pm-phy').style.width = phy + '%'; document.getElementById('pm-phy-val').innerText = phy;
-            
-            const formEl = document.getElementById('pm-form'); formEl.innerText = form;
-            formEl.style.color = form === 'Kötü' ? '#EF4444' : form === 'Normal' ? '#F59E0B' : '#10B981';
-            document.getElementById('player-modal').classList.add('active');
-        }
-
-        function closePlayerModal() { document.getElementById('player-modal').classList.remove('active'); }
-
-        renderTactics();
-
-        // ==========================================
-        // ADMIN PANEL MANTIĞI
-        // ==========================================
-        function openAdminLogin() {
-            document.getElementById('admin-login-modal').classList.add('active');
-            document.getElementById('admin-pw').value = '';
-            document.getElementById('admin-pw').focus();
-        }
-
-        function closeAdminLogin() {
-            document.getElementById('admin-login-modal').classList.remove('active');
-        }
-
-        function verifyAdmin() {
-            const pw = document.getElementById('admin-pw').value;
-            if (pw === 'admin123') {
-                closeAdminLogin();
-                const adminTab = document.getElementById('admin-nav-link');
-                adminTab.style.display = 'block';
-                switchNavTab('admin', adminTab);
-            } else {
-                alert('Hatalı Şifre!');
+        function changeFormation(val) {
+            if (val === 'custom') return; 
+            const pitchPlayers = activeTacticsPlayers.filter(p => p.status === 'pitch');
+            const preset = formations[val];
+            if (preset && pitchPlayers.length <= preset.length) {
+                pitchPlayers.forEach((p, i) => { p.x = preset[i].x; p.y = preset[i].y; });
+                currentFormation = val;
+                renderTactics();
             }
         }
 
-        // YENİ EKLENEN: Menajer tipine göre giriş alanlarını gizle/göster
+        function cycleTactic(el, options) {
+            const valueDiv = el.querySelector('.fm-tactic-value');
+            valueDiv.innerText = options[(options.indexOf(valueDiv.innerText) + 1) % options.length];
+        }
+
+        function switchTacticTab(group) {
+            document.querySelectorAll('.fm-tactics-grid').forEach(g => g.style.display = 'none');
+            document.getElementById('t-grid-' + group).style.display = 'grid';
+            document.querySelectorAll('.fm-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.fm-tab-btn[data-target="${group}"]`).classList.add('active');
+        }
+
+        function openPlayerModal(name, pos, val) {
+            document.getElementById('pm-name').innerText = name;
+            document.getElementById('pm-pos').innerText = pos + ' / Değer: ' + val;
+            document.getElementById('player-modal').classList.add('active');
+        }
+        function closePlayerModal() { document.getElementById('player-modal').classList.remove('active'); }
+        function openAdminLogin() { document.getElementById('admin-login-modal').classList.add('active'); }
+        function closeAdminLogin() { document.getElementById('admin-login-modal').classList.remove('active'); }
         function toggleManagerFields() {
             const type = document.getElementById('manager-type').value;
             document.getElementById('manager-pw-group').style.display = type === 'user' ? 'flex' : 'none';
             document.getElementById('manager-char-group').style.display = type === 'bot' ? 'flex' : 'none';
         }
-
+        function verifyAdmin() {
+            if (document.getElementById('admin-pw').value === 'admin123') {
+                closeAdminLogin();
+                const adminTab = document.getElementById('admin-nav-link');
+                adminTab.style.display = 'block'; switchNavTab('admin', adminTab);
+            } else alert('Hatalı Şifre!');
+        }
     </script>
 </body>
 </html>
