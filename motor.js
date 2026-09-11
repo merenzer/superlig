@@ -46,5 +46,5 @@ io.on('connection', (socket) => {
 // Render.com'un atadığı dinamik portu kullan, lokaldeysen 3000 kullan
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 AFYS Sunucusu Başladı! Port: ${PORT}`);
+    console.log(`🚀 DTSL Sunucusu Başladı! Port: ${PORT}`);
 });
