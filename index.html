@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futbol Yönetim Sistemi</title>
+    <title>DTSL Yönetim Merkezi</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -78,7 +78,7 @@
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; height: 64px; }
         .brand-logo { display: flex; align-items: center; gap: 12px; font-size: 1.3em; font-weight: 900; letter-spacing: -0.5px; }
-        .brand-logo img { width: 34px; height: auto; }
+        .brand-logo img { width: 34px; height: auto; object-fit: contain; }
         
         .header-actions { display: flex; gap: 10px; }
         .action-btn {
@@ -226,7 +226,7 @@
         .team-color.away { background: #8B5CF6; }
         .rating-badge { background: #10B981; color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 6px;}
 
-        /* Saha Konteyneri (İki Sekme İçin Ortak) */
+        /* Saha Konteyneri */
         .pitch-container, .t-pitch { 
             width: 100%; height: 640px; background: linear-gradient(180deg, #1e2024 0%, #111215 100%); 
             border: 2px solid rgba(255,255,255,0.05); border-radius: 16px; position: relative; overflow: hidden; 
@@ -276,7 +276,6 @@
         .stat-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 24px; background: var(--bg-base); border: 1px solid var(--border-color);}
         .stat-bar-container .s-bar.home { background: #10B981; }
         .stat-bar-container .s-bar.away { background: #8B5CF6; }
-
         .stat-bar-split { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .s-bar-half { flex: 1; background: var(--bg-base); height: 6px; border-radius: 3px; overflow: hidden; }
         .s-bar-half.right { display: flex; justify-content: flex-end; }
@@ -371,8 +370,8 @@
     <header class="main-header">
         <div class="header-top">
             <div class="brand-logo">
-                <img id="header-logo" src="logo 1.png" alt="Logo">
-                <span id="league-title-header">Trendyol 1. Lig</span>
+                <img id="header-logo" src="logo%201.png" alt="Logo">
+                <span id="league-title-header">DTSL 1. Lig</span>
             </div>
             <div class="header-actions">
                 <button class="action-btn" onclick="openAdminLogin()">Admin Paneli</button>
@@ -812,7 +811,7 @@
             const legend = document.getElementById('table-legend');
             const headerTitle = document.getElementById('league-title-header');
             
-            headerTitle.innerText = currentLeague === 1 ? 'Trendyol 1. Lig' : 'Trendyol 2. Lig';
+            headerTitle.innerText = currentLeague === 1 ? 'DTSL 1. Lig' : 'DTSL 2. Lig';
             tbody.innerHTML = '';
             
             const teams = currentLeague === 1 ? allClubs.slice(0, 18) : allClubs.slice(18, 38);
@@ -868,8 +867,18 @@
         }
 
         function toggleLeagueTheme() {
-            document.body.classList.toggle('lig2-theme');
-            currentLeague = document.body.classList.contains('lig2-theme') ? 2 : 1;
+            const body = document.body;
+            const logo = document.getElementById('header-logo');
+            
+            body.classList.toggle('lig2-theme');
+            
+            if (body.classList.contains('lig2-theme')) {
+                logo.src = 'logo2.png';
+                currentLeague = 2;
+            } else {
+                logo.src = 'logo%201.png';
+                currentLeague = 1;
+            }
             renderStandings();
         }
 
