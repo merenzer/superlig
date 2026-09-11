@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futbol Yönetim Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Ana Renk Paleti */
+            --bg-base: #101014;
+            --panel-bg: #18181B;
+            --panel-hover: #222226;
+            --border-color: #2a2a30;
+            
+            --text-main: #F8FAFC;
+            --text-muted: #8a8a93;
+            
+            /* LİG 1 ANA RENK */
+            --theme-primary: #E11D48;
+            --theme-primary-hover: #be123c;
+
+            /* Lig Gösterge Renkleri */
+            --rank-gold: #F59E0B;   
+            --rank-blue: #3B82F6;   
+            --rank-orange: #F97316; 
+            --rank-green: #10B981;  
+            --rank-yellow: #EAB308; 
+            --rank-red: #EF4444;    
+            
+            /* Form ve Maç İçi Renkler */
+            --form-w: #10B981;
+            --form-d: #64748B;
+            --form-l: #EF4444;
+            --match-home: #10B981; 
+            --match-away: #8B5CF6;
+            --pitch-bg: #1e2024;
+            --pitch-line: rgba(255, 255, 255, 0.15);
+        }
+
+        body.lig2-theme {
+            --theme-primary: #2CBCE9;
+            --theme-primary-hover: #0284c7;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0; 
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s;
+        }
+
+        /* --- ÜST BİLGİ BARI --- */
+        .top-ticker {
+            display: flex; align-items: center; background: #09090b;
+            padding: 0 24px; height: 38px; overflow-x: auto;
+            border-bottom: 1px solid var(--border-color); gap: 12px;
+            font-size: 0.75em; font-weight: 600; white-space: nowrap;
+        }
+        .top-ticker::-webkit-scrollbar { display: none; }
+        .ticker-item {
+            display: flex; align-items: center; gap: 8px; padding: 4px 12px;
+            background: rgba(255,255,255,0.03); border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .ticker-item:hover { background: rgba(255,255,255,0.08); }
+        .ticker-time { color: var(--text-muted); }
+        .ticker-score { color: var(--theme-primary); font-weight: 800; }
+
+        /* --- ANA HEADER --- */
+        .main-header {
+            background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            padding: 0 24px; position: sticky; top: 0; z-index: 100;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+        .brand-logo { display: flex; align-items: center; gap: 12px; font-size: 1.3em; font-weight: 900; letter-spacing: -0.5px; }
+        .brand-logo img { width: 34px; height: auto; }
+        
+        .header-actions { display: flex; gap: 10px; }
+        .action-btn {
+            background: var(--bg-base); border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 8px 16px; border-radius: 6px; font-family: inherit; font-weight: 700; font-size: 0.85em;
+            cursor: pointer; transition: 0.2s;
+        }
+        .action-btn:hover { background: var(--panel-hover); border-color: var(--theme-primary); }
+        .primary-btn { background: var(--theme-primary); color: #fff; border-color: var(--theme-primary); }
+        .primary-btn:hover { background: var(--theme-primary-hover); }
+
+        .sub-nav { display: flex; gap: 28px; height: 48px; align-items: flex-end; }
+        .nav-link {
+            color: var(--text-muted); text-decoration: none; font-weight: 700; font-size: 0.9em;
+            padding-bottom: 12px; border-bottom: 3px solid transparent; cursor: pointer; transition: 0.2s;
+        }
+        .nav-link:hover { color: var(--text-main); }
+        .nav-link.active { color: var(--theme-primary); border-bottom-color: var(--theme-primary); }
+
+        /* --- ORTAK PANEL STİLLERİ --- */
+        .dashboard-container { max-width: 1400px; margin: 24px auto; padding: 0 24px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease forwards; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden; margin-bottom: 20px;}
+        .panel-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--border-color);
+            font-weight: 700; font-size: 0.95em; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* --- SEKME 1: GENEL BAKIŞ --- */
+        .overview-layout { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
+        .headline-card {
+            background: linear-gradient(135deg, rgba(24,24,27,1) 0%, rgba(32,32,38,1) 100%);
+            padding: 24px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 20px;
+        }
+        .headline-badge {
+            background: var(--theme-primary); color: #fff; padding: 4px 10px;
+            border-radius: 4px; font-size: 0.7em; font-weight: 800; display: inline-block; margin-bottom: 12px;
+        }
+        .headline-title { font-size: 1.6em; font-weight: 800; margin: 0 0 10px 0; line-height: 1.3; }
+        .headline-desc { color: var(--text-muted); font-size: 0.95em; line-height: 1.6; margin: 0; }
+        
+        .news-item { padding: 16px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+        .news-item:hover { background: var(--panel-hover); }
+        .news-item h4 { margin: 0 0 6px 0; font-size: 0.9em; font-weight: 700; }
+        .news-item p { margin: 0; font-size: 0.8em; color: var(--text-muted); line-height: 1.4; }
+
+        .featured-match { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .featured-match-teams { display: flex; justify-content: space-around; align-items: center; margin-top: 14px; }
+        .f-team { font-weight: 700; font-size: 1.05em; }
+        .f-score { font-size: 1.8em; font-weight: 900; color: var(--theme-primary); }
+
+        /* --- SEKME 2: PUAN TABLOSU VE FİKSTÜR --- */
+        .standings-fixture-layout { display: grid; grid-template-columns: 1fr 420px; gap: 20px; align-items: start; }
+        .fm-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        .fm-table th { color: var(--text-muted); font-weight: 600; padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .fm-table th:nth-child(2) { text-align: left; }
+        .fm-table td { padding: 11px 10px; text-align: center; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        .fm-table td:first-child { border-left: 3px solid transparent; width: 32px; font-weight: 700; color: var(--text-muted); }
+        
+        .rank-gold td:first-child { border-left-color: var(--rank-gold); }
+        .rank-blue td:first-child { border-left-color: var(--rank-blue); }
+        .rank-orange td:first-child { border-left-color: var(--rank-orange); }
+        .rank-green td:first-child { border-left-color: var(--rank-green); }
+        .rank-yellow td:first-child { border-left-color: var(--rank-yellow); }
+        .rank-red td:first-child { border-left-color: var(--rank-red); }
+
+        .team-cell { text-align: left; font-weight: 700; cursor: pointer; transition: color 0.2s; }
+        .team-cell:hover { color: var(--theme-primary); }
+        .fm-table tr:hover td { background-color: var(--panel-hover); }
+        .fm-table td.points { font-weight: 800; font-size: 1.05em; }
+
+        .form-container { display: flex; gap: 4px; justify-content: center; }
+        .form-pill { width: 16px; height: 16px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.65em; font-weight: 800; color: #fff; }
+        .form-w { background-color: var(--form-w); }
+        .form-d { background-color: var(--form-d); }
+        .form-l { background-color: var(--form-l); }
+
+        .table-legend { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--bg-base); border-top: 1px solid var(--border-color); }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.75em; color: var(--text-muted); font-weight: 600;}
+        .legend-color { width: 8px; height: 8px; border-radius: 2px; }
+
+        .fixture-nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color); font-size: 0.9em; font-weight: 700; }
+        .nav-arrow-btn { background: none; border: none; color: var(--text-main); font-size: 1.1em; cursor: pointer; padding: 4px 10px; border-radius: 4px; }
+        .nav-arrow-btn:hover { background: var(--panel-hover); }
+
+        .match-card { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border-color); font-size: 0.85em; font-weight: 600; transition: 0.2s; cursor: pointer; }
+        .match-card:hover { background: var(--panel-hover); border-left: 3px solid var(--theme-primary); }
+        .match-card:last-child { border-bottom: none; }
+        .match-team { flex: 1; }
+        .match-team.home { text-align: right; }
+        .match-team.away { text-align: left; }
+        .match-center { padding: 4px 12px; margin: 0 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 4px; font-weight: 800; min-width: 50px; text-align: center; }
+        .match-center.live { color: var(--theme-primary); border-color: var(--theme-primary); }
+
+        /* --- SEKME 3: MAÇ DETAYI --- */
+        .match-hero { display: flex; justify-content: center; align-items: center; padding: 30px 20px; background: linear-gradient(180deg, #18181B 0%, #121215 100%); border-bottom: 1px solid var(--border-color); }
+        .hero-team { display: flex; align-items: center; gap: 16px; flex: 1; }
+        .hero-team.home { justify-content: flex-end; }
+        .hero-team.away { justify-content: flex-start; }
+        .hero-team-name { font-size: 1.2em; font-weight: 700; margin: 0; }
+        .hero-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 900; }
+        .hero-score-board { display: flex; flex-direction: column; align-items: center; padding: 0 40px; text-align: center; }
+        .hero-score { font-size: 2.5em; font-weight: 900; letter-spacing: 2px; line-height: 1; }
+        .hero-status { color: var(--text-muted); font-size: 0.85em; font-weight: 600; margin: 8px 0; text-transform: uppercase; }
+        .hero-scorers { display: flex; gap: 40px; font-size: 0.8em; color: var(--text-muted); margin-top: 10px; }
+        .scorer { display: flex; flex-direction: column; gap: 4px; }
+        
+        .match-nav { display: flex; background: var(--panel-bg); border: 1px solid var(--border-color); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; padding: 0 20px; margin-bottom: 20px; }
+        .m-nav-btn { background: none; border: none; color: var(--text-muted); padding: 16px 24px; font-weight: 700; font-family: inherit; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .m-nav-btn:hover { color: var(--text-main); }
+        .m-nav-btn.active { color: #fff; border-bottom-color: var(--theme-primary); }
+
+        .match-content-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+        .m-tab-content { display: none; padding: 10px 20px; }
+        .m-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .momentum-graph { display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding-bottom: 10px; margin-top: 10px; position: relative; }
+        .momentum-graph::after { content: ''; position: absolute; left: 0; right: 0; bottom: 10px; height: 1px; border-top: 1px dashed rgba(255,255,255,0.2); }
+        .m-bar { width: 4px; border-radius: 2px 2px 0 0; z-index: 1; }
+        .m-bar.home { background: #10B981; }
+        .m-bar.away { background: #8B5CF6; transform: scaleY(-1); transform-origin: bottom; }
+
+        .timeline-container { position: relative; padding: 20px 0; }
+        .timeline-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--border-color); transform: translateX(-50%); }
+        .tl-event { display: flex; align-items: center; justify-content: flex-end; width: 50%; padding: 15px 30px; position: relative; }
+        .tl-event.away { margin-left: 50%; justify-content: flex-start; }
+        .tl-time { position: absolute; font-weight: 800; font-size: 0.85em; color: var(--text-muted); }
+        .tl-event.home .tl-time { right: -40px; }
+        .tl-event.away .tl-time { left: -40px; }
+        .tl-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; background: var(--panel-hover); margin: 0 15px; z-index: 2; border: 1px solid var(--border-color); }
+        .tl-icon.goal { background: #fff; color: #000; }
+        .tl-details { display: flex; flex-direction: column; font-size: 0.9em; }
+        .tl-event.home .tl-details { text-align: right; }
+        .tl-score-badge { background: #111; border: 1px solid var(--theme-primary); color: #fff; padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 0.85em; margin-left: 15px; }
+        .tl-event.home .tl-score-badge { margin-left: 0; margin-right: 15px; }
+        .tl-divider { text-align: center; padding: 8px; background: var(--border-color); width: 100px; margin: 20px auto; border-radius: 20px; font-weight: 800; font-size: 0.8em; color: var(--text-muted); position: relative; z-index: 2; }
+
+        .formations-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; font-weight: 700; font-size: 0.9em; }
+        
+        .pitch-container, .t-pitch { 
+            width: 100%; height: 640px; background: linear-gradient(180deg, #1e2024 0%, #111215 100%); 
+            border: 2px solid rgba(255,255,255,0.05); border-radius: 16px; position: relative; overflow: hidden; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+        .pitch-lines, .t-pitch-lines { position: absolute; inset: 0; pointer-events: none; }
+        .center-line, .t-center-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.08); transform: translateY(-50%); }
+        .center-circle, .t-center-circle { position: absolute; top: 50%; left: 50%; width: 140px; height: 140px; border: 2px solid rgba(255,255,255,0.08); border-radius: 50%; transform: translate(-50%, -50%); }
+        .t-penalty-box-top { position: absolute; top: 0; left: 20%; right: 20%; height: 15%; border: 2px solid rgba(255,255,255,0.08); border-top: none; }
+        .t-penalty-box-bottom { position: absolute; bottom: 0; left: 20%; right: 20%; height: 15%; border: 2px solid rgba(255,255,255,0.08); border-bottom: none; }
+
+        .player-dot, .t-player { 
+            position: absolute; display: flex; flex-direction: column; align-items: center; 
+            transform: translate(-50%, -50%); transition: filter 0.2s; z-index: 10; 
+        }
+        .player-dot { cursor: pointer; }
+        .player-dot:hover { z-index: 20; transform: translate(-50%, -50%) scale(1.1); }
+        .t-player { cursor: grab; }
+        .t-player:active { cursor: grabbing; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.6)); z-index: 100; }
+        
+        .p-avatar { 
+            width: 38px; height: 38px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; font-size: 1.1em; color: #fff; 
+            border: 2px solid rgba(255,255,255,0.9); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        }
+        .player-dot.home .p-avatar, .t-player .p-avatar { background: var(--theme-primary); }
+        .player-dot.away .p-avatar { background: #8B5CF6; }
+
+        .p-rating-badge { 
+            background: #10B981; color: #000; padding: 2px 6px; border-radius: 4px; 
+            font-weight: 900; font-size: 0.75em; margin-top: -10px; z-index: 2; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+        }
+        
+        .p-name { 
+            background: rgba(0,0,0,0.85); padding: 3px 8px; border-radius: 6px; 
+            font-size: 0.7em; font-weight: 600; white-space: nowrap; 
+            border: 1px solid rgba(255,255,255,0.1); margin-top: 2px;
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; font-weight: 700; margin-bottom: 8px; }
+        .stat-label { color: var(--text-muted); font-weight: 600;}
+        .stat-bar-container { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 24px; background: var(--bg-base); border: 1px solid var(--border-color);}
+        .stat-bar-container .s-bar.home { background: #10B981; }
+        .stat-bar-container .s-bar.away { background: #8B5CF6; }
+        .stat-bar-split { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+        .s-bar-half { flex: 1; background: var(--bg-base); height: 6px; border-radius: 3px; overflow: hidden; }
+        .s-bar-half.right { display: flex; justify-content: flex-end; }
+        .s-fill.home { background: #10B981; height: 100%; }
+        .s-fill.away { background: #8B5CF6; height: 100%; }
+
+        /* --- SEKME 4: KADRO & TAKTİK --- */
+        .tactics-layout { display: grid; grid-template-columns: 460px 1fr; gap: 24px; align-items: start; }
+        .tactics-right-col { display: flex; flex-direction: column; gap: 24px; }
+        .fm-tactics-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+        .fm-tab-btn { flex: 1; padding: 18px 14px; background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.95em; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-family: inherit; }
+        .fm-tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
+        .fm-tab-btn.active { color: var(--text-main); border-bottom-color: var(--theme-primary); background: rgba(255,255,255,0.04); }
+
+        .fm-tactics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px; }
+        .fm-tactic-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; transition: all 0.25s ease; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 150px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .fm-tactic-card:hover { border-color: var(--theme-primary); background: rgba(255,255,255,0.06); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .fm-tactic-title { font-size: 0.8em; color: var(--theme-primary); font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;}
+        .fm-tactic-icon { font-size: 2.2em; margin-bottom: 8px; filter: grayscale(1); opacity: 0.9;}
+        .fm-tactic-value { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; font-size: 0.8em; font-weight: 800; color: #fff; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
+
+        .t-roster-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 24px; max-height: 280px; overflow-y: auto; }
+        .t-roster-list::-webkit-scrollbar { width: 6px; }
+        .t-roster-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        
+        .t-roster-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; cursor: grab; transition: 0.2s; }
+        .t-roster-item:hover { border-color: var(--theme-primary); background: rgba(255,255,255,0.05);}
+        .t-roster-info { display: flex; align-items: center; gap: 12px; font-size: 0.85em; font-weight: 600; }
+        .t-roster-pos { color: var(--theme-primary); font-weight: 800; width: 30px; }
+        .t-roster-rating { background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8em; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- OYUNCU PROFİLİ MODALI --- */
+        .player-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .player-modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+        .player-modal { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 16px; width: 340px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .pm-header { background: linear-gradient(135deg, var(--theme-primary), #000); padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .pm-rating-large { font-size: 2em; font-weight: 900; color: #fff; line-height: 1; }
+        .pm-close { background: none; border: none; color: #fff; font-size: 1.2em; cursor: pointer; }
+        .pm-body { padding: 20px; }
+        .pm-name { font-size: 1.3em; font-weight: 800; margin: 0 0 4px 0; }
+        .pm-pos { color: var(--theme-primary); font-weight: 700; font-size: 0.9em; margin-bottom: 20px; }
+        .pm-stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.85em; font-weight: 600; }
+        .pm-stat-bar { flex: 1; height: 6px; background: var(--bg-base); border-radius: 3px; margin: 0 15px; overflow: hidden;}
+        .pm-stat-fill { height: 100%; background: #10B981; }
+
+        /* =========================================
+           YENİ: ADMIN PANELİ (KONTROL MERKEZİ)
+           ========================================= */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+
+        .admin-form-group {
+            display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
+        }
+        .admin-form-group label {
+            font-size: 0.85em; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+        }
+        .admin-input {
+            background: var(--bg-base); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 12px 16px; border-radius: 8px;
+            font-family: inherit; font-weight: 600; outline: none; transition: 0.2s;
+        }
+        .admin-input:focus { border-color: var(--theme-primary); }
+        
+        .admin-alert {
+            background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--rank-red);
+            padding: 12px 16px; font-size: 0.85em; font-weight: 600; margin-bottom: 20px; border-radius: 0 8px 8px 0;
+        }
+
+        .btn-full { width: 100%; padding: 12px; font-size: 1em; margin-top: 10px; }
+
+        /* Admin Login Modal */
+        #admin-login-modal .player-modal { width: 400px; }
+
+        @media (max-width: 1200px) {
+            .tactics-layout { grid-template-columns: 1fr; }
+            .fm-tactics-grid { grid-template-columns: repeat(2, 1fr); }
+            .t-roster-list { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Üst Canlı Maç Ticker -->
+    <div class="top-ticker">
+        <div class="ticker-item"><span class="ticker-time">74'</span> <span>FB</span> <span class="ticker-score">2-1</span> <span>BJK</span></div>
+        <div class="ticker-item"><span class="ticker-time">MS</span> <span>GS</span> <span class="ticker-score">3-0</span> <span>KAS</span></div>
+        <div class="ticker-item"><span class="ticker-time">19:00</span> <span>TS</span> <span class="ticker-score">-</span> <span>SIV</span></div>
+        <div class="ticker-item"><span class="ticker-time">21:45</span> <span>GOZ</span> <span class="ticker-score">-</span> <span>ALY</span></div>
+        <div class="ticker-item" style="margin-left: auto; color: var(--text-muted);">Diğer Maçlar ›</div>
+    </div>
+
+    <!-- Header & Navigasyon -->
+    <header class="main-header">
+        <div class="header-top">
+            <div class="brand-logo">
+                <img id="header-logo" src="logo 1.png" alt="Logo">
+                <span id="league-title-header">Trendyol 1. Lig</span>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" onclick="openAdminLogin()">Admin Paneli</button>
+                <button class="action-btn primary-btn" onclick="toggleLeagueTheme()">🔄 Ligi Değiştir</button>
+            </div>
+        </div>
+        <nav class="sub-nav">
+            <a class="nav-link active" onclick="switchNavTab('overview', this)">Genel Bakış</a>
+            <a class="nav-link" onclick="switchNavTab('standings', this)">Puan Tablosu</a>
+            <a class="nav-link" onclick="switchNavTab('tactics', this)">Kadro & Taktik</a>
+            <a class="nav-link" onclick="alert('Transfer modülü bir sonraki adımda eklenecek.')">Transfer</a>
+            <a class="nav-link" id="match-nav-link" style="display: none;" onclick="switchNavTab('match-detail', this)">Maç Detayı</a>
+            <a class="nav-link" id="admin-nav-link" style="display: none;" onclick="switchNavTab('admin', this)"><span style="color:var(--theme-primary);">⚡ Kontrol Merkezi</span></a>
+        </nav>
+    </header>
+
+    <!-- İçerik Alanı -->
+    <main class="dashboard-container">
+        
+        <!-- SEKME 1: GENEL BAKIŞ -->
+        <section id="view-overview" class="tab-content active">
+            <div class="overview-layout">
+                <div>
+                    <div class="headline-card">
+                        <span class="headline-badge">FLAŞ GELİŞME</span>
+                        <h1 class="headline-title">Zirve Yarışında Kritik Viraj: Derbi Öncesi GM Masasında Kriz!</h1>
+                        <p class="headline-desc">Liderlik koltuğunu doğrudan etkileyecek haftada kulüp içi gerilimler sosyal medyaya taştı. Teknik adamın kaderi bu akşam oynanacak karşılaşmanın sonucuna bağlanmış durumda.</p>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">Gündemdeki Gelişmeler</div>
+                        <div class="news-item">
+                            <h4>Disiplin Sevkleri Açıklandı</h4>
+                            <p>Son hafta oynanan olaylı maçın ardından 2 oyuncu kırmızı kart cezası nedeniyle PFDK'ya sevk edildi.</p>
+                        </div>
+                        <div class="news-item">
+                            <h4>Bot Takımdan Sürpriz Transfer Hamlesi</h4>
+                            <p>Sözleşmesi sezon sonunda bitecek yıldız oyuncu için serbest havuzdan ilk resmi teklif geldi.</p>
+                        </div>
+                        <div class="news-item">
+                            <h4>Taraftar Homurtuları Başladı</h4>
+                            <p>Son 4 maçtır galibiyet yüzü göremeyen ekipte kriz sayacı tırmanışta: Hoca için son şans.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="panel" style="margin-bottom: 20px;">
+                        <div class="panel-header">Haftanın Maçı</div>
+                        <div class="featured-match">
+                            <span style="font-size: 0.75em; color: var(--text-muted); font-weight: 700;">CANLI YAYIN · 74. DAKİKA</span>
+                            <div class="featured-match-teams">
+                                <div class="f-team">Fenerbahçe</div>
+                                <div class="f-score">2 - 1</div>
+                                <div class="f-team">Beşiktaş JK</div>
+                            </div>
+                        </div>
+                        <div style="padding: 14px 20px; font-size: 0.85em; color: var(--text-muted); display: flex; justify-content: space-between;">
+                            <span>Topla Oynama</span>
+                            <span style="color: var(--text-main); font-weight: 700;">%54 - %46</span>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">Günün Diğer Maçları</div>
+                        <div class="match-card" onclick="openMatchDetail('Fenerbahçe', 'Beşiktaş JK', '2', '1', '74', true)">
+                            <span class="match-team home">Fenerbahçe</span>
+                            <span class="match-center live">2 - 1</span>
+                            <span class="match-team away">Beşiktaş JK</span>
+                        </div>
+                        <div class="match-card" onclick="openMatchDetail('Galatasaray', 'Kasımpaşa', '3', '0', 'MS', false)">
+                            <span class="match-team home">Galatasaray</span>
+                            <span class="match-center">3 - 0</span>
+                            <span class="match-team away">Kasımpaşa</span>
+                        </div>
+                        <div class="match-card" onclick="openMatchDetail('Trabzonspor', 'Sivasspor', '-', '-', '19:00', false)">
+                            <span class="match-team home">Trabzonspor</span>
+                            <span class="match-center">19:00</span>
+                            <span class="match-team away">Sivasspor</span>
+                        </div>
+                        <div class="match-card" onclick="openMatchDetail('Göztepe', 'Alanyaspor', '-', '-', '21:45', false)">
+                            <span class="match-team home">Göztepe</span>
+                            <span class="match-center">21:45</span>
+                            <span class="match-team away">Alanyaspor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEKME 2: PUAN TABLOSU VE FİKSTÜR -->
+        <section id="view-standings" class="tab-content">
+            <div class="standings-fixture-layout">
+                <div class="panel">
+                    <div class="panel-header">
+                        Puan Tablosu
+                        <span style="font-size: 0.8em; color: var(--text-muted); font-weight: 600;">22 Maç Oynandı</span>
+                    </div>
+                    <table class="fm-table">
+                        <thead><tr><th>#</th><th>Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>Av</th><th>P</th><th>Son 5</th></tr></thead>
+                        <tbody id="standings-body"></tbody>
+                    </table>
+                    <div class="table-legend" id="table-legend"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">Fikstür</div>
+                    <div class="fixture-nav-bar">
+                        <button class="nav-arrow-btn">❮</button><span>23. HAFTA</span><button class="nav-arrow-btn">❯</button>
+                    </div>
+                    <div id="fixture-list">
+                        <div class="match-card" onclick="openMatchDetail('Fenerbahçe', 'Beşiktaş JK', '2', '1', '74', true)"><span class="match-team home">Fenerbahçe</span><span class="match-center live">2 - 1</span><span class="match-team away">Beşiktaş JK</span></div>
+                        <div class="match-card" onclick="openMatchDetail('Galatasaray', 'Kasımpaşa SK', '3', '0', 'MS', false)"><span class="match-team home">Galatasaray</span><span class="match-center">3 - 0</span><span class="match-team away">Kasımpaşa SK</span></div>
+                        <div class="match-card" onclick="openMatchDetail('Trabzonspor', 'Sivasspor', '-', '-', '19:00', false)"><span class="match-team home">Trabzonspor</span><span class="match-center">- : -</span><span class="match-team away">Sivasspor</span></div>
+                        <div class="match-card" onclick="openMatchDetail('Göztepe', 'Alanyaspor', '-', '-', '21:45', false)"><span class="match-team home">Göztepe</span><span class="match-center">- : -</span><span class="match-team away">Alanyaspor</span></div>
+                        <div class="match-card" onclick="openMatchDetail('Kayserispor', 'Samsunspor', '-', '-', '21:45', false)"><span class="match-team home">Kayserispor</span><span class="match-center">- : -</span><span class="match-team away">Samsunspor</span></div>
+                        <div class="match-card" onclick="openMatchDetail('Rizespor', 'Ankaragücü', '-', '-', '21:45', false)"><span class="match-team home">Rizespor</span><span class="match-center">- : -</span><span class="match-team away">Ankaragücü</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEKME 3: MAÇ DETAYI -->
+        <section id="view-match-detail" class="tab-content">
+            <div class="panel" style="border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 0;">
+                <div class="match-hero">
+                    <div class="hero-team home"><h2 class="hero-team-name" id="md-home-name">Fenerbahçe</h2><div class="hero-logo" style="background-color: #0c1427; border-color: #facc15;">FB</div></div>
+                    <div class="hero-score-board">
+                        <div class="hero-score" id="md-score">1 - 2</div>
+                        <div class="hero-status" id="md-status" style="color: var(--theme-primary);">Canlı 74'</div>
+                        <div class="hero-scorers">
+                            <div class="scorer home-scorer"><span>Milan Škriniar 26'</span> ⚽</div>
+                            <div class="scorer away-scorer">⚽ <span>Dušan Vlahović 73'</span><br>⚽ <span>Rıdvan Yılmaz 38'</span></div>
+                        </div>
+                    </div>
+                    <div class="hero-team away"><div class="hero-logo" style="background-color: #111; border-color: #fff;">BJK</div><h2 class="hero-team-name" id="md-away-name">Beşiktaş JK</h2></div>
+                </div>
+            </div>
+
+            <div class="match-nav">
+                <button class="m-nav-btn active" onclick="switchMatchTab('timeline', this)">Maç Anlatımı</button>
+                <button class="m-nav-btn" onclick="switchMatchTab('lineups', this)">Kadrolar</button>
+                <button class="m-nav-btn" onclick="switchMatchTab('stats', this)">İstatistikler</button>
+            </div>
+
+            <div class="match-content-grid">
+                <div class="panel">
+                    <div class="panel-header" style="font-size: 0.85em; padding: 12px 16px;">Maç Momentumu</div>
+                    <div style="padding: 0 16px;">
+                        <div class="momentum-graph">
+                            <div class="m-bar home" style="height: 40%;"></div><div class="m-bar home" style="height: 70%;"></div><div class="m-bar away" style="height: 30%;"></div>
+                            <div class="m-bar away" style="height: 80%;"></div><div class="m-bar home" style="height: 20%;"></div><div class="m-bar away" style="height: 90%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" style="min-height: 400px;">
+                    <!-- Timeline -->
+                    <div id="m-tab-timeline" class="m-tab-content active">
+                        <div class="timeline-container">
+                            <div class="timeline-center-line"></div>
+                            <div class="tl-event home"><div class="tl-time">76'</div><div class="tl-icon">🟨</div><div class="tl-details"><strong>M. Guendouzi</strong> <span style="color:var(--text-muted); font-size:0.8em;">Sarı Kart</span></div></div>
+                            <div class="tl-event away"><div class="tl-time">73'</div><div class="tl-icon goal">⚽</div><div class="tl-details"><strong>D. Vlahović</strong></div><div class="tl-score-badge">1 - 2</div></div>
+                            <div class="tl-divider">HT 1 - 1</div>
+                            <div class="tl-event home"><div class="tl-time">26'</div><div class="tl-icon goal">⚽</div><div class="tl-details"><strong>M. Škriniar</strong></div><div class="tl-score-badge">1 - 0</div></div>
+                        </div>
+                    </div>
+                    <!-- Kadrolar -->
+                    <div id="m-tab-lineups" class="m-tab-content">
+                        <div class="formations-header">
+                            <div><span class="team-color home"></span> Ev Sahibi <span class="rating-badge">7.10</span></div>
+                            <div>4-2-3-1 <span>vs</span> 4-1-4-1</div>
+                            <div>Deplasman <span class="rating-badge" style="background:#8B5CF6;">7.44</span> <span class="team-color away"></span></div>
+                        </div>
+                        <div class="pitch-container">
+                            <div class="pitch-lines"><div class="center-circle"></div><div class="center-line"></div></div>
+                            <div class="player-dot home" style="top: 50%; left: 10%;"><div class="p-avatar">40</div><div class="p-rating-badge" style="background: #3B82F6;">8.2</div><div class="p-name">Livaković</div></div>
+                            <div class="player-dot home" style="top: 30%; left: 30%;"><div class="p-avatar">50</div><div class="p-rating-badge" style="background: #10B981;">7.8</div><div class="p-name">Becão</div></div>
+                            <div class="player-dot away" style="top: 50%; right: 10%;"><div class="p-avatar" style="background: #8B5CF6;">1</div><div class="p-rating-badge" style="background: #EF4444;">6.4</div><div class="p-name">Nübel</div></div>
+                            <div class="player-dot away" style="top: 50%; right: 40%;"><div class="p-avatar" style="background: #8B5CF6;">9</div><div class="p-rating-badge" style="background: #F59E0B;">7.4</div><div class="p-name">Vlahović</div></div>
+                        </div>
+                    </div>
+                    <!-- Stats -->
+                    <div id="m-tab-stats" class="m-tab-content">
+                        <h3 style="text-align: center; margin-top: 0;">Maça Genel Bakış</h3>
+                        <div class="stat-row"><div class="stat-val">50%</div><div class="stat-label">Topla Oynama</div><div class="stat-val">50%</div></div>
+                        <div class="stat-bar-container"><div class="s-bar home" style="width: 50%;"></div><div class="s-bar away" style="width: 50%;"></div></div>
+                        <div class="stat-row"><div class="stat-val">0.59</div><div class="stat-label">Gol Beklentisi (xG)</div><div class="stat-val">1.75</div></div>
+                        <div class="stat-bar-split"><div class="s-bar-half right"><div class="s-fill home" style="width: 25%;"></div></div><div class="s-bar-half left"><div class="s-fill away" style="width: 75%;"></div></div></div>
+                        <div class="stat-row"><div class="stat-val">9</div><div class="stat-label">Toplam Şut</div><div class="stat-val">14</div></div>
+                        <div class="stat-bar-split"><div class="s-bar-half right"><div class="s-fill home" style="width: 40%;"></div></div><div class="s-bar-half left"><div class="s-fill away" style="width: 60%;"></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEKME 4: KADRO & TAKTİK -->
+        <section id="view-tactics" class="tab-content">
+            <div class="tactics-layout">
+                <div class="panel">
+                    <div class="panel-header">
+                        Takım Dizilişi
+                        <select class="action-btn" style="border: 1px solid var(--border-color); outline: none;" id="formation-select" onchange="changeFormation(this.value)">
+                            <option value="4-2-3-1">4-2-3-1</option>
+                            <option value="4-3-3">4-3-3</option>
+                            <option value="3-5-2">3-5-2</option>
+                            <option value="4-4-2">4-4-2</option>
+                            <option value="5-3-2">5-3-2</option>
+                            <option value="custom">Özel (Serbest)</option>
+                        </select>
+                    </div>
+                    <div class="t-pitch" id="t-pitch" ondragover="allowDrop(event)" ondrop="handlePitchDrop(event)">
+                        <div class="t-pitch-lines"><div class="t-center-line"></div><div class="t-center-circle"></div><div class="t-penalty-box-top"></div><div class="t-penalty-box-bottom"></div></div>
+                        <div id="pitch-players-container"></div>
+                    </div>
+                </div>
+
+                <div class="tactics-right-col">
+                    <div class="panel">
+                        <div class="fm-tactics-tabs">
+                            <button class="fm-tab-btn active" data-target="possession" onclick="switchTacticTab('possession')">Topla Oynarken</button>
+                            <button class="fm-tab-btn" data-target="transition" onclick="switchTacticTab('transition')">Geçiş Oyunu</button>
+                            <button class="fm-tab-btn" data-target="out" onclick="switchTacticTab('out')">Topsuz Alanda</button>
+                        </div>
+                        <div class="fm-tactics-grid" id="t-grid-possession">
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Kısa', 'Standart', 'Direkt', 'Uzun Top'])"><div class="fm-tactic-title">Pas Şekli</div><div class="fm-tactic-icon">⇶</div><div class="fm-tactic-value">Kısa</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Çok Düşük', 'Standart', 'Yüksek', 'Çok Yüksek'])"><div class="fm-tactic-title">Tempo</div><div class="fm-tactic-icon">⏱</div><div class="fm-tactic-value">Yüksek</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Dar', 'Standart', 'Geniş', 'Çok Geniş'])"><div class="fm-tactic-title">Hücum Genişliği</div><div class="fm-tactic-icon">↔</div><div class="fm-tactic-value">Standart</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Disiplinli', 'Esnek', 'Çok Esnek'])"><div class="fm-tactic-title">Yaratıcılık</div><div class="fm-tactic-icon">💡</div><div class="fm-tactic-value">Esnek</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Sol Kanat', 'Sağ Kanat', 'Göbekten', 'Karışık'])"><div class="fm-tactic-title">Oyun Kurma</div><div class="fm-tactic-icon">↹</div><div class="fm-tactic-value">Karışık</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Az', 'Standart', 'Çok'])"><div class="fm-tactic-title">Dripling</div><div class="fm-tactic-icon">🏃</div><div class="fm-tactic-value">Standart</div></div>
+                        </div>
+                        <div class="fm-tactics-grid" id="t-grid-transition" style="display: none;">
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Topu Tut', 'Hızlı Çık (Kontra)'])"><div class="fm-tactic-title">Topu Kazanınca</div><div class="fm-tactic-icon">🚀</div><div class="fm-tactic-value">Hızlı Çık (Kontra)</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Geri Çekil', 'Karşı Pres'])"><div class="fm-tactic-title">Topu Kaybedince</div><div class="fm-tactic-icon">⚔</div><div class="fm-tactic-value">Karşı Pres</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Stoperlere', 'Beklere', 'Uzun Vur'])"><div class="fm-tactic-title">Kaleci Dağılımı</div><div class="fm-tactic-icon">🧤</div><div class="fm-tactic-value">Beklere</div></div>
+                        </div>
+                        <div class="fm-tactics-grid" id="t-grid-out" style="display: none;">
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Geride Karşıla', 'Standart', 'Önde Baskı'])"><div class="fm-tactic-title">Pres Hattı</div><div class="fm-tactic-icon">🧱</div><div class="fm-tactic-value">Önde Baskı</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Derin', 'Standart', 'Çok İleride'])"><div class="fm-tactic-title">Savunma Çizgisi</div><div class="fm-tactic-icon">🛡️</div><div class="fm-tactic-value">Standart</div></div>
+                            <div class="fm-tactic-card" onclick="cycleTactic(this, ['Ayakta Kal', 'Topa Dal'])"><div class="fm-tactic-title">Müdahale Şekli</div><div class="fm-tactic-icon">🛑</div><div class="fm-tactic-value">Ayakta Kal</div></div>
+                        </div>
+                    </div>
+
+                    <div class="panel" ondragover="allowDrop(event)" ondrop="handleBenchDrop(event)">
+                        <div class="panel-header">Yedekler <span style="font-size: 0.8em; color: var(--text-muted); font-weight: normal;">Saha ile oyuncuları sürükleyerek değiştirebilirsiniz</span></div>
+                        <div class="t-roster-list" id="t-roster-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- YENİ SEKME: ADMIN PANELİ (KONTROL MERKEZİ) -->
+        <section id="view-admin" class="tab-content">
+            <div class="admin-layout">
+                
+                <!-- 1. Yeni Üye Kaydı ve Takım Atama -->
+                <div class="panel">
+                    <div class="panel-header" style="color: var(--theme-primary);">👥 Yeni Menajer Kaydı</div>
+                    <div style="padding: 20px;">
+                        <div class="admin-alert">Sisteme manuel teknik direktör kaydı oluşturun ve boşta olan takımlara atamasını yapın.</div>
+                        <div class="admin-form-group">
+                            <label>İsim Soyisim</label>
+                            <input type="text" class="admin-input" placeholder="Örn: Fatih Terim">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Yaş</label>
+                            <input type="number" class="admin-input" placeholder="Örn: 50">
+                        </div>
+                        
+                        <!-- YENİ EKLENEN BOT / KULLANICI AYRIMI -->
+                        <div class="admin-form-group">
+                            <label>Menajer Tipi</label>
+                            <select class="admin-input" id="manager-type" onchange="toggleManagerFields()">
+                                <option value="user">Gerçek Kullanıcı</option>
+                                <option value="bot">Yapay Zeka (Bot)</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group" id="manager-pw-group">
+                            <label>Giriş Şifresi (Kullanıcı için)</label>
+                            <input type="text" class="admin-input" placeholder="Örn: 123456">
+                        </div>
+                        <div class="admin-form-group" id="manager-char-group" style="display: none;">
+                            <label>Bot Karakteri / Oyun Tarzı</label>
+                            <select class="admin-input">
+                                <option>Hücumcu / Agresif</option>
+                                <option>Savunmacı / Katı</option>
+                                <option>Dengeli / Taktiksel</option>
+                            </select>
+                        </div>
+                        
+                        <div class="admin-form-group" style="margin-top: 16px;">
+                            <label>Yöneteceği Takım (Opsiyonel)</label>
+                            <select class="admin-input">
+                                <option value="">Takım Atama (Şimdilik Boşta)</option>
+                                <option value="ts">Trabzonspor (Bot -> Menajer)</option>
+                                <option value="aly">Alanyaspor (Bot -> Menajer)</option>
+                                <option value="ks">Kasımpaşa (Bot -> Menajer)</option>
+                            </select>
+                        </div>
+                        <button class="action-btn primary-btn btn-full" onclick="alert('Kayıt başarılı. Kullanıcı sisteme eklendi.')">Menajeri Kaydet & Ata</button>
+                    </div>
+                </div>
+
+                <!-- 2. Takım ve Transfer Kontrolü -->
+                <div class="panel">
+                    <div class="panel-header" style="color: var(--theme-primary);">🛡️ Takım & Transfer Kontrolü</div>
+                    <div style="padding: 20px;">
+                        <div class="admin-alert">Takımların mevcut hocalarını kovabilir veya sisteme sıkışan oyuncuları zorla başka takıma taşıyabilirsiniz.</div>
+                        <div class="admin-form-group">
+                            <label>Takım Seçimi</label>
+                            <select class="admin-input">
+                                <option>Galatasaray (Okan Buruk)</option>
+                                <option>Fenerbahçe (Jose Mourinho)</option>
+                                <option>Beşiktaş (Giovanni van Bronckhorst)</option>
+                            </select>
+                        </div>
+                        <button class="action-btn btn-full" style="border-color: var(--rank-red); color: var(--rank-red); margin-bottom: 15px;" onclick="alert('Teknik direktör kovuldu. Takım şu an BOT tarafından yönetiliyor.')">Mevcut Hocayı Kov (Bot'a Çevir)</button>
+                        
+                        <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
+                        
+                        <div class="admin-form-group">
+                            <label>Bug Düzeltme: Manuel Oyuncu Transferi</label>
+                            <input type="text" class="admin-input" placeholder="Oyuncu Adı (Örn: Icardi)">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Hedef Takım</label>
+                            <select class="admin-input">
+                                <option>Serbest Havuz</option>
+                                <option>Fenerbahçe</option>
+                                <option>Beşiktaş</option>
+                            </select>
+                        </div>
+                        <button class="action-btn primary-btn btn-full" onclick="alert('Transfer zorla gerçekleştirildi.')">Oyuncuyu Taşı</button>
+                    </div>
+                </div>
+
+                <!-- 3. Fikstür ve Saat Atama (Müdahale) -->
+                <div class="panel">
+                    <div class="panel-header" style="color: var(--theme-primary);">📅 Fikstür & Maç Müdahalesi</div>
+                    <div style="padding: 20px;">
+                        <div class="admin-alert">Maçlara özel tarih/saat atayabilir, hatalı biten maçların skorlarını ezip düzeltebilirsiniz.</div>
+                        <div class="admin-form-group">
+                            <label>Hafta Seçimi</label>
+                            <select class="admin-input">
+                                <option>23. Hafta</option>
+                                <option>24. Hafta</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Maç Seçimi</label>
+                            <select class="admin-input">
+                                <option>Trabzonspor - Sivasspor (Şu an: 19:00)</option>
+                                <option>Göztepe - Alanyaspor (Şu an: 21:45)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- YENİ EKLENEN TEK MAÇ / TÜM HAFTA AYRIMI -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="admin-form-group">
+                                <label>Tarih/Saat</label>
+                                <input type="time" class="admin-input" value="19:00">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; margin-bottom: 16px;">
+                                <button class="action-btn btn-full" style="margin:0;" onclick="alert('Sadece bu maçın saati güncellendi.')">Tek Maça Ata</button>
+                                <button class="action-btn primary-btn btn-full" style="margin:0;" onclick="alert('Bu saat TÜM HAFTA maçlarına uygulandı.')">Tüm Haftaya Uygula</button>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="admin-form-group">
+                                <label>Ev Sahibi Skor</label>
+                                <input type="number" class="admin-input" placeholder="0" min="0">
+                            </div>
+                            <div class="admin-form-group">
+                                <label>Deplasman Skor</label>
+                                <input type="number" class="admin-input" placeholder="0" min="0">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="action-btn primary-btn btn-full" onclick="alert('Skor başarıyla güncellendi.')">Skoru Zorla Kaydet</button>
+                            <button class="action-btn btn-full" style="border-color: var(--rank-gold); color: var(--rank-gold);" onclick="alert('Maç sıfırlandı. Oynanmamış statüsüne alındı.')">Maçı Sıfırla</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- OYUNCU PROFİLİ MODALI -->
+    <div class="player-modal-overlay" id="player-modal" onclick="closePlayerModal()">
+        <div class="player-modal" onclick="event.stopPropagation()">
+            <div class="pm-header">
+                <div><h2 class="pm-name" id="pm-name">Oyuncu Adı</h2><div class="pm-pos" id="pm-pos">Mevki</div></div>
+                <div class="pm-rating-large" id="pm-rating">8.0</div>
+            </div>
+            <div class="pm-body">
+                <div class="pm-stat-row"><span>Hücum</span><div class="pm-stat-bar"><div class="pm-stat-fill" id="pm-att" style="width: 80%;"></div></div><span id="pm-att-val">80</span></div>
+                <div class="pm-stat-row"><span>Savunma</span><div class="pm-stat-bar"><div class="pm-stat-fill" id="pm-def" style="width: 40%; background: #EF4444;"></div></div><span id="pm-def-val">40</span></div>
+                <div class="pm-stat-row"><span>Fizik / Kondisyon</span><div class="pm-stat-bar"><div class="pm-stat-fill" id="pm-phy" style="width: 90%; background: #3B82F6;"></div></div><span id="pm-phy-val">90</span></div>
+                <div class="pm-stat-row" style="margin-top: 20px;"><span style="color: var(--text-muted);">Mevcut Form:</span><span style="font-weight: 800; color: #10B981;" id="pm-form">Mükemmel</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN GİRİŞ MODALI -->
+    <div class="player-modal-overlay" id="admin-login-modal" onclick="closeAdminLogin()">
+        <div class="player-modal" onclick="event.stopPropagation()" style="padding: 30px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 3em; margin-bottom: 10px;">⚡</div>
+                <h2 style="margin: 0; color: var(--theme-primary);">GM Kontrol Merkezi</h2>
+                <p style="color: var(--text-muted); font-size: 0.85em;">Lütfen yönetici şifrenizi giriniz.</p>
+            </div>
+            <div class="admin-form-group">
+                <input type="password" id="admin-pw" class="admin-input" placeholder="Şifre (Varsayılan: admin123)">
+            </div>
+            <button class="action-btn primary-btn btn-full" onclick="verifyAdmin()">Giriş Yap</button>
+            <button class="action-btn btn-full" style="margin-top: 10px; border: none; background: transparent; color: var(--text-muted);" onclick="closeAdminLogin()">İptal</button>
+        </div>
+    </div>
+
+    <script>
+        // --- SEKME GEÇİŞLERİ VE TEMEL FONKSİYONLAR ---
+        function switchNavTab(tabId, el) {
+            document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
+        }
+
+        const lig1Teams = [
+            { name: "Galatasaray", pts: 54, form: ['W','W','W','D','W'] }, { name: "Fenerbahçe", pts: 52, form: ['W','W','D','W','L'] }, 
+            { name: "Beşiktaş JK", pts: 50, form: ['W','D','W','W','W'] }, { name: "Trabzonspor", pts: 42, form: ['L','W','W','D','L'] }, 
+            { name: "Kasımpaşa SK", pts: 35, form: ['W','L','L','W','D'] }, { name: "Göztepe", pts: 33, form: ['D','D','L','W','W'] }
+        ];
+
+        let currentLeague = 1;
+
+        function buildFormBadges(formArray) {
+            return `<div class="form-container">${formArray.map(item => `<div class="form-pill form-${item.toLowerCase()}">${item}</div>`).join('')}</div>`;
+        }
+
+        function renderStandings() {
+            const tbody = document.getElementById('standings-body');
+            document.getElementById('league-title-header').innerText = currentLeague === 1 ? 'Trendyol 1. Lig' : 'Trendyol 2. Lig';
+            tbody.innerHTML = '';
+            
+            lig1Teams.forEach((team, index) => {
+                let rankClass = index === 0 ? 'rank-gold' : index === 1 ? 'rank-blue' : index === 5 ? 'rank-red' : '';
+                tbody.innerHTML += `
+                    <tr class="${rankClass}">
+                        <td>${index+1}</td><td class="team-cell">${team.name}</td>
+                        <td>22</td><td>10</td><td>5</td><td>7</td><td>+5</td><td class="points">${team.pts}</td>
+                        <td>${buildFormBadges(team.form)}</td>
+                    </tr>`;
+            });
+        }
+
+        function toggleLeagueTheme() {
+            document.body.classList.toggle('lig2-theme');
+            currentLeague = document.body.classList.contains('lig2-theme') ? 2 : 1;
+            renderStandings();
+        }
+
+        function openMatchDetail(home, away, hScore, aScore, time, isLive) {
+            document.getElementById('md-home-name').innerText = home;
+            document.getElementById('md-away-name').innerText = away;
+            document.getElementById('md-score').innerText = `${hScore} - ${aScore}`;
+            
+            const statusEl = document.getElementById('md-status');
+            statusEl.innerText = isLive ? `Canlı ${time}'` : time;
+            statusEl.style.color = isLive ? 'var(--theme-primary)' : 'var(--text-muted)';
+
+            const matchTab = document.getElementById('match-nav-link');
+            matchTab.style.display = 'block';
+            switchNavTab('match-detail', matchTab);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchMatchTab(tabId, btn) {
+            document.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.m-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('m-tab-' + tabId).classList.add('active');
+        }
+
+        renderStandings();
+
+        // ==========================================
+        // KADRO & TAKTİK DÜZENLEME SİSTEMİ (FM26)
+        // ==========================================
+
+        let players = [
+            { id: "p1", no: 40, name: "Livaković", pos: "GK", rating: 8.2, att: 15, def: 84, phy: 75, form: "İyi" },
+            { id: "p2", no: 7, name: "Kadıoğlu", pos: "LB", rating: 8.0, att: 78, def: 74, phy: 88, form: "Mükemmel" },
+            { id: "p3", no: 6, name: "Djiku", pos: "CB", rating: 7.9, att: 40, def: 81, phy: 80, form: "Normal" },
+            { id: "p4", no: 50, name: "Becão", pos: "CB", rating: 7.8, att: 35, def: 80, phy: 84, form: "Kötü" },
+            { id: "p5", no: 21, name: "Osayi", pos: "RB", rating: 7.7, att: 70, def: 73, phy: 89, form: "İyi" },
+            { id: "p6", no: 5, name: "Yüksek", pos: "CDM", rating: 7.8, att: 65, def: 80, phy: 85, form: "Mükemmel" },
+            { id: "p7", no: 35, name: "Fred", pos: "CDM", rating: 8.4, att: 76, def: 78, phy: 82, form: "İyi" },
+            { id: "p8", no: 10, name: "Tadić", pos: "CAM", rating: 8.3, att: 84, def: 45, phy: 74, form: "Normal" },
+            { id: "p9", no: 53, name: "Szymański", pos: "LW", rating: 8.1, att: 83, def: 50, phy: 76, form: "Mükemmel" },
+            { id: "p10", no: 17, name: "Kahveci", pos: "RW", rating: 8.0, att: 82, def: 55, phy: 75, form: "İyi" },
+            { id: "p11", no: 9, name: "Džeko", pos: "ST", rating: 8.2, att: 86, def: 30, phy: 70, form: "Kötü" },
+            { id: "p12", no: 70, name: "Eğribayat", pos: "GK", rating: 7.2, att: 10, def: 73, phy: 70, form: "Normal" },
+            { id: "p13", no: 4, name: "S. Aziz", pos: "CB", rating: 7.4, att: 30, def: 76, phy: 78, form: "Kötü" },
+            { id: "p14", no: 26, name: "M. Zajc", pos: "CM", rating: 7.5, att: 72, def: 65, phy: 74, form: "Normal" },
+            { id: "p15", no: 23, name: "Batshuayi", pos: "ST", rating: 7.9, att: 82, def: 35, phy: 76, form: "İyi" }
+        ];
+
+        const formations = {
+            "4-2-3-1": [ {x: 50, y: 90}, {x: 15, y: 70}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 70}, {x: 35, y: 55}, {x: 65, y: 55}, {x: 15, y: 35}, {x: 50, y: 40}, {x: 85, y: 35}, {x: 50, y: 15} ],
+            "4-3-3": [ {x: 50, y: 90}, {x: 15, y: 75}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 75}, {x: 30, y: 55}, {x: 50, y: 60}, {x: 70, y: 55}, {x: 25, y: 25}, {x: 50, y: 15}, {x: 75, y: 25} ],
+            "3-5-2": [ {x: 50, y: 90}, {x: 30, y: 75}, {x: 50, y: 80}, {x: 70, y: 75}, {x: 15, y: 50}, {x: 35, y: 55}, {x: 65, y: 55}, {x: 85, y: 50}, {x: 50, y: 40}, {x: 35, y: 15}, {x: 65, y: 15} ],
+            "4-4-2": [ {x: 50, y: 90}, {x: 15, y: 75}, {x: 35, y: 75}, {x: 65, y: 75}, {x: 85, y: 75}, {x: 15, y: 45}, {x: 35, y: 50}, {x: 65, y: 50}, {x: 85, y: 45}, {x: 35, y: 15}, {x: 65, y: 15} ],
+            "5-3-2": [ {x: 50, y: 90}, {x: 15, y: 65}, {x: 30, y: 75}, {x: 50, y: 80}, {x: 70, y: 75}, {x: 85, y: 65}, {x: 30, y: 45}, {x: 50, y: 50}, {x: 70, y: 45}, {x: 35, y: 15}, {x: 65, y: 15} ]
+        };
+
+        let currentFormation = "4-2-3-1";
+        players.forEach((p, i) => {
+            if (i < 11) { p.status = 'pitch'; p.x = formations[currentFormation][i].x; p.y = formations[currentFormation][i].y; }
+            else { p.status = 'bench'; }
+        });
+
+        function getRatingColor(rating) {
+            if(rating >= 8.0) return '#3B82F6'; 
+            if(rating >= 7.5) return '#10B981'; 
+            if(rating >= 7.0) return '#F59E0B'; 
+            return '#EF4444'; 
+        }
+
+        function renderTactics() {
+            const pitchContainer = document.getElementById('pitch-players-container');
+            const benchContainer = document.getElementById('t-roster-list');
+            
+            pitchContainer.innerHTML = '';
+            benchContainer.innerHTML = '';
+
+            players.forEach(p => {
+                const ratingColor = getRatingColor(p.rating);
+
+                if (p.status === 'pitch') {
+                    pitchContainer.innerHTML += `
+                        <div class="t-player" data-id="${p.id}" style="left: ${p.x}%; top: ${p.y}%;" draggable="true" ondragstart="handleDragStart(event)" onclick="openPlayerModal('${p.name}', '${p.pos}', ${p.rating}, ${p.att}, ${p.def}, ${p.phy}, '${p.form}')">
+                            <div class="p-avatar">${p.no}</div>
+                            <div class="p-rating-badge" style="background: ${ratingColor};">${p.rating.toFixed(1)}</div>
+                            <div class="p-name">${p.name}</div>
+                        </div>`;
+                } else {
+                    benchContainer.innerHTML += `
+                        <div class="t-roster-item" data-id="${p.id}" draggable="true" ondragstart="handleDragStart(event)">
+                            <div class="t-roster-info">
+                                <span class="t-roster-pos">${p.pos}</span>
+                                <span style="font-size: 1.1em;">${p.name} <span style="color:var(--text-muted); font-size:0.8em;">#${p.no}</span></span>
+                            </div>
+                            <div class="t-roster-rating" style="background: ${ratingColor}; color: #000;">${p.rating.toFixed(1)}</div>
+                        </div>`;
+                }
+            });
+        }
+
+        function cycleTactic(el, options) {
+            const valueDiv = el.querySelector('.fm-tactic-value');
+            let current = valueDiv.innerText;
+            let idx = options.indexOf(current);
+            valueDiv.innerText = options[(idx + 1) % options.length];
+        }
+
+        function switchTacticTab(group) {
+            document.querySelectorAll('.fm-tactics-grid').forEach(g => g.style.display = 'none');
+            document.getElementById('t-grid-' + group).style.display = 'grid';
+            
+            document.querySelectorAll('.fm-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.fm-tab-btn[data-target="${group}"]`).classList.add('active');
+        }
+
+        function changeFormation(val) {
+            if (val === 'custom') return; 
+            const pitchPlayers = players.filter(p => p.status === 'pitch');
+            const preset = formations[val];
+            
+            if (preset && pitchPlayers.length <= preset.length) {
+                pitchPlayers.forEach((p, i) => { p.x = preset[i].x; p.y = preset[i].y; });
+                renderTactics();
+            }
+        }
+
+        let draggedId = null;
+
+        function handleDragStart(e) {
+            draggedId = e.target.closest('[data-id]').getAttribute('data-id');
+            e.dataTransfer.effectAllowed = "move";
+        }
+
+        function allowDrop(e) { e.preventDefault(); }
+
+        function handlePitchDrop(e) {
+            e.preventDefault();
+            const targetPlayerEl = e.target.closest('.t-player');
+
+            if (targetPlayerEl && targetPlayerEl.getAttribute('data-id') !== draggedId) {
+                swapPlayers(draggedId, targetPlayerEl.getAttribute('data-id'));
+            } else {
+                const pitchRect = document.getElementById('t-pitch').getBoundingClientRect();
+                let newX = ((e.clientX - pitchRect.left) / pitchRect.width) * 100;
+                let newY = ((e.clientY - pitchRect.top) / pitchRect.height) * 100;
+                
+                newX = Math.max(5, Math.min(95, newX));
+                newY = Math.max(5, Math.min(95, newY));
+
+                const p1 = players.find(p => p.id === draggedId);
+                
+                if (p1.status === 'bench') {
+                    const firstPitchPlayer = players.find(p => p.status === 'pitch');
+                    if (firstPitchPlayer) firstPitchPlayer.status = 'bench';
+                }
+
+                p1.status = 'pitch';
+                p1.x = newX; p1.y = newY;
+                
+                document.getElementById('formation-select').value = 'custom';
+                renderTactics();
+            }
+        }
+
+        function handleBenchDrop(e) {
+            e.preventDefault();
+            const p1 = players.find(p => p.id === draggedId);
+            
+            if (p1.status === 'pitch') {
+                const firstBenchPlayer = players.find(p => p.status === 'bench');
+                if (firstBenchPlayer) {
+                    firstBenchPlayer.status = 'pitch';
+                    firstBenchPlayer.x = p1.x; firstBenchPlayer.y = p1.y;
+                }
+            }
+            p1.status = 'bench';
+            renderTactics();
+        }
+
+        function swapPlayers(id1, id2) {
+            const p1 = players.find(p => p.id === id1);
+            const p2 = players.find(p => p.id === id2);
+
+            if (p1.status === 'bench' && p2.status === 'pitch') {
+                p1.status = 'pitch'; p1.x = p2.x; p1.y = p2.y; p2.status = 'bench';
+            } else if (p1.status === 'pitch' && p2.status === 'bench') {
+                p2.status = 'pitch'; p2.x = p1.x; p2.y = p1.y; p1.status = 'bench';
+            } else if (p1.status === 'pitch' && p2.status === 'pitch') {
+                const tempX = p1.x; const tempY = p1.y;
+                p1.x = p2.x; p1.y = p2.y;
+                p2.x = tempX; p2.y = tempY;
+            }
+            renderTactics();
+        }
+
+        function openPlayerModal(name, pos, rating, att, def, phy, form) {
+            document.getElementById('pm-name').innerText = name;
+            document.getElementById('pm-pos').innerText = pos;
+            document.getElementById('pm-rating').innerText = rating.toFixed(1);
+            document.getElementById('pm-att').style.width = att + '%'; document.getElementById('pm-att-val').innerText = att;
+            document.getElementById('pm-def').style.width = def + '%'; document.getElementById('pm-def-val').innerText = def;
+            document.getElementById('pm-phy').style.width = phy + '%'; document.getElementById('pm-phy-val').innerText = phy;
+            
+            const formEl = document.getElementById('pm-form'); formEl.innerText = form;
+            formEl.style.color = form === 'Kötü' ? '#EF4444' : form === 'Normal' ? '#F59E0B' : '#10B981';
+            document.getElementById('player-modal').classList.add('active');
+        }
+
+        function closePlayerModal() { document.getElementById('player-modal').classList.remove('active'); }
+
+        renderTactics();
+
+        // ==========================================
+        // ADMIN PANEL MANTIĞI
+        // ==========================================
+        function openAdminLogin() {
+            document.getElementById('admin-login-modal').classList.add('active');
+            document.getElementById('admin-pw').value = '';
+            document.getElementById('admin-pw').focus();
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('admin-login-modal').classList.remove('active');
+        }
+
+        function verifyAdmin() {
+            const pw = document.getElementById('admin-pw').value;
+            if (pw === 'admin123') {
+                closeAdminLogin();
+                const adminTab = document.getElementById('admin-nav-link');
+                adminTab.style.display = 'block';
+                switchNavTab('admin', adminTab);
+            } else {
+                alert('Hatalı Şifre!');
+            }
+        }
+
+        // YENİ EKLENEN: Menajer tipine göre giriş alanlarını gizle/göster
+        function toggleManagerFields() {
+            const type = document.getElementById('manager-type').value;
+            document.getElementById('manager-pw-group').style.display = type === 'user' ? 'flex' : 'none';
+            document.getElementById('manager-char-group').style.display = type === 'bot' ? 'flex' : 'none';
+        }
+
+    </script>
+</body>
+</html>
